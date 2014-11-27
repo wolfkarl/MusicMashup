@@ -1,0 +1,162 @@
+@base <http://dbpedia.org/resource/>.
+@prefix dbpedia-owl: <http://dbpedia.org/ontology/> .
+@prefix dbpprop:	<http://dbpedia.org/property/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix	dbtune: <http://dbtune.org/musicbrainz/resource/>.
+@prefix musicbrainz: <http://musicbrainz.org/artist/>.
+
+
+# http://dbtune.org/musicbrainz/snorql/
+#	SELECT ?s WHERE {
+# 		?s rdfs:label "Queens of the Stone Age"
+#	}
+#  Diese Query gibt von einem Input die dbtune Ressource
+dbtune:artist/7dc8f5bd-9d0b-4087-9f73-dc164950bbd8 	
+
+							mo:musicbrainz						<http://musicbrainz.org/artist/7dc8f5bd-9d0b-4087-9f73-dc164950bbd8>;
+							.
+
+#achtung pseudocode
+musicbrainz:Queents_of_the_Stone_Age	
+							member
+							discogs
+
+:Queents_of_the_Stone_Age	dbpedia-owl:abstract				"Queens of the Stone Age is an American rock band from Palm Desert, California, United States, formed in 1996. The band's line-up includes founder Josh Homme (lead vocals, guitar, piano), alongside longtime members Troy Van Leeuwen (guitar, lap steel, keyboard, percussion, backing vocals), Michael Shuman (bass guitar, keyboard, backing vocals), Dean Fertita (keyboards, guitar, percussion, backing vocals), and recent addition Jon Theodore (drums, percussion).Formed after the dissolution of Homme's previous band, Kyuss, Queens of the Stone Age developed a style of riff-oriented, heavy rock music. Their sound has since evolved to incorporate a variety of different styles and influences, including working with ZZ Top member Billy Gibbons and steady contributor Mark Lanegan." ^^xsd:string;
+							dbpedia-owl:thumbnail				<http://commons.wikimedia.org/wiki/Special:FilePath/QOTSA_mg_5853.jpg?width=300>;
+							dbpprop:caption						"Left to right: Josh Homme, Dean Fertita and Michael Shuman performing at the Eurockéennes festival, July 2007"^^xsd:string;
+							dbpprop:associatedActs				
+								:Them_Crooked_Vultures,
+								:Sweethead,
+								:The_Desert_Sessions,
+								:Kyuss,
+								:Eagles_of_Death_Metal,
+								:The_Dead_Weather,
+								:Mondo_Generator,
+								:Fififf_Teeners;
+							dbpprop:currentMembers				
+								:Josh_Homme,
+								:Troy_Van_Leeuwen,
+								:Michael_Shuman,
+								:Jon_Theodore,
+								:Dean_Fertita;
+							dbpedia-owl:associatedMusicalArtist 
+								:Sound_City_Players,
+								:Barrett_Martin,
+								:Jesse_Hughes_(musician),
+								:Them_Crooked_Vultures,
+								:Sweethead,
+								:Mike_Johnson_(bassist),
+								:Dave_Grohl,
+								:We_Fell_to_Earth,
+								:Alain_Johannes,
+								:Zilch_(band),
+								:Dave_Catching,
+								:Josh_Homme,
+								:Nick_Oliveri,
+								:Mark_Lanegan,
+								:The_Desert_Sessions,
+								:Mini_Mansions,
+								:Trent_Reznor,
+								:Dwarves_(band),
+								:Kyuss,
+								:The_Strokes,
+								:Eagles_of_Death_Metal,
+								:Enemy_(band),
+								:Joey_Castillo,
+								:Masters_of_Reality,
+								:Roxy_Saint,
+								:Casey_Chaos,
+								:Screaming_Trees,
+								:Unkle,
+								:Julian_Casablancas,
+								:Brody_Dalle,
+								:Alex_Turner_(musician),
+								:Troy_Van_Leeuwen,
+								:Goon_Moon,
+								:Chris_Goss,
+								:Wellwater_Conspiracy,
+								:Creature_with_the_Atom_Brain,
+								:Liam_Lynch_(musician),
+								:Michael_Shuman,
+								:Paz_Lenchantin,
+								:Peter_Stahl,
+								:Alfredo_Hernández,
+								:Molly_McGuire,
+								:Aaron_North,
+								:Yawning_Man,
+								:The_Dead_Weather,
+								:Billy_Gibbons,
+								:Mondo_Generator,
+								:Snake_River_Conspiracy,
+								:Natasha_Shneider,
+								:Fififf_Teeners,
+								:Jon_Theodore,
+								:Vista_Chino,
+								:Sugartooth,
+								:Dean_Fertita,
+								:Dain_Bramage,
+								:Failure_(band),
+								:Hutch_(sound_engineer),
+								:Wasted_Youth_(American_band),
+								:Spinnerette,
+								:The_Waxwings,
+								:Wendy_Rae_Fowler,
+								:Matt_Cameron,
+								:Eleven_(band),
+								:One_Day_as_a_Lion,
+								:The_Wondergirls;
+							dbpprop:associatedActs 				:Sound_City_Players,
+								:Barrett_Martin,
+								:Jesse_Hughes_(musician),
+								:Them_Crooked_Vultures,
+								:Sweethead,
+								:Dave_Grohl,
+								:We_Fell_to_Earth,
+								:Alain_Johannes,
+								:Zilch_(band),
+								:Josh_Homme,
+								:Mark_Lanegan,
+								:Mini_Mansions,
+								:Dwarves_(band),
+								:Kyuss,
+								:The_Strokes,
+								:Eagles_of_Death_Metal,
+								:Enemy_(band),
+								:Joey_Castillo,
+								:Masters_of_Reality,
+								:Roxy_Saint,
+								:Casey_Chaos,
+								:Julian_Casablancas,
+								:Alex_Turner_(musician),
+								:Troy_Van_Leeuwen,
+								:Goon_Moon,
+								:Chris_Goss,
+								:Wellwater_Conspiracy,
+								:Creature_with_the_Atom_Brain,
+								:Liam_Lynch_(musician),
+								:Michael_Shuman,
+								:Peter_Stahl,
+								:Alfredo_Hernández,
+								:Molly_McGuire,
+								:Aaron_North,
+								:The_Dead_Weather,
+								:Billy_Gibbons,
+								:Snake_River_Conspiracy,
+								:Fififf_Teeners,
+								:Vista_Chino,
+								:Sugartooth,
+								:Dean_Fertita,
+								:Dain_Bramage,
+								:Failure_(band),
+								:Hutch_(sound_engineer),
+								:Wasted_Youth_(American_band),
+								:Spinnerette,
+								:The_Waxwings,
+								:Wendy_Rae_Fowler,
+								:Matt_Cameron,
+								:One_Day_as_a_Lion,
+								:The_Wondergirls;
+							dbpprop:pastMembers 
+								:Paul_Avion
+    							:Par_Avion_(band)
+

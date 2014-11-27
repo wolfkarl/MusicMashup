@@ -24,8 +24,9 @@ def getAssociatedBands(url):
 	sparql.setReturnFormat(JSON)
 	results = sparql.query().convert()
 
-	for result in results["results"]["bindings"]:
-	    print result["associatedBand"]["value"]
+	# for result in results["results"]["bindings"]:
+	#     print result["associatedBand"]["value"]
+	return results
 
 
 
@@ -47,5 +48,5 @@ def getAssociatedBands(url):
 # for stmt in g.subject_objects(URIRef("http://dbpedia.org/ontology/associatedBand")):
 #      print stmt
 qotsa = "http://dbpedia.org/resource/Queens_of_the_Stone_Age"
-getAssociatedBands(qotsa)
+gotsaRelatedArtits = getAssociatedBands(qotsa)
 

@@ -1,0 +1,17 @@
+rdf syntax/turtle syntax
+was für eine band am ende herauskommt
+
+auch same_as beziehung aus dbpedia beispielsweise
+
+konkret ausmodelliert in turtle/rdf mit einer band was wo wie verknüpft wird. 
+
+bandname dbpedia, dbpedia andere bands 
+
+
+3 person, grafik
+
+
+screenshot + beispiel in turtle einer band inkl links zu Ressourcen.
+
+
+mails hauptsache an markus und christian
