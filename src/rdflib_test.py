@@ -7,7 +7,7 @@ print("graph has %s statements." % len(g))
 # prints graph has 79 statements.
 
 for stmt in g.subject_objects(rdflib.URIRef("http://dbpedia.org/ontology/abstract")):
-    print stmt
+    print stmt[1]
 
 
 # purgatory
