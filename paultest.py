@@ -21,7 +21,7 @@ def getAssociatedBands(url):
 	      <"""+url+"""> dbpedia-owl:associatedBand ?associatedBand .
 	    }
 	""")
-	sparql.setReturnFormat(JSON)
+	sparql.setReturnFormat(TURTLE)
 	results = sparql.query().convert()
 
 	# for result in results["results"]["bindings"]:
