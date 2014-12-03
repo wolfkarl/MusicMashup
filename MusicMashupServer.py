@@ -1,22 +1,27 @@
 import cherrypy
 import os
 from MusicMashup import MusicMashup
+from mako.template import Template
+from mako.lookup import TemplateLookup
 
 class MusicMashupServer(object):
 
 	def __init__(self):
+		# locate templates
 		pass
+
 
 	@cherrypy.expose # wird von cherrypy auf eine URL gemappt
 	def index(self, query="Alexander Marcus Experience"):
 
 		# create musicmashup object based on query:
 		self.mm = MusicMashup(query)
+		lookup = TemplateLookup(directories=['html'])
+		tmpl = lookup.get_template("main.htm")
+		return tmpl.render(query = query, desc=self.mm.description())
 
-		text = "<h1>Music Mashup: " + self.mm.query + "</h1>"
-		text += "<p>" + self.mm.description() + "</p>"
-		return text
 
+# End of class
 
 if __name__ == '__main__':
 	print ("[~] Initializing...")

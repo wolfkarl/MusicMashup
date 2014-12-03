@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" href="../../favicon.ico">
+
+  <title>Music Mashup: ${query}</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="static/mashup.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <header class="navbar-inverse" role="banner">
+    <div class="container">
+      <nav role="navigation">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">MusicRecommenderMashup</a>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li><a href="#">Test</a></li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+
+<div class="row">
+  <div class="col-md-12"><h1>Music Mashup: ${query}</h1>
+    <br>
+    <form role="form">
+      <div class="form-group">
+        <label for="artistSearch">Search</label>
+        <input type="search" class="form-control" id="artistSearch" placeholder="Enter artist/band/song here">
+      </div>
+    </form>
+    <h2>Results for <em>${query}</em>:</h2>
+    
+<div class="row">
+
+<div class="col-md-8"><h3>General Information</h3>
+    
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Abstract (from dbpedia)</h3>
+      </div>
+    
+      <div class="panel-body">
+        <p>${desc}</p>
+      </div>
+    </div>
+    
+    <h3>Recommendations</h3>
+    
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">recommended bands by band members</h3>
+      </div>
+      <div class="panel-body">
+        Bon Scott, who has been a member of AC/DC, has also been a member of 'The Valentines'.
+      </div>
+    </div> </div>
+  
+ <div class="col-md-4">
+    <h3>Music</h3>
+   
+   <div class="panel panel-default">
+     <div class="panel-heading">
+       <iframe src="https://embed.spotify.com/?uri=spotify:track:4th1RQAelzqgY7wL53UGQt" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
+     </div>
+   </div>     
+   
+   <h3>Gigs</h3>
+   
+   <div class="panel panel-default">
+     <div class="panel-heading">
+       <h3 class="panel-title">GoogleMaps(?)</h3>
+     </div>
+     <div class="panel-body">
+       In the near future AC/DC will play gigs at the following locations
+       <ul>
+         <li>Location1 (search for other bands, that played here)</li>
+         <li>Location2 (search for other bands, that played here)</li>
+         <li>Location3 (search for other bands, that played here)</li>
+       </ul>
+     </div>
+   </div> </div>
+ </div>
+
+
+      </div>
+</div>
+  </div>
+
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+  </body>
+  </html>
