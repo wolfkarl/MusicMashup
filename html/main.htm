@@ -46,10 +46,11 @@
 <div class="row">
   <div class="col-md-12"><h1>Music Mashup: ${query}</h1>
     <br>
-    <form role="form">
+    <form role="form" method="get" action="/">
       <div class="form-group">
         <label for="artistSearch">Search</label>
-        <input type="search" class="form-control" id="artistSearch" placeholder="Enter artist/band/song here">
+        <input type="search" name="query" class="form-control" id="artistSearch" placeholder="Enter artist/band/song here">
+        <input type="submit" value="Suchen" class="btn btn-submit">
       </div>
     </form>
     <h2>Results for <em>${query}</em>:</h2>
