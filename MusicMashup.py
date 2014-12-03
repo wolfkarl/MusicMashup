@@ -6,3 +6,6 @@ class MusicMashup:
 
 	def description(self):
 		return self.query + " is a post-progressive powerviolence core supergroup with massive destruction elements."
+
+	def upcoming_tours(self):
+		pass
