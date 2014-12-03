@@ -40,9 +40,32 @@ results = sparql.query().convert()
 # 	print result["p"]["value"] +" - "+ result["o"]["value"]
 
 dbpediaUrl = 0
+musicbrainzID = 0
 
 for result in results["results"]["bindings"]:
 	if "dbpedia.org/resource" in result["o"]["value"]:
 		dbpediaUrl = result["o"]["value"]
+	if "musicbrainz.org" in result["o"]["value"]:
+		musicbrainzID = result["o"]["value"]
+
 
 print dbpediaUrl
+print musicbrainzID
+
+sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+sparql.setQuery("""
+	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+	PREFIX mo: <http://purl.org/ontology/mo/>
+
+    SELECT ?p ?o
+    WHERE { 
+    	<"""+dbpediaUrl+"""> ?p ?o .
+    }
+""")
+
+sparql.setReturnFormat(JSON)
+results = sparql.query().convert()
+
+for result in results["results"]["bindings"]:
+	print result["p"]["value"] +" - "+ result["o"]["value"]
