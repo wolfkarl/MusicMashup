@@ -20,7 +20,7 @@ url = 0
 for result in results["results"]["bindings"]:
     url = result["s"]["value"]
 
-# print url
+print url
 
 sparql.setQuery("""
 	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -35,14 +35,7 @@ sparql.setQuery("""
 
 sparql.setReturnFormat(JSON)
 results = sparql.query().convert()
+print results
 
 # for result in results["results"]["bindings"]:
 # 	print result["p"]["value"] +" - "+ result["o"]["value"]
-
-dbpediaUrl = 0
-
-for result in results["results"]["bindings"]:
-	if "dbpedia.org/resource" in result["o"]["value"]:
-		dbpediaUrl = result["o"]["value"]
-
-print dbpediaUrl
