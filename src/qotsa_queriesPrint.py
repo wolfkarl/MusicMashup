@@ -1,3 +1,4 @@
+import json
 from SPARQLWrapper import SPARQLWrapper, JSON
 
 sparql = SPARQLWrapper("http://dbtune.org/musicbrainz/sparql")
@@ -35,6 +36,9 @@ sparql.setQuery("""
 
 sparql.setReturnFormat(JSON)
 results = sparql.query().convert()
+print results
 
-for result in results["results"]["bindings"]:
-	print result["p"]["value"] +" - "+ result["o"]["value"]
+with open('results.json', 'w') as outfile:
+  json.dump(results, outfile)
+# for result in results["results"]["bindings"]:
+# 	print result["p"]["value"] +" - "+ result["o"]["value"]
