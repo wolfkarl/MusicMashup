@@ -12,13 +12,13 @@ class MusicMashupServer(object):
 
 
 	@cherrypy.expose # wird von cherrypy auf eine URL gemappt
-	def index(self, query="Alexander Marcus Experience"):
+	def index(self, query="Queens of the Stone Age"):
 
 		# create musicmashup object based on query:
 		self.mm = MusicMashup(query)
 		lookup = TemplateLookup(directories=['html'])
 		tmpl = lookup.get_template("main.htm")
-		return tmpl.render(query = query, desc=self.mm.description())
+		return tmpl.render(query = query, desc=self.mm.get_abstract())
 
 
 # End of class
