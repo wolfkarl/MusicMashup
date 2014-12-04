@@ -1,5 +1,7 @@
 from SPARQLWrapper import SPARQLWrapper, JSON
 
+input = "Queens of the Stone Age"
+
 sparql = SPARQLWrapper("http://dbtune.org/musicbrainz/sparql")
 sparql.setQuery("""
 	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -8,14 +10,14 @@ sparql.setQuery("""
 
     SELECT ?s
     WHERE { 
-      ?s rdfs:label "Queens of the Stone Age" .
+      ?s rdfs:label \""""+input+"""\" .
       ?s rdf:type mo:MusicArtist .
     }
 """)
 sparql.setReturnFormat(JSON)
 results = sparql.query().convert()
 
-url = 0
+url = None
 
 for result in results["results"]["bindings"]:
     url = result["s"]["value"]
@@ -39,8 +41,8 @@ results = sparql.query().convert()
 # for result in results["results"]["bindings"]:
 # 	print result["p"]["value"] +" - "+ result["o"]["value"]
 
-dbpediaUrl = 0
-musicbrainzID = 0
+dbpediaUrl = None
+musicbrainzID = None
 
 for result in results["results"]["bindings"]:
 	if "dbpedia.org/resource" in result["o"]["value"]:
