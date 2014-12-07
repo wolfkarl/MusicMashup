@@ -76,7 +76,12 @@
         <h3 class="panel-title">recommended bands by band members</h3>
       </div>
       <div class="panel-body">
-        Bon Scott, who has been a member of AC/DC, has also been a member of 'The Valentines'.
+
+% for r in artist.get_related():
+          <h4><a href="/?query=${r.get_name()}">${r.get_name()}</a> <small>(${r.get_reco()})</small></h4>
+          <p>${r.get_abstract_excerpt()}</p>
+% endfor
+
       </div>
     </div> </div>
   
@@ -97,11 +102,7 @@
      </div>
      <div class="panel-body">
        In the near future AC/DC will play gigs at the following locations
-       <ul>
-         <li>Location1 (search for other bands, that played here)</li>
-         <li>Location2 (search for other bands, that played here)</li>
-         <li>Location3 (search for other bands, that played here)</li>
-       </ul>
+
      </div>
    </div> </div>
  </div>
