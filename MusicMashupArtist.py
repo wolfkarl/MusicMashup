@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-### Irgendein Zeichen hat hier einen "not-ASCII-Eror" versucht, aber keine Ahnung welcher
-""" Hauptklasse, wird erzeugt fuer jede Suchanfrage und stellt dann die Informationen ueber verschiedene Subklassen bereit """
+""" Repraesentiert einen Artist und alle dazugehoerigen Informationen. 
+
+	Attribute werden immer ueber einen Getter angesprochen, beim ersten Aufruf wird ueber RDF gefetched. """
 from SPARQLWrapper import SPARQLWrapper, JSON
 
-class MusicMashup:
+class MusicMashupArtist:
 
 # Imports
 
@@ -14,20 +15,31 @@ class MusicMashup:
 
 	dbpediaURL = None
 	dbtuneURL = None
+	abstract = None
+
 
 	def __init__(self, query):
-		self.query = query
-		self.find_resources(query)
+		self.name = query
+		self._find_resources(query)
 
-	def description(self):
-		return self.query + " "
 
-	def upcoming_tours(self):
+	# Getter
+
+	def get_name(self):
+		return self.name
+
+	def get_abstract(self):
+		if not self.abstract:
+			print("[+] Pulling abstract")
+			self.abstract = self._pull_abstract()
+		return self.abstract
+
+	def get_upcoming_tours(self):
 		pass
 
-# find_resources sucht bei DBTunes nach der entsprechenden Ressource und speichert diese (siehe globvars)
+	# find_resources sucht bei DBTunes nach der entsprechenden Ressource und speichert diese (siehe globvars)
 
-	def find_resources(self, input):
+	def _find_resources(self, input):
 
 		global dbpediaURL, dbtuneURL
 
@@ -68,8 +80,7 @@ class MusicMashup:
 
 		return dbpediaURL
 
-	def get_abstract(self):
-
+	def _pull_abstract(self):
 		global dbpediaURL, dbtuneURL
 
 		sparql = SPARQLWrapper("http://dbpedia.org/sparql")
@@ -93,7 +104,11 @@ class MusicMashup:
 
 		return abstract
 
-		
 
 
-
+# run from console for test setup
+if __name__ == '__main__':
+	test = MusicMashupArtist("Queens of the Stone Age")
+	print(test.get_name())
+	print(test.get_abstract())
+	print(test.get_abstract())

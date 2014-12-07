@@ -1,13 +1,12 @@
 import cherrypy
 import os
-from MusicMashup import MusicMashup
+from MusicMashupArtist import MusicMashupArtist
 from mako.template import Template
 from mako.lookup import TemplateLookup
 
 class MusicMashupServer(object):
 
 	def __init__(self):
-		# locate templates
 		pass
 
 
@@ -15,10 +14,10 @@ class MusicMashupServer(object):
 	def index(self, query="Queens of the Stone Age"):
 
 		# create musicmashup object based on query:
-		self.mm = MusicMashup(query)
+		self.artist = MusicMashupArtist(query)
 		lookup = TemplateLookup(directories=['html'])
 		tmpl = lookup.get_template("main.htm")
-		return tmpl.render(query = query, desc=self.mm.get_abstract())
+		return tmpl.render(query = query, abstract=self.artist.abstract)
 
 
 # End of class
