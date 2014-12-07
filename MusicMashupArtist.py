@@ -11,13 +11,14 @@ class MusicMashupArtist:
 
 	dbpediaURL = None
 	dbtuneURL = None
-	related = []
 
 
-	def __init__(self, query):
+	def __init__(self, query, reco = ""):
 		self.name = query
 		self._find_resources(query)
 		self.abstract = ""
+		self.related = []
+		self.reco = reco
 
 
 	# Getter (rufen puller auf falls noch nicht geschehen; spart Resourcen wenn nicht alles gebraucht wird)
@@ -31,6 +32,10 @@ class MusicMashupArtist:
 			self.abstract = self._pull_abstract()
 		return self.abstract
 
+	def get_abstract_excerpt(self, len=100):
+		a =  self.get_abstract()
+		return a[:len]+"..."
+
 	def get_upcoming_tours(self):
 		pass
 
@@ -39,9 +44,12 @@ class MusicMashupArtist:
 		return "spotify:track:4th1RQAelzqgY7wL53UGQt" #avicii
 
 	def get_related(self):
-		if self.related.empty:
-			self.related = self._pull_related
+		if not self.related:
+			self.related = self._pull_related()
 		return self.related
+
+	def get_reco(self):
+		return self.reco
 
 
 	# find_resources sucht bei DBTunes nach der entsprechenden Ressource und speichert diese (siehe globvars)
@@ -112,9 +120,10 @@ class MusicMashupArtist:
 
 	def _pull_related(self):
 		#hardcore
-		self.related.append(MusicMashupArtist("Helene Fischer"))
-		self.related.append(MusicMashupArtist("Deep Twelve"))
-		self.related.append(MusicMashupArtist("John Scofield"))
+		self.related.append(MusicMashupArtist("Helene Fischer", "Because both are on Universal Label"))
+		self.related.append(MusicMashupArtist("Deep Twelve", "Because both bands have <a href='#'>Marvin Gay</a> play Bass"))
+		self.related.append(MusicMashupArtist("John Scofield", "Because both were produced by Josh Homme"))
+		return self.related
 
 
 # run from console for test setup
@@ -123,3 +132,7 @@ if __name__ == '__main__':
 	print(test.get_name())
 	print(test.get_abstract())
 	print(test.get_abstract())
+	blubb = test.get_related()
+	print(blubb)
+	for r in blubb:
+		print(" + "+r.get_name())

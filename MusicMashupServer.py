@@ -23,7 +23,7 @@ class MusicMashupServer(object):
 		# 		abstract	= self.artist.get_abstract(),
 		# 		spotify_uri	= self.artist.get_spotify_uri()
 		# 		)
-
+ 
 
 
 # End of class
