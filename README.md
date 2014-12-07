@@ -10,7 +10,7 @@ MusicMashup presents itself as an online dashboard. You start out by selecting a
  * **Discography** (from DBpedia)
  * **Band Members** (from DBpedia)
  * **Homepage** (from DBpedia)
- * **Upcoming Gigs** (from ???)
+ * **Upcoming Gigs** (from Songkick)
 
 At the same time, MusicMashup analyses people involved in that band (members, producers..) as well as genres to find similar bands and artists and presents a list of related artists ordered by relevance. The list contains some short information about these bands as well as why they were selected.
 
