@@ -6,36 +6,43 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 
 class MusicMashupArtist:
 
-# Imports
-
-
-
-# Globale Variablen
-# erlaubt das halten von URLs etc. über einzelne Funktionen hinaus
+	# Globale Variablen
+	# erlaubt das halten von URLs etc. über einzelne Funktionen hinaus
 
 	dbpediaURL = None
 	dbtuneURL = None
-	abstract = None
+	related = []
 
 
 	def __init__(self, query):
 		self.name = query
 		self._find_resources(query)
+		self.abstract = ""
 
 
-	# Getter
+	# Getter (rufen puller auf falls noch nicht geschehen; spart Resourcen wenn nicht alles gebraucht wird)
 
 	def get_name(self):
 		return self.name
 
 	def get_abstract(self):
 		if not self.abstract:
-			print("[+] Pulling abstract")
+			print("[~] Pulling abstract")
 			self.abstract = self._pull_abstract()
 		return self.abstract
 
 	def get_upcoming_tours(self):
 		pass
+
+	def get_spotify_uri(self):
+		#hardcode
+		return "spotify:track:4th1RQAelzqgY7wL53UGQt" #avicii
+
+	def get_related(self):
+		if self.related.empty:
+			self.related = self._pull_related
+		return self.related
+
 
 	# find_resources sucht bei DBTunes nach der entsprechenden Ressource und speichert diese (siehe globvars)
 
@@ -94,16 +101,20 @@ class MusicMashupArtist:
 			}
 			""")
 
+
 		sparql.setReturnFormat(JSON)
 		results = sparql.query().convert()
-
-		abstract = None
 
 		for result in results["results"]["bindings"]:
 			abstract = result["o"]["value"]
 
 		return abstract
 
+	def _pull_related(self):
+		#hardcore
+		self.related.append(MusicMashupArtist("Helene Fischer"))
+		self.related.append(MusicMashupArtist("Deep Twelve"))
+		self.related.append(MusicMashupArtist("John Scofield"))
 
 
 # run from console for test setup

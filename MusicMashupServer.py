@@ -17,7 +17,13 @@ class MusicMashupServer(object):
 		self.artist = MusicMashupArtist(query)
 		lookup = TemplateLookup(directories=['html'])
 		tmpl = lookup.get_template("main.htm")
-		return tmpl.render(query = query, abstract=self.artist.abstract)
+		return tmpl.render(artist=self.artist)		
+		# return tmpl.render(
+		# 		query 		= self.artist.get_name(), 
+		# 		abstract	= self.artist.get_abstract(),
+		# 		spotify_uri	= self.artist.get_spotify_uri()
+		# 		)
+
 
 
 # End of class
