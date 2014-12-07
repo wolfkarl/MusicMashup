@@ -4,6 +4,10 @@
 	Attribute werden immer ueber einen Getter angesprochen, beim ersten Aufruf wird ueber RDF gefetched. """
 from SPARQLWrapper import SPARQLWrapper, JSON
 
+from pyechonest import config
+config.ECHO_NEST_API_KEY="GZVL1ZHR0GIYXJZXG"
+from pyechonest import artist
+
 class MusicMashupArtist:
 
 	# Globale Variablen
@@ -11,6 +15,10 @@ class MusicMashupArtist:
 
 	dbpediaURL = None
 	dbtuneURL = None
+	musicbrainzID = None
+	echoNestArtist = None
+	spotifyID = None
+	songkickID = None
 	related = []
 
 
@@ -18,6 +26,10 @@ class MusicMashupArtist:
 		self.name = query
 		self._find_resources(query)
 		self.abstract = ""
+		self.musicbrainzID = self._pull_musicbrainz_id(self.dbtuneURL)
+		self.echoNestArtist = self._pull_echonext_artist(self.musicbrainzID)
+		self.spotifyID = self._pull_spotify_id(self.echoNestArtist)
+		self.songkickID = self._pull_songkick_id(self.echoNestArtist)
 
 
 	# Getter (rufen puller auf falls noch nicht geschehen; spart Resourcen wenn nicht alles gebraucht wird)
@@ -36,7 +48,11 @@ class MusicMashupArtist:
 
 	def get_spotify_uri(self):
 		#hardcode
-		return "spotify:track:4th1RQAelzqgY7wL53UGQt" #avicii
+		# return "spotify:track:4th1RQAelzqgY7wL53UGQt" #avicii
+		# if not self.spotifyID
+		# 	print("[~] Pulling Spotify ID")
+		# 	self.spotifyID = self.
+		return self.spotifyID
 
 	def get_related(self):
 		if self.related.empty:
@@ -48,7 +64,7 @@ class MusicMashupArtist:
 
 	def _find_resources(self, input):
 
-		global dbpediaURL, dbtuneURL
+		# global dbpediaURL, dbtuneURL
 
 		sparql = SPARQLWrapper("http://dbtune.org/musicbrainz/sparql")
 		sparql.setQuery("""
@@ -67,14 +83,14 @@ class MusicMashupArtist:
 		results = sparql.query().convert()
 
 		for result in results["results"]["bindings"]:
-			dbtuneURL = result["s"]["value"]
+			self.dbtuneURL = result["s"]["value"]
 
 		sparql.setQuery("""
 			PREFIX owl: <http://www.w3.org/2002/07/owl#>
 
 			SELECT ?o
 			WHERE {
-			<"""+dbtuneURL+"""> owl:sameAs ?o .
+			<"""+self.dbtuneURL+"""> owl:sameAs ?o .
 			}
 			""")
 
@@ -83,12 +99,12 @@ class MusicMashupArtist:
 
 		for result in results["results"]["bindings"]:
 			if "dbpedia.org/resource" in result["o"]["value"]:
-				dbpediaURL = result["o"]["value"]
+				self.dbpediaURL = result["o"]["value"]
 
-		return dbpediaURL
+		return self.dbpediaURL
 
 	def _pull_abstract(self):
-		global dbpediaURL, dbtuneURL
+		# global dbpediaURL, dbtuneURL
 
 		sparql = SPARQLWrapper("http://dbpedia.org/sparql")
 		sparql.setQuery("""
@@ -96,7 +112,7 @@ class MusicMashupArtist:
 
 			SELECT ?o
 			WHERE { 
-			<"""+dbpediaURL+"""> dbpedia-owl:abstract ?o .
+			<"""+self.dbpediaURL+"""> dbpedia-owl:abstract ?o .
 			FILTER(langMatches(lang(?o), "EN"))
 			}
 			""")
@@ -111,10 +127,30 @@ class MusicMashupArtist:
 		return abstract
 
 	def _pull_related(self):
-		#hardcore
+		#hardcode
 		self.related.append(MusicMashupArtist("Helene Fischer"))
 		self.related.append(MusicMashupArtist("Deep Twelve"))
 		self.related.append(MusicMashupArtist("John Scofield"))
+
+	# holt aus der aktuellen dbtune-Resource-URI die Musicbrainz ID
+	def _pull_musicbrainz_id(self, dbtune):
+		musicbrainzID = dbtune[-36:]
+		return musicbrainzID
+
+	# holt den echoNest-Artist anhand der MusicbrainzID
+	def _pull_echonext_artist(self, mbid):
+		echoNestArtist = artist.Artist('musicbrainz:artist:'+mbid)
+		return echoNestArtist
+
+	#holt die spotifyID anhand des echoNest Artists
+	def _pull_spotify_id(self, echonestArtist):
+		spotifyID = echonestArtist.get_foreign_id('spotify')
+		return spotifyID
+
+	def _pull_songkick_id(self, echonestArtist):
+		songkickID = echonestArtist.get_foreign_id('songkick')
+		return songkickID
+
 
 
 # run from console for test setup
