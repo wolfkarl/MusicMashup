@@ -15,22 +15,24 @@ class MusicMashupArtist:
 
 	dbpediaURL = None
 	dbtuneURL = None
-	musicbrainzID = None
+	musicbrainzID = 0
 	echoNestArtist = None
-	spotifyID = None
-	songkickID = None
+	spotifyID = 0
+	songkickID = 0
+	state = 0
+	problem = ""
 
 
 	def __init__(self, query, reco = ""):
 		self.name = query
-		self._find_resources(query)
 		self.abstract = ""
-		self.musicbrainzID = self._pull_musicbrainz_id(self.dbtuneURL)
-		self.echoNestArtist = self._pull_echonext_artist(self.musicbrainzID)
-		self.spotifyID = self._pull_spotify_id(self.echoNestArtist)
-		self.songkickID = self._pull_songkick_id(self.echoNestArtist)
 		self.related = []
+
+		# reco = recommendation reason
 		self.reco = reco
+
+		# locate artist on musicbrainz (via dbtune) and dbpedia
+		self._find_resources(self.get_name())
 
 
 	# Getter (rufen puller auf falls noch nicht geschehen; spart Resourcen wenn nicht alles gebraucht wird)
@@ -39,7 +41,7 @@ class MusicMashupArtist:
 		return self.name
 
 	def get_abstract(self):
-		if not self.abstract:
+		if not self.abstract and self.state == 0:
 			print("[~] Pulling abstract")
 			self.abstract = self._pull_abstract()
 		return self.abstract
@@ -52,12 +54,19 @@ class MusicMashupArtist:
 		pass
 
 	def get_spotify_uri(self):
-		#hardcode
-		# return "spotify:track:4th1RQAelzqgY7wL53UGQt" #avicii
-		# if not self.spotifyID
-		# 	print("[~] Pulling Spotify ID")
-		# 	self.spotifyID = self.
-		return self.spotifyID
+		if self.state == 0:
+			if not self.spotifyID:
+				print("[~] Pulling Spotify ID")
+				self.spotifyID = self._pull_spotify_id()
+				return self.spotifyID
+		else:
+			return "0000"
+
+
+	def get_dbtuneURL(self):
+		if not self.dbtuneURL:
+			self.dbtuneURL = _pull_dbtune()
+		return self.dbtuneURL
 
 	def get_related(self):
 		if not self.related:
@@ -67,49 +76,93 @@ class MusicMashupArtist:
 	def get_reco(self):
 		return self.reco
 
+	def get_echonestArtist(self):
+		if not self.echoNestArtist and self.state == 0:
+			self._pull_echonext_artist()
+		else:
+			return -1
+
+
+	def set_error_state(self):
+		print("[-] Could not locate Open Data source. Switching to error state!")
+		self.abstract = "Abstract not available. (" + self.problem + ")"
+		self.state = -1
 
 	# find_resources sucht bei DBTunes nach der entsprechenden Ressource und speichert diese (siehe globvars)
 
 	def _find_resources(self, input):
+		self._pull_dbtune()
+		if self.dbtuneURL:
+			self._pull_dbpedia_url()
 
-		# global dbpediaURL, dbtuneURL
+		if not self.dbpediaURL or not self.dbtuneURL:
+			self.set_error_state()
 
-		sparql = SPARQLWrapper("http://dbtune.org/musicbrainz/sparql")
-		sparql.setQuery("""
-			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-			PREFIX mo: <http://purl.org/ontology/mo/>
 
-			SELECT ?s
-			WHERE { 
-			?s rdfs:label \""""+input+"""\" .
-			?s rdf:type mo:MusicArtist .
-			}
-			""")
+	def _pull_dbtune(self):
+		try:
+			sparql = SPARQLWrapper("http://dbtune.org/musicbrainz/sparql")
+			sparql.setQuery("""
+				PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX mo: <http://purl.org/ontology/mo/>
 
-		sparql.setReturnFormat(JSON)
-		results = sparql.query().convert()
+				SELECT ?s
+				WHERE { 
+				?s rdfs:label \""""+self.get_name()+"""\" .
+				?s rdf:type mo:MusicArtist .
+				}
+				""")
 
-		for result in results["results"]["bindings"]:
-			self.dbtuneURL = result["s"]["value"]
+			sparql.setReturnFormat(JSON)
+			results = sparql.query().convert()
 
-		sparql.setQuery("""
-			PREFIX owl: <http://www.w3.org/2002/07/owl#>
+			for result in results["results"]["bindings"]:
+				self.dbtuneURL = result["s"]["value"]
 
-			SELECT ?o
-			WHERE {
-			<"""+self.dbtuneURL+"""> owl:sameAs ?o .
-			}
-			""")
+			if self.dbtuneURL:
+				self.musicbrainzID = self.dbtuneURL[-36:]
+				print("[+] Found dbtune URL")
+				return 0
+			else:
+				return -1
+		except:
+			self.problem = "dbtune problem"
+			print("[-] dbtune problem")
+			return -1
 
-		sparql.setReturnFormat(JSON)
-		results = sparql.query().convert()
 
-		for result in results["results"]["bindings"]:
-			if "dbpedia.org/resource" in result["o"]["value"]:
-				self.dbpediaURL = result["o"]["value"]
+	def _pull_dbpedia_url(self):
+		try:
+			sparql = SPARQLWrapper("http://dbtune.org/musicbrainz/sparql")
+			sparql.setQuery("""
+					PREFIX owl: <http://www.w3.org/2002/07/owl#>
 
-		return self.dbpediaURL
+					SELECT ?o
+					WHERE {
+					<"""+self.dbtuneURL+"""> owl:sameAs ?o .
+					}
+					""")
+
+			sparql.setReturnFormat(JSON)
+			results = sparql.query().convert()
+
+			for result in results["results"]["bindings"]:
+				if "dbpedia.org/resource" in result["o"]["value"]:
+					self.dbpediaURL = result["o"]["value"]
+
+			if self.dbpediaURL != "":
+				print("[+] Found dbpedia URL")
+
+				return 0
+			else:
+				return -1
+
+		except:
+			self.problem = "dbtune problem while fetching dbpedia url"
+			print("[-] dbtune problem")
+			return -1
+
 
 	def _pull_abstract(self):
 		# global dbpediaURL, dbtuneURL
@@ -138,26 +191,26 @@ class MusicMashupArtist:
 		#hardcode
 		self.related.append(MusicMashupArtist("Helene Fischer", "Because both are on Universal Label"))
 		self.related.append(MusicMashupArtist("Deep Twelve", "Because both bands have <a href='#'>Marvin Gay</a> play Bass"))
-		self.related.append(MusicMashupArtist("John Scofield", "Because both were produced by Josh Homme"))
+		self.related.append(MusicMashupArtist("John djfakdjfkajfdkjfd", "To test non-existing artists"))
 		return self.related
 
-	# holt aus der aktuellen dbtune-Resource-URI die Musicbrainz ID
-	def _pull_musicbrainz_id(self, dbtune):
-		musicbrainzID = dbtune[-36:]
-		return musicbrainzID
 
 	# holt den echoNest-Artist anhand der MusicbrainzID
-	def _pull_echonext_artist(self, mbid):
-		echoNestArtist = artist.Artist('musicbrainz:artist:'+mbid)
-		return echoNestArtist
+	def _pull_echonext_artist(self):
+		if self.musicbrainzID:
+			echoNestArtist = artist.Artist('musicbrainz:artist:'+self.musicbrainzID)
+			self.echonestArtist = echoNestArtist
+			return echoNestArtist
+		else:
+			return -1
 
 	#holt die spotifyID anhand des echoNest Artists
-	def _pull_spotify_id(self, echonestArtist):
-		spotifyID = echonestArtist.get_foreign_id('spotify')
+	def _pull_spotify_id(self):
+		self.spotifyID = self.get_echonestArtist().get_foreign_id('spotify')
 		return spotifyID
 
-	def _pull_songkick_id(self, echonestArtist):
-		songkickID = echonestArtist.get_foreign_id('songkick')
+	def _pull_songkick_id(self):
+		self.songkickID = self.get_echonestArtist().get_foreign_id('songkick')
 		return songkickID
 
 
@@ -167,8 +220,11 @@ if __name__ == '__main__':
 	test = MusicMashupArtist("Queens of the Stone Age")
 	print(test.get_name())
 	print(test.get_abstract())
-	print(test.get_abstract())
+	print(test.get_spotify_uri())
+	# print(test.get_abstract())
+	# print(test.dbtuneURL)
+	# print (test.dbpediaURL)
 	blubb = test.get_related()
-	print(blubb)
+	# print(blubb)
 	for r in blubb:
-		print(" + "+r.get_name())
+		print(" + "+r.get_name() + " - " + r.get_abstract_excerpt(10) + " - " + r.get_spotify_uri())
