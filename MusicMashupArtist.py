@@ -4,6 +4,8 @@
 	Attribute werden immer ueber einen Getter angesprochen, beim ersten Aufruf wird ueber RDF gefetched. """
 from SPARQLWrapper import SPARQLWrapper, JSON
 
+import re
+
 from pyechonest import config
 config.ECHO_NEST_API_KEY="GZVL1ZHR0GIYXJZXG"
 from pyechonest import artist
@@ -22,20 +24,36 @@ class MusicMashupArtist:
 	state = 0
 	problem = ""
 
+	related = []
+	abstract = ""
+
+	currentMembers = []
+	formerMembers = []
+	relatedSources = []
 
 	def __init__(self, query, reco = ""):
 		self.name = query
-		self.abstract = ""
-		self.related = []
+		self._find_resources()
+
 
 		# reco = recommendation reason
 		self.reco = reco
 
 		# locate artist on musicbrainz (via dbtune) and dbpedia
-		self._find_resources(self.get_name())
+		print("[~] Fetching data sources for " + self.get_name())
+		self._find_resources()
+		if self.state == 0:
+			print("[+] done")
+		
+		# paul
+		# self._pull_current_members()
+		# self._pull_producer_relation()
 
 
-	# Getter (rufen puller auf falls noch nicht geschehen; spart Resourcen wenn nicht alles gebraucht wird)
+	# ========================================================================================
+	# 	GETTER 
+	# (rufen puller auf falls noch nicht geschehen; spart Resourcen wenn nicht alles gebraucht wird)
+	# ========================================================================================
 
 	def get_name(self):
 		return self.name
@@ -88,9 +106,8 @@ class MusicMashupArtist:
 		self.abstract = "Abstract not available. (" + self.problem + ")"
 		self.state = -1
 
-	# find_resources sucht bei DBTunes nach der entsprechenden Ressource und speichert diese (siehe globvars)
 
-	def _find_resources(self, input):
+	def _find_resources(self):
 		self._pull_dbtune()
 		if self.dbtuneURL:
 			self._pull_dbpedia_url()
@@ -164,6 +181,7 @@ class MusicMashupArtist:
 			return -1
 
 
+
 	def _pull_abstract(self):
 		# global dbpediaURL, dbtuneURL
 
@@ -214,6 +232,88 @@ class MusicMashupArtist:
 		return songkickID
 
 
+ # 			ab hier untegesteter code von paul ohne error handling
+ # ========================== vvvvvvvvvvvvv ===============================
+
+
+	def _uri_to_name (uri):
+		uri = uri[28:]
+		uri = string.replace(uri, '_', ' ')
+		return uri
+
+	def _pull_current_members(self):
+		sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+		sparql.setQuery("""
+			PREFIX dbprop: <http://dbpedia.org/property/>
+
+			SELECT ?member WHERE {
+    			<"""+self.dbpediaURL+"""> dbprop:currentMembers ?member.
+				}
+			""")
+		sparql.setReturnFormat(JSON)
+		results = sparql.query().convert()			
+
+		for result in results["results"]["bindings"]:
+			self.currentMembers.append(result["member"]["value"])
+			print result["member"]["value"]
+
+	def _pull_producer_relation (self):
+		for member in self.currentMembers:
+			print ("[~] searching producer relations for: "+ member)
+			sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+			sparql.setQuery("""
+				PREFIX dbprop: <http://dbpedia.org/property/>
+				PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+				SELECT ?band WHERE {
+	    			?production dbprop:producer <"""+member+""">.
+	    			?production dbpedia-owl:artist ?band.
+					}
+				""")
+			sparql.setReturnFormat(JSON)
+			results = sparql.query().convert()	
+			for result in results["results"]["bindings"]:
+				if result["band"]["value"] != self.dbpediaURL and (result["band"]["value"] not in self.relatedSources) : 
+					self.relatedSources.append(result["band"]["value"])
+					self.related.append(MusicMashupArtist(self._uri_to_name(results["band"]["value"]), "Because "+self._uri_to_name(member)+" was active as producer"))
+					print (result["band"]["value"])
+
+	def _pull_current_bands_of_current_members (self):
+		for member in self.currentMembers:
+			sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+			sparql.setQuery("""
+				PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+
+				SELECT ?band WHERE {
+	    			?band dbpedia-owl:bandMember <"""+member+""">.
+	    			}
+				""")
+
+			sparql.setReturnFormat(JSON)
+			results = sparql.query().convert()	
+			for result in results["results"]["bindings"]:
+				if result["band"]["value"] != self.dbpediaURL and (result["band"]["value"] not in self.relatedSources) : 
+					self.relatedSources.append(result["band"]["value"])
+					self.related.append(MusicMashupArtist(self._uri_to_name(results["band"]["value"]), "Because "+self._uri_to_name(member)+" is also a member of this band."))
+					print (result["band"]["value"])
+
+	def _pull_former_bands_of_current_members (self):
+		for member in self.currentMembers:
+			sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+			sparql.setQuery("""
+				PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+
+				SELECT ?band WHERE {
+	    			?band dbpedia-owl:formerBandMember <"""+member+""">.
+	    			}
+				""")
+
+			sparql.setReturnFormat(JSON)
+			results = sparql.query().convert()	
+			for result in results["results"]["bindings"]:
+				if result["band"]["value"] != self.dbpediaURL and (result["band"]["value"] not in self.relatedSources) : 
+					self.relatedSources.append(result["band"]["value"])
+					self.related.append(MusicMashupArtist(self._uri_to_name(results["band"]["value"]), "Because "+self._uri_to_name(member)+" is also a member of this band."))
+					print (result["band"]["value"])
 
 # run from console for test setup
 if __name__ == '__main__':
@@ -227,4 +327,4 @@ if __name__ == '__main__':
 	blubb = test.get_related()
 	# print(blubb)
 	for r in blubb:
-		print(" + "+r.get_name() + " - " + r.get_abstract_excerpt(10) + " - " + r.get_spotify_uri())
+		print(" + "+r.get_name() + " - " + r.get_abstract_excerpt(50) + " - " + r.get_spotify_uri())
