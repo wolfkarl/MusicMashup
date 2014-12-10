@@ -27,12 +27,13 @@ class MusicMashupArtist:
 
 	def __init__(self, query, reco = ""):
 		self.name = query
-		self._find_resources()
+		# self._find_resources()
+		self._find_resources_workaround()
 		self.abstract = ""
-		self.musicbrainzID = self._pull_musicbrainz_id(self.dbtuneURL)
-		self.echoNestArtist = self._pull_echonext_artist(self.musicbrainzID)
-		self.spotifyID = self._pull_spotify_id(self.echoNestArtist)
-		self.songkickID = self._pull_songkick_id(self.echoNestArtist)
+		# self.musicbrainzID = self._pull_musicbrainz_id(self.dbtuneURL)
+		# self.echoNestArtist = self._pull_echonext_artist(self.musicbrainzID)
+		# self.spotifyID = self._pull_spotify_id(self.echoNestArtist)
+		# self.songkickID = self._pull_songkick_id(self.echoNestArtist)
 
 		self.related = []
 		self.reco = reco
@@ -77,10 +78,31 @@ class MusicMashupArtist:
 
 	# find_resources sucht bei DBTunes nach der entsprechenden Ressource und speichert diese (siehe globvars)
 
-	def _find_resources(self):
+	def _find_resources_workaround(self):
 		# global dbpediaURL, dbtuneURL
 
 		sparql = SPARQLWrapper("http://dbtune.org/musicbrainz/sparql")
+		sparql.setQuery("""
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+
+			SELECT ?s
+			WHERE { 
+			?s rdfs:label \""""+self.get_name()+"""\" .
+			?s dbpedia-owl:backgrpund "group_or_name" .
+			}
+			""")
+
+		sparql.setReturnFormat(JSON)
+		results = sparql.query().convert()
+
+		for result in results["results"]["bindings"]:
+			self.dbpediaURL = result["s"]["value"]
+
+	def _find_resources(self):
+		# global dbpediaURL, dbtuneURL
+
+		sparql = SPARQLWrapper("http://dbpedia.org/sparql")
 		sparql.setQuery("""
 			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -115,7 +137,7 @@ class MusicMashupArtist:
 			if "dbpedia.org/resource" in result["o"]["value"]:
 				self.dbpediaURL = result["o"]["value"]
 		# print self.dbpediaURL
-		# return self.dbpediaURL
+		# return self.dbpediaURL	
 
 	def _pull_abstract(self):
 		# global dbpediaURL, dbtuneURL
@@ -207,7 +229,43 @@ class MusicMashupArtist:
 					self.related.append(MusicMashupArtist(self._uri_to_name(results["band"]["value"]), "Because "+self._uri_to_name(member)+" was active as producer"))
 					print (result["band"]["value"])
 
+	def _pull_current_bands_of_current_members (self):
+		for member in self.currentMembers:
+			sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+			sparql.setQuery("""
+				PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
 
+				SELECT ?band WHERE {
+	    			?band dbpedia-owl:bandMember <"""+member+""">.
+	    			}
+				""")
+
+			sparql.setReturnFormat(JSON)
+			results = sparql.query().convert()	
+			for result in results["results"]["bindings"]:
+				if result["band"]["value"] != self.dbpediaURL and (result["band"]["value"] not in self.relatedSources) : 
+					self.relatedSources.append(result["band"]["value"])
+					self.related.append(MusicMashupArtist(self._uri_to_name(results["band"]["value"]), "Because "+self._uri_to_name(member)+" is also a member of this band."))
+					print (result["band"]["value"])
+
+	def _pull_former_bands_of_current_members (self):
+		for member in self.currentMembers:
+			sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+			sparql.setQuery("""
+				PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+
+				SELECT ?band WHERE {
+	    			?band dbpedia-owl:formerBandMember <"""+member+""">.
+	    			}
+				""")
+
+			sparql.setReturnFormat(JSON)
+			results = sparql.query().convert()	
+			for result in results["results"]["bindings"]:
+				if result["band"]["value"] != self.dbpediaURL and (result["band"]["value"] not in self.relatedSources) : 
+					self.relatedSources.append(result["band"]["value"])
+					self.related.append(MusicMashupArtist(self._uri_to_name(results["band"]["value"]), "Because "+self._uri_to_name(member)+" is also a member of this band."))
+					print (result["band"]["value"])
 
 # run from console for test setup
 if __name__ == '__main__':
