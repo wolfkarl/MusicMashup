@@ -19,11 +19,12 @@ class MusicMashupArtist:
 	echoNestArtist = None
 	spotifyID = None
 	songkickID = None
-
+	currentMembers = []
+	formerMembers = []
 
 	def __init__(self, query, reco = ""):
 		self.name = query
-		self._find_resources(query)
+		self._find_resources()
 		self.abstract = ""
 		self.musicbrainzID = self._pull_musicbrainz_id(self.dbtuneURL)
 		self.echoNestArtist = self._pull_echonext_artist(self.musicbrainzID)
@@ -31,6 +32,7 @@ class MusicMashupArtist:
 		self.songkickID = self._pull_songkick_id(self.echoNestArtist)
 		self.related = []
 		self.reco = reco
+		self._pull_current_members()
 
 
 	# Getter (rufen puller auf falls noch nicht geschehen; spart Resourcen wenn nicht alles gebraucht wird)
@@ -70,8 +72,7 @@ class MusicMashupArtist:
 
 	# find_resources sucht bei DBTunes nach der entsprechenden Ressource und speichert diese (siehe globvars)
 
-	def _find_resources(self, input):
-
+	def _find_resources(self):
 		# global dbpediaURL, dbtuneURL
 
 		sparql = SPARQLWrapper("http://dbtune.org/musicbrainz/sparql")
@@ -82,7 +83,7 @@ class MusicMashupArtist:
 
 			SELECT ?s
 			WHERE { 
-			?s rdfs:label \""""+input+"""\" .
+			?s rdfs:label \""""+self.get_name()+"""\" .
 			?s rdf:type mo:MusicArtist .
 			}
 			""")
@@ -108,8 +109,8 @@ class MusicMashupArtist:
 		for result in results["results"]["bindings"]:
 			if "dbpedia.org/resource" in result["o"]["value"]:
 				self.dbpediaURL = result["o"]["value"]
-
-		return self.dbpediaURL
+		# print self.dbpediaURL
+		# return self.dbpediaURL
 
 	def _pull_abstract(self):
 		# global dbpediaURL, dbtuneURL
@@ -136,9 +137,9 @@ class MusicMashupArtist:
 
 	def _pull_related(self):
 		#hardcode
-		self.related.append(MusicMashupArtist("Helene Fischer", "Because both are on Universal Label"))
-		self.related.append(MusicMashupArtist("Deep Twelve", "Because both bands have <a href='#'>Marvin Gay</a> play Bass"))
-		self.related.append(MusicMashupArtist("John Scofield", "Because both were produced by Josh Homme"))
+		# self.related.append(MusicMashupArtist("Helene Fischer", "Because both are on Universal Label"))
+		# self.related.append(MusicMashupArtist("Deep Twelve", "Because both bands have <a href='#'>Marvin Gay</a> play Bass"))
+		# self.related.append(MusicMashupArtist("John Scofield", "Because both were produced by Josh Homme"))
 		return self.related
 
 	# holt aus der aktuellen dbtune-Resource-URI die Musicbrainz ID
@@ -160,6 +161,29 @@ class MusicMashupArtist:
 		songkickID = echonestArtist.get_foreign_id('songkick')
 		return songkickID
 
+	def _pull_current_members(self):
+		sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+		sparql.setQuery("""
+			PREFIX dbprop: <http://dbpedia.org/property/>
+
+			SELECT ?member WHERE {
+    			<"""+self.dbpediaURL+"""> dbprop:currentMembers ?member.
+				}
+			""")
+		sparql.setReturnFormat(JSON)
+		results = sparql.query().convert()			
+
+		for result in results["results"]["bindings"]:
+			self.currentMembers.append(result["member"]["value"])
+
+	# def _pull_producer_relation (self):
+	# 	sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+	# 	sparql.setQuery("""
+	# 		PREFIX dbprop: <http://dbpedia.org/property/>
+	# 		SELECT ?member WHERE {
+ #    			<"""+self.dbpediaURL+"""> dbprop:currentMembers ?member.
+	# 			}
+	# 		""")
 
 
 # run from console for test setup
