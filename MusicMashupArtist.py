@@ -4,6 +4,8 @@
 	Attribute werden immer ueber einen Getter angesprochen, beim ersten Aufruf wird ueber RDF gefetched. """
 from SPARQLWrapper import SPARQLWrapper, JSON
 
+import re
+
 from pyechonest import config
 config.ECHO_NEST_API_KEY="GZVL1ZHR0GIYXJZXG"
 from pyechonest import artist
@@ -21,6 +23,7 @@ class MusicMashupArtist:
 	songkickID = None
 	currentMembers = []
 	formerMembers = []
+	relatedSources = []
 
 	def __init__(self, query, reco = ""):
 		self.name = query
@@ -30,9 +33,11 @@ class MusicMashupArtist:
 		self.echoNestArtist = self._pull_echonext_artist(self.musicbrainzID)
 		self.spotifyID = self._pull_spotify_id(self.echoNestArtist)
 		self.songkickID = self._pull_songkick_id(self.echoNestArtist)
+
 		self.related = []
 		self.reco = reco
 		self._pull_current_members()
+		self._pull_producer_relation()
 
 
 	# Getter (rufen puller auf falls noch nicht geschehen; spart Resourcen wenn nicht alles gebraucht wird)
@@ -161,6 +166,11 @@ class MusicMashupArtist:
 		songkickID = echonestArtist.get_foreign_id('songkick')
 		return songkickID
 
+	def _uri_to_name (uri):
+		uri = uri[28:]
+		uri = string.replace(uri, '_', ' ')
+		return uri
+
 	def _pull_current_members(self):
 		sparql = SPARQLWrapper("http://dbpedia.org/sparql")
 		sparql.setQuery("""
@@ -175,15 +185,28 @@ class MusicMashupArtist:
 
 		for result in results["results"]["bindings"]:
 			self.currentMembers.append(result["member"]["value"])
+			print result["member"]["value"]
 
-	# def _pull_producer_relation (self):
-	# 	sparql = SPARQLWrapper("http://dbpedia.org/sparql")
-	# 	sparql.setQuery("""
-	# 		PREFIX dbprop: <http://dbpedia.org/property/>
-	# 		SELECT ?member WHERE {
- #    			<"""+self.dbpediaURL+"""> dbprop:currentMembers ?member.
-	# 			}
-	# 		""")
+	def _pull_producer_relation (self):
+		for member in self.currentMembers:
+			print ("[~] searching producer relations for: "+ member)
+			sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+			sparql.setQuery("""
+				PREFIX dbprop: <http://dbpedia.org/property/>
+				PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+				SELECT ?band WHERE {
+	    			?production dbprop:producer <"""+member+""">.
+	    			?production dbpedia-owl:artist ?band.
+					}
+				""")
+			sparql.setReturnFormat(JSON)
+			results = sparql.query().convert()	
+			for result in results["results"]["bindings"]:
+				if result["band"]["value"] != self.dbpediaURL and (result["band"]["value"] not in self.relatedSources) : 
+					self.relatedSources.append(result["band"]["value"])
+					self.related.append(MusicMashupArtist(self._uri_to_name(results["band"]["value"]), "Because "+self._uri_to_name(member)+" was active as producer"))
+					print (result["band"]["value"])
+
 
 
 # run from console for test setup
