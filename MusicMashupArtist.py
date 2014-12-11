@@ -36,6 +36,8 @@ class MusicMashupArtist:
 		# self._find_resources()
 
 		self.dbpediaURL = "http://dbpedia.org/resource/Queens_of_the_Stone_Age"
+		# Hardcode Musicbrainz ID
+		self.musicbrainzID = "7dc8f5bd-9d0b-4087-9f73-dc164950bbd8"
 		self.state = 0
 
 		# reco = recommendation reason
@@ -46,8 +48,7 @@ class MusicMashupArtist:
 		# self._find_resources()
 		if self.state == 0:
 			print("[+] done")
-		
-		# paul
+
 		
 
 
@@ -77,7 +78,7 @@ class MusicMashupArtist:
 			if not self.spotifyID:
 				print("[~] Pulling Spotify ID")
 				self.spotifyID = self._pull_spotify_id()
-				return self.spotifyID
+			return self.spotifyID
 		else:
 			return "0000"
 
@@ -97,7 +98,7 @@ class MusicMashupArtist:
 
 	def get_echonestArtist(self):
 		if not self.echoNestArtist and self.state == 0:
-			self._pull_echonext_artist()
+			self._pull_echonest_artist()
 		else:
 			return -1
 
@@ -143,6 +144,8 @@ class MusicMashupArtist:
 
 			if self.dbtuneURL:
 				self.musicbrainzID = self.dbtuneURL[-36:]
+				#Hardcode
+				self.musicbrainzID = "7dc8f5bd-9d0b-4087-9f73-dc164950bbd8"
 				print("[+] Found dbtune URL")
 				return 0
 			else:
@@ -223,25 +226,28 @@ class MusicMashupArtist:
 
 
 	# holt den echoNest-Artist anhand der MusicbrainzID
-	def _pull_echonext_artist(self):
+	def _pull_echonest_artist(self):
 		if self.musicbrainzID:
-			echoNestArtist = artist.Artist('musicbrainz:artist:'+self.musicbrainzID)
-			self.echonestArtist = echoNestArtist
-			return echoNestArtist
+			self.echoNestArtist = artist.Artist('musicbrainz:artist:'+self.musicbrainzID)
+			# self.echonestArtist = echoNestArtist
+			print ("[+] Found echoNestArtist")
+			# return echoNestArtist
 		else:
 			return -1
 
 	#holt die spotifyID anhand des echoNest Artists
 	def _pull_spotify_id(self):
-		self.spotifyID = self.get_echonestArtist().get_foreign_id('spotify')
-		return spotifyID
+		self.get_echonestArtist()
+		self.spotifyID = self.echoNestArtist.get_foreign_id('spotify')
+		# return spotifyID
 
 	def _pull_songkick_id(self):
-		self.songkickID = self.get_echonestArtist().get_foreign_id('songkick')
-		return songkickID
+		self.get_echonestArtist()
+		self.songkickID = self.echoNestArtist.get_foreign_id('songkick')
+		# return songkickID
 
 
- # 			ab hier untegesteter code von paul ohne error handling
+ # 			ab hier untegesteter code ohne error handling
  # ========================== vvvvvvvvvvvvv ===============================
 
 
