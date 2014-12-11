@@ -38,7 +38,7 @@ class MusicMashupArtist:
 		self.dbpediaURL = "http://dbpedia.org/resource/Queens_of_the_Stone_Age"
 		# Hardcode Musicbrainz ID
 		self.musicbrainzID = "7dc8f5bd-9d0b-4087-9f73-dc164950bbd8"
-		self.state = 0
+		# self.state = 0
 
 		# reco = recommendation reason
 		self.reco = reco
@@ -239,7 +239,7 @@ class MusicMashupArtist:
 	def _pull_spotify_id(self):
 		self.get_echonestArtist()
 		self.spotifyID = self.echoNestArtist.get_foreign_id('spotify')
-		# return spotifyID
+		return self.spotifyID
 
 	def _pull_songkick_id(self):
 		self.get_echonestArtist()
