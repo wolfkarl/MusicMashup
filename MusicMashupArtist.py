@@ -223,6 +223,10 @@ class MusicMashupArtist:
 		self._pull_current_members()
 		self._pull_producer_relation()
 		self._pull_current_bands_of_current_members()
+		print (self.musicbrainzID)
+		print (self.echoNestArtist)
+		print (self.songkickID)
+		print (self.spotifyID)
 		self.parse_to_rdf()
 		return self.related
 
@@ -345,13 +349,12 @@ class MusicMashupArtist:
 
 		fileExists = os.path.exists(filepath)
 		
-		file = open(filepath, 'a+')
+		file = open(filepath, 'w+')
 
-		if not (fileExists):
-			self.parse_prefixes(file)
-
+		self.parse_prefixes(file)
 		self.parse_abstract(file)
 		self.parse_current_members(file)
+		self.parse_related_artists(file)
 
 		file.close()
 
@@ -363,27 +366,16 @@ class MusicMashupArtist:
 		file.write("@prefix dbprop: <http://dbpedia.org/property/> .\n")
 		file.write("@prefix owl: <http://www.w3.org/2002/07/owl#> .\n\n")		
 
-	def parse_abstract(self, file):		
-		hasAbstract = False
-		for line in file:
-			if ("dbpedia-owl:abstract" in line):
-				hasAbstract = True
+	def parse_abstract(self, file):			
+		file.write("<"+self.dbpediaURL+"> dbpedia-owl:abstract \""+self.abstract+"\" .\n")
 
-		print (not hasAbstract)
+	def parse_current_members(self, file):				
+		for member in self.currentMembers:
+			file.write("<"+self.dbpediaURL+"> dbprop:currentMember <"+member+"> .\n")
 
-		if not hasAbstract:		
-			file.write("<"+self.dbpediaURL+"> dbpedia-owl:abstract \""+self.abstract+"\" .\n")
-
-	def parse_current_members(self, file):		
-		hasCurrentMembers = False
-		for line in file:
-			if ("dbprop:currentMember" in line):
-				hasCurrentMembers = True
-
-		if not hasCurrentMembers:		
-			for member in self.currentMembers:
-				file.write("<"+self.dbpediaURL+"> dbprop:currentMember <"+member+"> .\n")
-
+	def parse_related_artists(self, file):
+		for artist in self.relatedSources:
+			file.write("<"+self.dbpediaURL+"> dbpedia-owl:associatedMusicalArtist <"+artist+"> .\n")
 
 # run from console for test setup
 if __name__ == '__main__':
