@@ -5,6 +5,7 @@
 from SPARQLWrapper import SPARQLWrapper, JSON
 
 import re
+from urllib import urlopen
 
 from pyechonest import config
 config.ECHO_NEST_API_KEY="GZVL1ZHR0GIYXJZXG"
@@ -23,6 +24,8 @@ class MusicMashupArtist:
 	songkickID = 0
 	state = 0
 	problem = ""
+	events = None
+	songkickApiKey = "BxSDhcU0tXLU4yHQ"
 
 	related = []
 	abstract = ""
@@ -38,10 +41,12 @@ class MusicMashupArtist:
 		self.dbpediaURL = "http://dbpedia.org/resource/Queens_of_the_Stone_Age"
 		# Hardcode Musicbrainz ID
 		self.musicbrainzID = "7dc8f5bd-9d0b-4087-9f73-dc164950bbd8"
+
 		# self.state = 0
 
 		# reco = recommendation reason
 		self.reco = reco
+		self._pull_events()
 
 		# locate artist on musicbrainz (via dbtune) and dbpedia
 		print("[~] Fetching data sources for " + self.get_name())
@@ -244,8 +249,12 @@ class MusicMashupArtist:
 	def _pull_songkick_id(self):
 		self.get_echonestArtist()
 		self.songkickID = self.echoNestArtist.get_foreign_id('songkick')
-		# return songkickID
+		return songkickID
 
+	def _pull_events(self):
+		print ("[~] Pulling Songkick Events")
+		self.events = urlopen('http://api.songkick.com/api/3.0/artists/'+str(self.songkickID)+'/calendar.json?apikey='+self.songkickApiKey+'').read()
+		print self.events
 
  # 			ab hier untegesteter code ohne error handling
  # ========================== vvvvvvvvvvvvv ===============================
