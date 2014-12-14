@@ -43,11 +43,6 @@ class MusicMashupArtist:
 		self._find_resources()
 		if self.state == 0:
 			print("[+] done")
-		
-		# paul
-		# self._pull_current_members()
-		# self._pull_producer_relation()
-
 
 	# ========================================================================================
 	# 	GETTER 
@@ -203,15 +198,16 @@ class MusicMashupArtist:
 		results = sparql.query().convert()
 
 		for result in results["results"]["bindings"]:
-			abstract = result["o"]["value"]
+			self.abstract = result["o"]["value"]
 
-		return abstract
+		return self.abstract
 
 	def _pull_related(self):
-		#hardcode
-		# self.related.append(MusicMashupArtist("Helene Fischer", "Because both are on Universal Label"))
-		# self.related.append(MusicMashupArtist("Deep Twelve", "Because both bands have <a href='#'>Marvin Gay</a> play Bass"))
-		# self.related.append(MusicMashupArtist("John djfakdjfkajfdkjfd", "To test non-existing artists"))
+		# get Methoden sollten noch geschrieben werden
+		self._pull_current_members()
+		self._pull_producer_relation()
+		self._pull_current_bands_of_current_members()
+		self._pull_former_bands_of_current_members()
 		return self.related
 
 
@@ -238,7 +234,7 @@ class MusicMashupArtist:
  # ========================== vvvvvvvvvvvvv ===============================
 
 
-	def _uri_to_name (uri):
+	def _uri_to_name (self, uri):
 		uri = uri[28:]
 		uri = uri.replace('_', ' ')
 		return uri
@@ -276,7 +272,7 @@ class MusicMashupArtist:
 			for result in results["results"]["bindings"]:
 				if result["band"]["value"] != self.dbpediaURL and (result["band"]["value"] not in self.relatedSources) : 
 					self.relatedSources.append(result["band"]["value"])
-					self.related.append(MusicMashupArtist(self._uri_to_name(results["band"]["value"]), "Because "+self._uri_to_name(member)+" was active as producer"))
+					self.related.append(MusicMashupArtist(self._uri_to_name(result["band"]["value"]), "Because "+self._uri_to_name(member)+" was active as producer"))
 					print (result["band"]["value"])
 
 	def _pull_current_bands_of_current_members (self):
@@ -295,7 +291,7 @@ class MusicMashupArtist:
 			for result in results["results"]["bindings"]:
 				if result["band"]["value"] != self.dbpediaURL and (result["band"]["value"] not in self.relatedSources) : 
 					self.relatedSources.append(result["band"]["value"])
-					self.related.append(MusicMashupArtist(self._uri_to_name(results["band"]["value"]), "Because "+self._uri_to_name(member)+" is also a member of this band."))
+					self.related.append(MusicMashupArtist(self._uri_to_name(result["band"]["value"]), "Because "+self._uri_to_name(member)+" is also a member of this band."))
 					print (result["band"]["value"])
 
 	def _pull_former_bands_of_current_members (self):
@@ -314,7 +310,7 @@ class MusicMashupArtist:
 			for result in results["results"]["bindings"]:
 				if result["band"]["value"] != self.dbpediaURL and (result["band"]["value"] not in self.relatedSources) : 
 					self.relatedSources.append(result["band"]["value"])
-					self.related.append(MusicMashupArtist(self._uri_to_name(results["band"]["value"]), "Because "+self._uri_to_name(member)+" is also a member of this band."))
+					self.related.append(MusicMashupArtist(self._uri_to_name(result["band"]["value"]), "Because "+self._uri_to_name(member)+" is also a member of this band."))
 					print (result["band"]["value"])
 
 # run from console for test setup
