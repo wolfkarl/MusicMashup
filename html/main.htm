@@ -43,73 +43,74 @@
 
   <div class="container">
 
-<div class="row">
-  <div class="col-md-12"><h1>Music Mashup: ${artist.get_name()}</h1>
-    <br>
-    <form role="form" method="get" action="/">
-      <div class="form-group">
-        <label for="artistSearch">Search</label>
-        <input type="search" name="query"   class="form-control" id="artistSearch" placeholder="Enter artist/band/song here">
-        <input type="submit" value="Suchen" class="btn btn-submit">
-      </div>
-    </form>
-    <h2>Results for <em>${artist.get_name()}</em>:</h2>
-    
-<div class="row">
+    <div class="row">
+      <div class="col-md-12"><h1>Music Mashup: ${artist.get_name()}</h1>
+        <br>
+        <form role="form" method="get" action="/">
+          <div class="form-group">
+            <label for="artistSearch">Search</label>
+            <input type="search" name="query"   class="form-control" id="artistSearch" placeholder="Enter artist/band/song here">
+            <input type="submit" value="Suchen" class="btn btn-submit">
+          </div>
+        </form>
 
-<div class="col-md-8"><h3>General Information</h3>
-    
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Abstract (from dbpedia)</h3>
-      </div>
-    
-      <div class="panel-body">
-        <p>${artist.get_abstract()}</p>
+        <h2>Results for <em>${artist.get_name()}</em>:</h2>
+        
+        <div class="row">
+          <div class="col-md-8"><h3>General Information</h3>
+            
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Abstract (from dbpedia)</h3>
+              </div>
+            
+              <div class="panel-body">
+                <p>${artist.get_abstract()}</p>
+              </div>
+            </div>
+            
+            <h3>Recommendations</h3>
+            
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">recommended bands by band members</h3>
+              </div>
+              <div class="panel-body">
+
+              % for r in artist.get_related():
+                        <h4><a href="/?query=${r.get_name()}">${r.get_name()}</a> <small>(${r.get_reco()})</small></h4>
+                        <p>${r.get_abstract_excerpt()}</p>
+              % endfor
+
+              </div>
+            </div> 
+          </div>
+        
+         <div class="col-md-4">
+            <h3>Music</h3>
+           
+           <div class="panel panel-default">
+             <div class="panel-heading">
+               <iframe src="https://embed.spotify.com/?uri=${artist.get_spotify_uri()}" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
+             </div>
+           </div>     
+         
+         <h3>Gigs</h3>
+       
+         <div class="panel panel-default">
+             <div class="panel-heading">
+               <h3 class="panel-title">GoogleMaps(?)</h3>
+             </div>
+             <div class="panel-body">
+               In the near future AC/DC will play gigs at the following locations
+
+             </div>
+           </div> </div>
+       </div>
+
+
       </div>
     </div>
-    
-    <h3>Recommendations</h3>
-    
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">recommended bands by band members</h3>
-      </div>
-      <div class="panel-body">
-
-% for r in artist.get_related():
-          <h4><a href="/?query=${r.get_name()}">${r.get_name()}</a> <small>(${r.get_reco()})</small></h4>
-          <p>${r.get_abstract_excerpt()}</p>
-% endfor
-
-      </div>
-    </div> </div>
-  
- <div class="col-md-4">
-    <h3>Music</h3>
-   
-   <div class="panel panel-default">
-     <div class="panel-heading">
-       <iframe src="https://embed.spotify.com/?uri=${artist.get_spotify_uri()}" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
-     </div>
-   </div>     
-   
-   <h3>Gigs</h3>
-   
-   <div class="panel panel-default">
-     <div class="panel-heading">
-       <h3 class="panel-title">GoogleMaps(?)</h3>
-     </div>
-     <div class="panel-body">
-       In the near future AC/DC will play gigs at the following locations
-
-     </div>
-   </div> </div>
- </div>
-
-
-      </div>
-</div>
   </div>
 
 

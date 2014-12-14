@@ -1,17 +1,20 @@
-rdf syntax/turtle syntax
-was für eine band am ende herauskommt
+- Member queries für Solokünstler können Fehler werfen. Error handling aber eh gebraucht
 
-auch same_as beziehung aus dbpedia beispielsweise
+- Genauere Infos zu, ob aktueller oder former bandmitglied ( am end wann mitglied und welches Instrument)
 
-konkret ausmodelliert in turtle/rdf mit einer band was wo wie verknüpft wird. 
+- Pfad, wo man herkam, oben anzeigen
+	--> Pointer auf letzte Resource halten
 
-bandname dbpedia, dbpedia andere bands 
+- genauere Infos im Infotext (bsp: war auch in der Band, die aber nicht mehr existiert
+								 : XY war auch mal in dieser Band und spielt heute in dieser
+								 : [...] )
 
+- songkick events auslesen und anzeigen
 
-3 person, grafik
+- Related Artist als rdf 
 
+- Songkick Events kommen immer leer zurück
 
-screenshot + beispiel in turtle einer band inkl links zu Ressourcen.
+- Bild einbinden
+	- Am besten direkt Bildergalerie einbinden von allen möglichen Bildern
 
-
-mails hauptsache an markus und christian
