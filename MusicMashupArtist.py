@@ -52,6 +52,19 @@ class MusicMashupArtist:
 	def get_name(self):
 		return self.name
 
+
+	def get_reco(self):
+		return self.reco
+
+	def set_error_state(self):
+		print("[-] Could not locate Open Data source. Switching to error state!")
+		self.abstract = "Abstract not available. (" + self.problem + ")"
+		self.state = -1
+
+
+	# ========================================================================================
+	# ABSTRACT get and _pull
+	# ========================================================================================
 	def get_abstract(self):
 		if not self.abstract and self.state == 0:
 			print("[~] Pulling abstract")
@@ -62,9 +75,37 @@ class MusicMashupArtist:
 		a =  self.get_abstract()
 		return a[:len]+"..."
 
+	def _pull_abstract(self):
+		sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+		sparql.setQuery("""
+			PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+
+			SELECT ?o
+			WHERE { 
+			<"""+self.dbpediaURL+"""> dbpedia-owl:abstract ?o .
+			FILTER(langMatches(lang(?o), "EN"))
+			}
+			""")
+
+		sparql.setReturnFormat(JSON)
+		results = sparql.query().convert()
+
+		for result in results["results"]["bindings"]:
+			self.abstract = result["o"]["value"]
+		return self.abstract
+
+
+	# ========================================================================================
+	# TODO
+	# UPCOMING EVENTS
+	# ========================================================================================
 	def get_upcoming_tours(self):
 		pass
 
+
+	# ========================================================================================
+	# SPOTIFY get and _pull
+	# ========================================================================================
 	def get_spotify_uri(self):
 		if self.state == 0:
 			if not self.spotifyID:
@@ -74,20 +115,73 @@ class MusicMashupArtist:
 		else:
 			return "0000"
 
+	def _pull_spotify_id(self):
+		self.spotifyID = self.get_echoNestArtist().get_foreign_id('spotify')
+		return self.spotifyID
 
+
+	# ========================================================================================
+	# DBTUNE-URL get and _pull
+	# ========================================================================================
 	def get_dbtuneURL(self):
 		if not self.dbtuneURL:
 			self.dbtuneURL = _pull_dbtune()
 		return self.dbtuneURL
 
+	def _pull_dbpedia_url(self):
+		try:
+			sparql = SPARQLWrapper("http://dbtune.org/musicbrainz/sparql")
+			sparql.setQuery("""
+					PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+					SELECT ?o
+					WHERE {
+					<"""+self.dbtuneURL+"""> owl:sameAs ?o .
+					}
+					""")
+
+			sparql.setReturnFormat(JSON)
+			results = sparql.query().convert()
+
+			for result in results["results"]["bindings"]:
+				if "dbpedia.org/resource" in result["o"]["value"]:
+					self.dbpediaURL = result["o"]["value"]
+
+			if self.dbpediaURL != "":
+				print("[+] Found dbpedia URL")
+
+				return 0
+			else:
+				return -1
+
+		except:
+			self.problem = "dbtune problem while fetching dbpedia url"
+			print("[-] dbtune problem while fetching dbpedia url")
+			return -1
+
+
+
+	# ========================================================================================
+	# RELATET get and _pull
+	# ========================================================================================
 	def get_related(self):
 		if not self.related:
 			self.related = self._pull_related()
 		return self.related
 
-	def get_reco(self):
-		return self.reco
+	def _pull_related(self):
+		# get Methoden sollten noch geschrieben werden
+		self._pull_current_members()
+		self._pull_producer_relation()
+		self._pull_current_bands_of_current_members()
+		self._pull_former_bands_of_current_members()
+		self.parse_to_rdf()
+		return self.related
 
+
+	# ========================================================================================
+	# ECHONEST-ARTIST get and _pull
+	# ========================================================================================
 	def get_echoNestArtist(self):
 		if not self.echoNestArtist and self.state == 0:
 			print("[~] pulling echoNestArtist")
@@ -96,11 +190,13 @@ class MusicMashupArtist:
 		else:
 			return self.echoNestArtist
 
-
-	def set_error_state(self):
-		print("[-] Could not locate Open Data source. Switching to error state!")
-		self.abstract = "Abstract not available. (" + self.problem + ")"
-		self.state = -1
+	def _pull_echoNest_artist(self):
+		if self.musicbrainzID:
+			self.echoNestArtist = artist.Artist('musicbrainz:artist:'+self.musicbrainzID)
+			print("[+] pulled echoNestArtist")
+			return self.echoNestArtist
+		else:
+			return -1
 
 
 	def _find_resources(self):
@@ -146,115 +242,24 @@ class MusicMashupArtist:
 			return -1
 
 
-	def _pull_dbpedia_url(self):
-		try:
-			sparql = SPARQLWrapper("http://dbtune.org/musicbrainz/sparql")
-			sparql.setQuery("""
-					PREFIX owl: <http://www.w3.org/2002/07/owl#>
 
-					SELECT ?o
-					WHERE {
-					<"""+self.dbtuneURL+"""> owl:sameAs ?o .
-					}
-					""")
-
-			sparql.setReturnFormat(JSON)
-			results = sparql.query().convert()
-
-			for result in results["results"]["bindings"]:
-				if "dbpedia.org/resource" in result["o"]["value"]:
-					self.dbpediaURL = result["o"]["value"]
-
-			if self.dbpediaURL != "":
-				print("[+] Found dbpedia URL")
-
-				return 0
-			else:
-				return -1
-
-		except:
-			self.problem = "dbtune problem while fetching dbpedia url"
-			print("[-] dbtune problem while fetching dbpedia url")
-			return -1
-
-
-
-	def _pull_abstract(self):
-		# global dbpediaURL, dbtuneURL
-
-		sparql = SPARQLWrapper("http://dbpedia.org/sparql")
-		sparql.setQuery("""
-			PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
-
-			SELECT ?o
-			WHERE { 
-			<"""+self.dbpediaURL+"""> dbpedia-owl:abstract ?o .
-			FILTER(langMatches(lang(?o), "EN"))
-			}
-			""")
-
-
-		sparql.setReturnFormat(JSON)
-		results = sparql.query().convert()
-
-		for result in results["results"]["bindings"]:
-			self.abstract = result["o"]["value"]
-
-		return self.abstract
-
-	def _pull_related(self):
-		# get Methoden sollten noch geschrieben werden
-		self._pull_current_members()
-		self._pull_producer_relation()
-		self._pull_current_bands_of_current_members()
-		self._pull_former_bands_of_current_members()
-		self.parse_to_rdf()
-		return self.related
-
-
-	# holt den echoNest-Artist anhand der MusicbrainzID
-	def _pull_echoNest_artist(self):
-		if self.musicbrainzID:
-			self.echoNestArtist = artist.Artist('musicbrainz:artist:'+self.musicbrainzID)
-			print("[+] pulled echoNestArtist")
-			return self.echoNestArtist
-		else:
-			return -1
-
-	#holt die spotifyID anhand des echoNest Artists
-	def _pull_spotify_id(self):
-		self.spotifyID = self.get_echoNestArtist().get_foreign_id('spotify')
-		return self.spotifyID
 
 	def _pull_songkick_id(self):
 		self.songkickID = self.get_echoNestArtist().get_foreign_id('songkick')
 		return self.songkickID
 
 
- # 			ab hier untegesteter code von paul ohne error handling
- # ========================== vvvvvvvvvvvvv ===============================
 
 
+	# TODO ERROR-HANDLING
+	# 			ab hier untegesteter code von paul ohne error handling
+	# ===============================================================
 	def _uri_to_name (self, uri):
 		uri = uri[28:]
 		uri = uri.replace('_', ' ')
 		return uri
 
-	def _pull_current_members(self):
-		sparql = SPARQLWrapper("http://dbpedia.org/sparql")
-		sparql.setQuery("""
-			PREFIX dbprop: <http://dbpedia.org/property/>
 
-			SELECT ?member WHERE {
-    			<"""+self.dbpediaURL+"""> dbprop:currentMembers ?member.
-				}
-			""")
-		sparql.setReturnFormat(JSON)
-		results = sparql.query().convert()			
-
-		for result in results["results"]["bindings"]:
-			self.currentMembers.append(result["member"]["value"])
-			print result["member"]["value"]
 
 	def _pull_producer_relation (self):
 		for member in self.currentMembers:
