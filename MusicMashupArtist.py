@@ -12,7 +12,7 @@ from pyechonest import artist
 
 class MusicMashupArtist:
 
-	# Globale Variablen
+	# Instanzvariablen
 	# erlaubt das halten von URLs etc. über einzelne Funktionen hinaus
 
 	dbpediaURL = None
@@ -33,10 +33,9 @@ class MusicMashupArtist:
 
 	def __init__(self, query, reco = ""):
 		self.name = query
-		self._find_resources()
-
 
 		# reco = recommendation reason
+		# please rename
 		self.reco = reco
 
 		# locate artist on musicbrainz (via dbtune) and dbpedia
@@ -94,11 +93,13 @@ class MusicMashupArtist:
 	def get_reco(self):
 		return self.reco
 
-	def get_echonestArtist(self):
+	def get_echoNestArtist(self):
 		if not self.echoNestArtist and self.state == 0:
-			self._pull_echonext_artist()
+			print("[~] pulling echoNestArtist")
+			self._pull_echoNest_artist()
+			return self.echoNestArtist
 		else:
-			return -1
+			return self.echoNestArtist
 
 
 	def set_error_state(self):
@@ -140,12 +141,13 @@ class MusicMashupArtist:
 			if self.dbtuneURL:
 				self.musicbrainzID = self.dbtuneURL[-36:]
 				print("[+] Found dbtune URL")
+				print(self.musicbrainzID)
 				return 0
 			else:
 				return -1
 		except:
-			self.problem = "dbtune problem"
-			print("[-] dbtune problem")
+			self.problem = "dbtune problem while fetching dbtune url"
+			print("[-] dbtune problem while fetching dbtune url")
 			return -1
 
 
@@ -177,7 +179,7 @@ class MusicMashupArtist:
 
 		except:
 			self.problem = "dbtune problem while fetching dbpedia url"
-			print("[-] dbtune problem")
+			print("[-] dbtune problem while fetching dbpedia url")
 			return -1
 
 
@@ -207,29 +209,29 @@ class MusicMashupArtist:
 
 	def _pull_related(self):
 		#hardcode
-		self.related.append(MusicMashupArtist("Helene Fischer", "Because both are on Universal Label"))
-		self.related.append(MusicMashupArtist("Deep Twelve", "Because both bands have <a href='#'>Marvin Gay</a> play Bass"))
-		self.related.append(MusicMashupArtist("John djfakdjfkajfdkjfd", "To test non-existing artists"))
+		# self.related.append(MusicMashupArtist("Helene Fischer", "Because both are on Universal Label"))
+		# self.related.append(MusicMashupArtist("Deep Twelve", "Because both bands have <a href='#'>Marvin Gay</a> play Bass"))
+		# self.related.append(MusicMashupArtist("John djfakdjfkajfdkjfd", "To test non-existing artists"))
 		return self.related
 
 
 	# holt den echoNest-Artist anhand der MusicbrainzID
-	def _pull_echonext_artist(self):
+	def _pull_echoNest_artist(self):
 		if self.musicbrainzID:
-			echoNestArtist = artist.Artist('musicbrainz:artist:'+self.musicbrainzID)
-			self.echonestArtist = echoNestArtist
-			return echoNestArtist
+			self.echoNestArtist = artist.Artist('musicbrainz:artist:'+self.musicbrainzID)
+			print("[+] pulled echoNestArtist")
+			return self.echoNestArtist
 		else:
 			return -1
 
 	#holt die spotifyID anhand des echoNest Artists
 	def _pull_spotify_id(self):
-		self.spotifyID = self.get_echonestArtist().get_foreign_id('spotify')
-		return spotifyID
+		self.spotifyID = self.get_echoNestArtist().get_foreign_id('spotify')
+		return self.spotifyID
 
 	def _pull_songkick_id(self):
-		self.songkickID = self.get_echonestArtist().get_foreign_id('songkick')
-		return songkickID
+		self.songkickID = self.get_echoNestArtist().get_foreign_id('songkick')
+		return self.songkickID
 
 
  # 			ab hier untegesteter code von paul ohne error handling
@@ -238,7 +240,7 @@ class MusicMashupArtist:
 
 	def _uri_to_name (uri):
 		uri = uri[28:]
-		uri = string.replace(uri, '_', ' ')
+		uri = uri.replace('_', ' ')
 		return uri
 
 	def _pull_current_members(self):
@@ -318,6 +320,7 @@ class MusicMashupArtist:
 # run from console for test setup
 if __name__ == '__main__':
 	test = MusicMashupArtist("Queens of the Stone Age")
+	print("this is a test.")
 	print(test.get_name())
 	print(test.get_abstract())
 	print(test.get_spotify_uri())
