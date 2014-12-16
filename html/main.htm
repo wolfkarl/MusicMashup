@@ -78,8 +78,12 @@
               <div class="panel-body">
 
               % for r in artist.get_related():
-                        <h4><a href="/?query=${r.get_name()}">${r.get_name()}</a> <small>(${r.get_reco()})</small></h4>
-                        <p>${r.get_abstract_excerpt()}</p>
+                        <h4><a href="/?query=${r.get_name()}">${r.get_name()}</a> <small>${r.get_abstract_excerpt()}</small></h4>
+                        <ul>
+                        % for reason in r.get_reason(): 
+                        <li>${reason}</li>
+                        %endfor
+                        </ul>
               % endfor
 
               </div>

@@ -1,9 +1,15 @@
 - Member queries für Solokünstler können Fehler werfen. Error handling aber eh gebraucht
 
+- http://dbpedia.org/resource/Primus_%28band%29    codieruung wieder anders machen
+
+- Wenn als Member ein contributor zurückkommt diesen auslesen!
+
+- Related-Methoden generischer machen!!
+
 - Genauere Infos zu, ob aktueller oder former bandmitglied ( am end wann mitglied und welches Instrument)
 
 - Pfad, wo man herkam, oben anzeigen
-	--> Pointer auf letzte Resource halten
+	--> evtll. Pointer auf letzte Resource halten
 
 - genauere Infos im Infotext (bsp: war auch in der Band, die aber nicht mehr existiert
 								 : XY war auch mal in dieser Band und spielt heute in dieser
