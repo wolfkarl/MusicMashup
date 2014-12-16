@@ -15,6 +15,7 @@ PRIORISIERUNG:
 
 - Features
 	- Songkick Events (DO)
+	- Voting/Sortierung (DO)
 	- "Breadcrumb Navigation" -> Pfad deutlich machen (DO)
 	- genauerer Infotext
 	- Bildergalerie via commons.dbpedia.org (DO)
