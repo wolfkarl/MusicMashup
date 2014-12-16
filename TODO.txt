@@ -12,6 +12,9 @@ PRIORISIERUNG:
 - Refactoring
 	- Relations-Methoden generischer machen
 	- Code aufräumen
+	- WICHTIG: Getter schreiben!!
+	- welche Methoden brauchen einen RETURN, welche nicht?
+	- Konzept des Debug Outputs überdenken
 
 - Features
 	- Songkick Events (DO)
@@ -23,3 +26,8 @@ PRIORISIERUNG:
 
 - Parser
 	- wirft manchmal Fehler (DO)
+
+- für ganz ganz später
+	- AJAX
+	- UI
+		- "richtig schöne Oberfläche"

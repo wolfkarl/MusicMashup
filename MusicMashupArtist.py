@@ -321,13 +321,13 @@ class MusicMashupArtist:
 			return -1
 
 
-	def _pull_songkick_id(self):
-		self.songkickID = self.get_echoNestArtist().get_foreign_id('songkick')
-		return self.songkickID
+	# def _pull_songkick_id(self):
+	# 	self.songkickID = self.get_echoNestArtist().get_foreign_id('songkick')
+	# 	return self.songkickID
 
 	def _pull_events(self):
 		print ("[~] Pulling Songkick Events")
-		self.events = urlopen('http://api.songkick.com/api/3.0/artists/'+str(self.songkickID)+'/calendar.json?apikey='+self.songkickApiKey+'').read()
+		self.events = urlopen('http://api.songkick.com/api/3.0/artists/mbid:'+str(self.musicbrainzID)+'/calendar.json?apikey='+self.songkickApiKey+'').read()
 		print self.events
 
 
