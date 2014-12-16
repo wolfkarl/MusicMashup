@@ -1,26 +1,24 @@
-- Member queries für Solokünstler können Fehler werfen. Error handling aber eh gebraucht
+PRIORISIERUNG:
 
-- http://dbpedia.org/resource/Primus_%28band%29    codieruung wieder anders machen
+- Error Handling & Fallbacks (Karl)
+	- Error Handling im Allgemeinen (DO)
+	- Member queries für Solokünstler können Fehler werfen
+	- Sonderzeichen (z.B. Primus_(band)) im Zweifelsfall erweitern
+	- Dbtune down? nimm den mbdump und dbpedia!
 
-- Wenn als Member ein contributor zurückkommt diesen auslesen!
+- Queries
+	- Teilweise kommen statt Member eine Contributor Ressource zurück. Diese muss abgefangen werden 
 
-- Related-Methoden generischer machen!!
+- Refactoring
+	- Relations-Methoden generischer machen
+	- Code aufräumen
 
-- Genauere Infos zu, ob aktueller oder former bandmitglied ( am end wann mitglied und welches Instrument)
+- Features
+	- Songkick Events (DO)
+	- "Breadcrumb Navigation" -> Pfad deutlich machen (DO)
+	- genauerer Infotext
+	- Bildergalerie via commons.dbpedia.org (DO)
+	- Member ausgeben (DO) (Diskussionsbedarf)
 
-- Pfad, wo man herkam, oben anzeigen
-	--> evtll. Pointer auf letzte Resource halten
-
-- genauere Infos im Infotext (bsp: war auch in der Band, die aber nicht mehr existiert
-								 : XY war auch mal in dieser Band und spielt heute in dieser
-								 : [...] )
-
-- songkick events auslesen und anzeigen
-
-- Related Artist als rdf 
-
-- Songkick Events kommen immer leer zurück
-
-- Bild einbinden
-	- Am besten direkt Bildergalerie einbinden von allen möglichen Bildern
-
+- Parser
+	- wirft manchmal Fehler (DO)

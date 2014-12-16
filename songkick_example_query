@@ -1,0 +1,13 @@
+Clutch: 
+mbid: 0cdb0359-5698-487d-9aae-a25fb4dcdc4d
+songkick id?: 233013
+songkick api key: BxSDhcU0tXLU4yHQ
+query:
+http://api.songkick.com/api/3.0/artists/mbid:{music_brainz_id}/calendar.json?apikey={your_api_key}
+http://api.songkick.com/api/3.0/artists/mbid:0cdb0359-5698-487d-9aae-a25fb4dcdc4d/calendar.json?apikey=BxSDhcU0tXLU4yHQ
+
+works
+
+http://api.songkick.com/api/3.0/artists/233013/calendar.json?apikey=BxSDhcU0tXLU4yHQ
+
+works
