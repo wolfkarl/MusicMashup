@@ -418,14 +418,11 @@ class MusicMashupArtist:
 					knownArtist = None
 					for r in self.recommendation:
 						if result["band"]["value"] == r.get_dbpediaURL():
-							print ("DEBUG: Not a new Artist: "+r.get_dbpediaURL())
 							knownArtist = r
 							new = False
 					if new:
-						print("++++++++++ ADDED: "+result["band"]["value"]+ " as new Artist")
 						self.recommendation.append(MusicMashupArtist(result["band"]["value"], "Because "+self._uri_to_name(member)+" was active as producer"))
 					else:
-						print("&&&&&&&&&&&&&&&&& ADDED PRODUCER REASON TO: "+knownArtist.get_dbpediaURL())
 						knownArtist.addReason("Because "+self._uri_to_name(member)+" was active as producer")
 
 
@@ -459,7 +456,6 @@ class MusicMashupArtist:
 			results = sparql.query().convert()	
 			for result in results["results"]["bindings"]:
 				if result["band"]["value"] != self.dbpediaURL:
-					print ("============== Current Band: "+result["band"]["value"] )
 					new = True
 					knownArtist = None
 					for r in self.recommendation:
@@ -468,10 +464,8 @@ class MusicMashupArtist:
 							knownArtist = r
 							new = False
 					if new:
-						print("++++++++++ ADDED: "+result["band"]["value"]+ " as new Artist")
 						self.recommendation.append(MusicMashupArtist(result["band"]["value"], "Because "+self._uri_to_name(member)+" is also a member of this band."))
 					else:
-						print("&&&&&&&&&&&&&&&&& ADDED CURRENT MEMBERSHIP REASON TO: "+knownArtist.get_dbpediaURL())
 						knownArtist.addReason("Because "+self._uri_to_name(member)+" is also a member of this band.")
 
 
