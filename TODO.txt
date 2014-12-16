@@ -18,6 +18,7 @@ PRIORISIERUNG:
 
 - Features
 	- Songkick Events (DO)
+		- Events sind. jetzt nochn Getter schreiben und ins Template hauen
 	- Voting/Sortierung (DO)
 	- "Breadcrumb Navigation" -> Pfad deutlich machen (DO)
 	- genauerer Infotext
