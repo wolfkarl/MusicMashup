@@ -1,0 +1,46 @@
+body
+{
+	background-color: #eee;
+	font-family: "Roboto Slab";
+	background-image: url(shattered.png);
+}
+
+.logo
+{
+	font-weight: bold;
+	padding: 1em 0;
+	display: block;
+}
+
+.menu
+{
+	padding-top: 1em;
+	padding-bottom: 0.5em;
+}
+
+.container
+{
+	background-color: white;
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+.hero
+{
+	padding-top: 2em;
+	padding-bottom: 2em;
+	background-color: #39f;
+	color: #fff;
+}
+
+.reco
+{
+
+}
+
+.reco .img
+{
+	background-image: url(http://lorempixel.com/100/100/people);
+	height: 100px;
+	margin-top: 10px;
+}
