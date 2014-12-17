@@ -6,6 +6,7 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 
 import re
 import string
+import json
 
 from urllib import urlopen
 
@@ -48,7 +49,8 @@ class MusicMashupArtist:
 		self.songkickID = 0
 		self.state = 0
 		self.problem = ""
-		self.events = None
+		self.eventsJSON = None
+		self.events = []
 		self.recommendation = []
 		self.reason = []
 
@@ -324,15 +326,22 @@ class MusicMashupArtist:
 			return -1
 
 
-	def _pull_songkick_id(self):
-		self.songkickID = self.get_echoNestArtist().get_foreign_id('songkick')
-		return self.songkickID
+	# def _pull_songkick_id(self):
+	# 	self.songkickID = self.get_echoNestArtist().get_foreign_id('songkick')
+	# 	return self.songkickID
 
 	def _pull_events(self):
 		print ("[~] Pulling Songkick Events")
-		self.events = urlopen('http://api.songkick.com/api/3.0/artists/'+str(self.songkickID)+'/calendar.json?apikey='+self.songkickApiKey+'').read()
-		print self.events
+		self.eventsJSON = urlopen('http://api.songkick.com/api/3.0/artists/mbid:'+str(self.musicbrainzID)+'/calendar.json?apikey='+self.songkickApiKey+'').read()
+		self.eventsJSON = json.loads(self.eventsJSON)
+		self._convert_events()
 
+	def _convert_events(self):
+		numberOfConcerts = len(self.eventsJSON["resultsPage"]["results"]["event"])
+		for i in range(numberOfConcerts):
+			self.events.append(self.eventsJSON["resultsPage"]["results"]["event"][i]["displayName"])
+		for event in self.events:
+			print (event)
 
 	# TODO ERROR HANDLING!!!!!!!!!!!!!!!!!!!! wirft oft fehler
 	def _pull_current_members(self):
