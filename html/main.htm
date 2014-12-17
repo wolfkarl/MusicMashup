@@ -103,12 +103,15 @@
        
          <div class="panel panel-default">
              <div class="panel-heading">
-               <h3 class="panel-title">GoogleMaps(?)</h3>
+               <h3 class="panel-title">Events from Songkick</h3>
              </div>
-             <div class="panel-body">
-               In the near future AC/DC will play gigs at the following locations
-
-             </div>
+               <div class="panel-body">
+                <ul>
+                % for r in artist.get_events():
+                <li>${r}</li>
+                % endfor
+                </ul> 
+               </div>
            </div> </div>
        </div>
 

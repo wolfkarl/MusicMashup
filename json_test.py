@@ -11,6 +11,8 @@ print len(data["resultsPage"]["results"]["event"])
 
 print "================"
 
+print data["resultsPage"]["totalEntries"]
+
 numberOfConcerts = len(data["resultsPage"]["results"]["event"])
 
 for i in range(numberOfConcerts):
