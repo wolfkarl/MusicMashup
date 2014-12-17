@@ -26,6 +26,7 @@ PRIORISIERUNG:
 	- genauerer Infotext
 	- Bildergalerie via commons.dbpedia.org (DO)
 	- Member ausgeben (DO) (Diskussionsbedarf)
+	- Weiterführende Links
 
 - Parser
 	- wirft manchmal Fehler (DO)
