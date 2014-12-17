@@ -340,13 +340,20 @@ class MusicMashupArtist:
 
 	def _pull_related(self):
 		# get Methoden sollten noch geschrieben werden
-		self._pull_current_members()
-		self._pull_former_members()
-		self._pull_current_bands_of_current_members()
-		self._pull_former_bands_of_current_members()
-		self._pull_current_bands_of_former_members()
-		self._pull_former_bands_of_former_members()
-		self._pull_producer_relation()
+		try:
+			self._pull_current_members()
+			self._pull_former_members()
+			self._pull_current_bands_of_current_members()
+			self._pull_former_bands_of_current_members()
+			self._pull_current_bands_of_former_members()
+			self._pull_former_bands_of_former_members()
+		except:
+			pass # bestes error handling aller zeiten
+		
+		try:	
+			self._pull_producer_relation()
+		except:
+			pass
 		# self.parse_to_rdf()
 		# self._pull_events()
 		# return self.related
