@@ -47,6 +47,8 @@
  * Lösung: educated Guess (Titlecase) und string indexing
  * 5.) keine Fallbacks
  * Lösung: anstatt zu dbtune, mbid ausm Dump und dbpedia von dbpedia
+ * 6.) Performance
+ * Lösung: Queries optimieren, aber noch keine genaue Lösung
 
 ### Ausblick
 
