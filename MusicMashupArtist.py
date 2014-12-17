@@ -185,7 +185,7 @@ class MusicMashupArtist:
 
 			SELECT ?o
 			WHERE { 
-			<"""+self.dbpediaURL+"""> dbpedia-owl:abstract ?o .
+			<"""+self.get_dbpediaURL()+"""> dbpedia-owl:abstract ?o .
 			FILTER(langMatches(lang(?o), "EN"))
 			}
 			""")
@@ -336,13 +336,13 @@ class MusicMashupArtist:
 
 	# TODO ERROR HANDLING!!!!!!!!!!!!!!!!!!!! wirft oft fehler
 	def _pull_current_members(self):
-		print("[~] Pulling current Members of: "+self.dbpediaURL)
+		print("[~] Pulling current Members of: "+self.get_dbpediaURL())
 		sparql = SPARQLWrapper("http://dbpedia.org/sparql")
 		sparql.setQuery("""
 			PREFIX dbprop: <http://dbpedia.org/property/>
 
 			SELECT ?member WHERE {
-    			<"""+self.dbpediaURL+"""> dbprop:currentMembers ?member.
+    			<"""+self.get_dbpediaURL()+"""> dbprop:currentMembers ?member.
 				}
 			""")
 		sparql.setReturnFormat(JSON)
@@ -356,12 +356,12 @@ class MusicMashupArtist:
 				print("[-] No Resource on dbpedia for: "+result["member"]["value"])
 
 		if not self.currentMembers:
-			print("[~] Pulling current Members of: "+self.dbpediaURL+"With dbpedia-owl:bandMembers")
+			print("[~] Pulling current Members of: "+self.get_dbpediaURL()+"With dbpedia-owl:bandMembers")
 			sparql = SPARQLWrapper("http://dbpedia.org/sparql")
 			sparql.setQuery("""
 				PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
 				SELECT ?member WHERE {
-	    			<"""+self.dbpediaURL+"""> dbpedia-owl:bandMembers ?member.
+	    			<"""+self.get_dbpediaURL()+"""> dbpedia-owl:bandMembers ?member.
 					}
 				""")
 			sparql.setReturnFormat(JSON)
@@ -377,14 +377,14 @@ class MusicMashupArtist:
 
 
 	def _pull_former_members(self):
-		print("[~] Pulling former Members of: "+self.dbpediaURL)
+		print("[~] Pulling former Members of: "+self.get_dbpediaURL())
 		sparql = SPARQLWrapper("http://dbpedia.org/sparql")
 		sparql.setQuery("""
 			PREFIX dbprop: <http://dbpedia.org/property/>
 			PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
 
 			SELECT ?member WHERE {
-    			<"""+self.dbpediaURL+"""> dbpedia-owl:formerBandMember ?member.
+    			<"""+self.get_dbpediaURL()+"""> dbpedia-owl:formerBandMember ?member.
 				}
 			""")
 		sparql.setReturnFormat(JSON)
@@ -425,7 +425,7 @@ class MusicMashupArtist:
 			sparql.setReturnFormat(JSON)
 			results = sparql.query().convert()	
 			for result in results["results"]["bindings"]:
-				if result["band"]["value"] != self.dbpediaURL:
+				if result["band"]["value"] != self.get_dbpediaURL():
 					new = True
 					knownArtist = None
 					for r in self.recommendation:
@@ -467,7 +467,7 @@ class MusicMashupArtist:
 			sparql.setReturnFormat(JSON)
 			results = sparql.query().convert()	
 			for result in results["results"]["bindings"]:
-				if result["band"]["value"] != self.dbpediaURL:
+				if result["band"]["value"] != self.get_dbpediaURL():
 					new = True
 					knownArtist = None
 					for r in self.recommendation:
@@ -506,7 +506,7 @@ class MusicMashupArtist:
 			sparql.setReturnFormat(JSON)
 			results = sparql.query().convert()	
 			for result in results["results"]["bindings"]:
-				if result["band"]["value"] != self.dbpediaURL: 
+				if result["band"]["value"] != self.get_dbpediaURL(): 
 					new = True
 					knownArtist = None
 					for r in self.recommendation:
@@ -542,7 +542,7 @@ class MusicMashupArtist:
 			sparql.setReturnFormat(JSON)
 			results = sparql.query().convert()	
 			for result in results["results"]["bindings"]:
-				if result["band"]["value"] != self.dbpediaURL: 
+				if result["band"]["value"] != self.get_dbpediaURL(): 
 					new = True
 					knownArtist = None
 					for r in self.recommendation:
@@ -580,7 +580,7 @@ class MusicMashupArtist:
 			sparql.setReturnFormat(JSON)
 			results = sparql.query().convert()	
 			for result in results["results"]["bindings"]:
-				if result["band"]["value"] != self.dbpediaURL:
+				if result["band"]["value"] != self.get_dbpediaURL():
 					new = True
 					knownArtist = None
 					for r in self.recommendation:
@@ -627,14 +627,14 @@ class MusicMashupArtist:
 		file.write("@prefix owl: <http://www.w3.org/2002/07/owl#> .\n\n")
 	
 	def parse_abstract(self, file):
-		file.write("<"+self.dbpediaURL+"> dbpedia-owl:abstract \""+self.abstract+"\" .\n")
+		file.write("<"+self.get_dbpediaURL()+"> dbpedia-owl:abstract \""+self.abstract+"\" .\n")
 	
 	def parse_current_members(self, file):
 		for member in self.currentMembers:
-			file.write("<"+self.dbpediaURL+"> dbprop:currentMember <"+member+"> .\n")
+			file.write("<"+self.get_dbpediaURL()+"> dbprop:currentMember <"+member+"> .\n")
 	def parse_related_artists(self, file):
 		for artist in self.relatedSources:
-			file.write("<"+self.dbpediaURL+"> dbpedia-owl:associatedMusicalArtist <"+artist+"> .\n")
+			file.write("<"+self.get_dbpediaURL()+"> dbpedia-owl:associatedMusicalArtist <"+artist+"> .\n")
 
 
 
