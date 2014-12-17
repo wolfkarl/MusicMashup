@@ -12,7 +12,7 @@ PRIORISIERUNG:
 	- Teilweise kommen statt Member eine Contributor Ressource zurück. Diese muss abgefangen werden 
 
 - Refactoring
-	- Relations-Methoden generischer machen
+	- Relations-Methoden generischer machen (UNION bei members und former members)
 	- Code aufräumen
 	- WICHTIG: Getter schreiben!!
 	- welche Methoden brauchen einen RETURN, welche nicht?
@@ -20,7 +20,7 @@ PRIORISIERUNG:
 
 - Features
 	- Songkick Events (DO)
-		- Events sind. jetzt nochn Getter schreiben und ins Template hauen
+		- mal gucken, was sich noch so aus dem JSON rausholen lässt
 	- Voting/Sortierung (DO)
 	- "Breadcrumb Navigation" -> Pfad deutlich machen (DO)
 	- genauerer Infotext
@@ -34,3 +34,20 @@ PRIORISIERUNG:
 	- AJAX
 	- UI
 		- "richtig schöne Oberfläche"
+
+		OPTIMIERUNG!!!!!!!!!!
+
+		The quick brown fox jumps over the lazy dog
+		Franz fährt im komplett verwahrlostne Taxi quer durch Bayern
+
+		Niemand hat die Absicht, ein Mauer zu bauen
+
+VORTRAG:
+
+- Idee/Ziel (2min)
+- Demo (2min)
+- Datenquellen (2min)
+- Problemlösungen (2min)
+- Ausblick/zukünftige Features (2min)
+
+- jeder soll verstehen, worum es geht
