@@ -299,7 +299,7 @@ class MusicMashupArtist:
 		self._pull_former_bands_of_former_members()
 		self._pull_producer_relation()
 		# self.parse_to_rdf()
-		self._pull_events()
+		# self._pull_events()
 		# return self.related
 
 
@@ -327,6 +327,11 @@ class MusicMashupArtist:
 	# 	self.songkickID = self.get_echoNestArtist().get_foreign_id('songkick')
 	# 	return self.songkickID
 
+	def get_events(self):
+		self._pull_events()
+		return self.events
+
+
 	def _pull_events(self):
 		print ("[~] Pulling Songkick Events")
 		self.eventsJSON = urlopen('http://api.songkick.com/api/3.0/artists/mbid:'+str(self.musicbrainzID)+'/calendar.json?apikey='+self.songkickApiKey+'').read()
@@ -334,12 +339,14 @@ class MusicMashupArtist:
 		self._convert_events()
 
 	def _convert_events(self):
-		numberOfConcerts = len(self.eventsJSON["resultsPage"]["results"]["event"])
-		for i in range(numberOfConcerts):
-			self.events.append(self.eventsJSON["resultsPage"]["results"]["event"][i]["displayName"])
-		for event in self.events:
-			print (event)
+		entries = self.eventsJSON["resultsPage"]["totalEntries"]
+		if entries > 0:
+			for i in range(entries):
+				self.events.append(self.eventsJSON["resultsPage"]["results"]["event"][i]["displayName"])
+		else:
+			self.events.append("No Concerts found.")
 
+			
 	# TODO ERROR HANDLING!!!!!!!!!!!!!!!!!!!! wirft oft fehler
 	def _pull_current_members(self):
 		print("[~] Pulling current Members of: "+self.dbpediaURL)

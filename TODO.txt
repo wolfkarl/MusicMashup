@@ -1,5 +1,7 @@
 PRIORISIERUNG:
 
+- DEFAULT WERT RAUSNEHMEN (DO)
+
 - Error Handling & Fallbacks (Karl)
 	- Error Handling im Allgemeinen (DO)
 	- Member queries für Solokünstler können Fehler werfen
