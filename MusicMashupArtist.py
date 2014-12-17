@@ -91,10 +91,11 @@ class MusicMashupArtist:
 
 	def _find_resources(self):
 		self._pull_dbtune()
-		if self.dbtuneURL:
+		if self.dbtuneURL and not self.dbpediaURL:
 			self._pull_dbpedia_url()
-			if self.dbpediaURL:
-				self._decodeURL()
+			
+		if self.dbpediaURL:
+			self._decodeURL()
 
 		if not self.dbpediaURL or not self.dbtuneURL:
 			self.set_error_state()
