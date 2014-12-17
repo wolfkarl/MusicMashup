@@ -55,6 +55,10 @@ class MusicMashupArtist:
 		self.related = []
 		self.abstract = ""
 
+
+
+
+
 		self.currentMembers = []
 		self.formerMembers = []
 		self.relatedSources = []
@@ -151,7 +155,6 @@ class MusicMashupArtist:
 
 	def get_name(self):
 		return self.name
-
 
 	def get_reco(self):
 		return self.reco
@@ -346,8 +349,11 @@ class MusicMashupArtist:
 		results = sparql.query().convert()			
 
 		for result in results["results"]["bindings"]:
-			self.currentMembers.append(result["member"]["value"])
-			print result["member"]["value"]
+			if result["member"]["value"][:4] == "http":
+				self.currentMembers.append(result["member"]["value"])
+				print result["member"]["value"]
+			else:
+				print("[-] No Resource on dbpedia for: "+result["member"]["value"])
 
 		if not self.currentMembers:
 			print("[~] Pulling current Members of: "+self.dbpediaURL+"With dbpedia-owl:bandMembers")
@@ -362,8 +368,11 @@ class MusicMashupArtist:
 			results = sparql.query().convert()			
 
 			for result in results["results"]["bindings"]:
-				self.currentMembers.append(result["member"]["value"])
-				print result["member"]["value"]
+				if result["member"]["value"][:4] == "http":
+					self.currentMembers.append(result["member"]["value"])
+					print result["member"]["value"]
+				else:
+					print("[-] No Resource on dbpedia for: "+result["member"]["value"])
 
 
 
@@ -382,8 +391,11 @@ class MusicMashupArtist:
 		results = sparql.query().convert()			
 
 		for result in results["results"]["bindings"]:
-			self.formerMembers.append(result["member"]["value"])
-			print result["member"]["value"]
+			if result["member"]["value"][:4] == "http":
+				self.formerMembers.append(result["member"]["value"])
+				print result["member"]["value"]
+			else:
+				print("[-] No Resource on dbpedia for: "+result["member"]["value"])
 
 	# TODO ERROR-HANDLING
 	# 			ab hier untegesteter code ohne error handling
