@@ -8,6 +8,7 @@ import re
 import string
 import json
 
+import urllib
 from urllib import urlopen
 
 from pyechonest import config
@@ -57,6 +58,9 @@ class MusicMashupArtist:
 		self.related = []
 		self.abstract = ""
 
+		self.dbpedia_set = 0
+		self.dbtune_set = 0
+
 
 
 
@@ -64,9 +68,11 @@ class MusicMashupArtist:
 		self.currentMembers = []
 		self.formerMembers = []
 		self.relatedSources = []
+		query = urllib.unquote(query)
 		if query[:4] == "http":
 			self.name = self._uri_to_name(query)
 			self.dbpediaURL = query
+			self.dbpedia_set = 1
 		else:
 			self.name = query
 
@@ -99,6 +105,9 @@ class MusicMashupArtist:
 
 		if not self.dbpediaURL or not self.dbtuneURL:
 			self.set_error_state()
+
+	def get_dbpediaURL_link(self):
+		return urllib.quote_plus(self.get_dbpediaURL())
 
 	def	_decodeURL(self):
 		self.dbpediaURL = string.replace(self.dbpediaURL, '%28', '(')
@@ -174,12 +183,15 @@ class MusicMashupArtist:
 				self.musicbrainzID = self.dbtuneURL[-36:]
 				print("[+] Found dbtune URL")
 				print("[+] musicbrainzID: "+self.musicbrainzID)
+				self.dbtune_set = 1
 				return 0
 			else:
+				self.dbtune_set = -1
 				return -1
 		except:
 			self.problem = "dbtune problem while fetching dbtune url"
 			print("[-] dbtune problem while fetching dbtune url")
+			self.dbtune_set = -1
 			return -1
 
 	def get_name(self):
@@ -248,8 +260,15 @@ class MusicMashupArtist:
 			return "0000"
 
 	def _pull_spotify_id(self):
-		self.spotifyID = self.get_echoNestArtist().get_foreign_id('spotify')
-		return self.spotifyID
+		try:
+			if self.dbtune_set == 1:
+				self.spotifyID = self.get_echoNestArtist().get_foreign_id('spotify')
+			else:
+				self.spotifyID = "1234"
+			return self.spotifyID
+		except:
+			self.spotifyID = "2345"
+			return self.spotifyID
 
 
 	# ========================================================================================

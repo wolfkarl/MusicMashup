@@ -46,15 +46,7 @@
         <div class="row">
           <div class="col-md-8"><h3>General Information</h3>
             
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <h3 class="panel-title">Abstract (from dbpedia)</h3>
-              </div>
-            
-              <div class="panel-body">
                 <p>${artist.get_abstract()}</p>
-              </div>
-            </div>
             
             <h3>Recommendations</h3>
             
@@ -66,7 +58,7 @@
 <div class="reco row">
   <div class="col-sm-2"><div class="img"></div></div>
 <div class="col-sm-10">
-  <h4><a href="/?query=${r.get_name()}">${r.get_name()}</a> <small>${r.get_abstract_excerpt()}</small></h4>
+  <h4><a href="/?query=${r.get_dbpediaURL_link()}">${r.get_name()}</a> <small>${r.get_abstract_excerpt(600)}</small></h4>
   <ul>
   % for reason in r.get_reason(): 
   <li>${reason}</li>
@@ -80,6 +72,7 @@
               </div>
         
          <div class="col-md-4 widget">
+         <h3>Listen</h3>
            
                <iframe src="https://embed.spotify.com/?uri=${artist.get_spotify_uri()}" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
            </div>     

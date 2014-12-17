@@ -33,6 +33,10 @@ body
 	color: #fff;
 }
 
+.search
+{
+	text-align: right;
+}
 .reco
 {
 
@@ -40,7 +44,7 @@ body
 
 .reco .img
 {
-	background-image: url(http://lorempixel.com/100/100/people);
+	background-image: url(http://placehold.it/100x100);
 	height: 100px;
 	margin-top: 10px;
 }
