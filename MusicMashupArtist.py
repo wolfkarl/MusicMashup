@@ -121,6 +121,32 @@ class MusicMashupArtist:
 			for result in results["results"]["bindings"]:
 				self.dbtuneURL = result["s"]["value"]
 
+			lastSix = self.name[len(self.get_name())-6:]
+			print lastSix
+			if not self.dbtuneURL and (lastSix == "(Band)" or lastSix == "(band)"):
+				withoutBand = self.get_name()[:-6]
+				if withoutBand[len(withoutBand)-1:] == " ":
+					withoutBand = withoutBand[:-1]
+					print("SOGAR EIN LEERZEICHEN WAR DA")
+
+
+				print ("Trying with: "+self.get_name()[:-6])
+				sparql = SPARQLWrapper("http://dbtune.org/musicbrainz/sparql")
+				sparql.setQuery("""
+					PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+					PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+					PREFIX mo: <http://purl.org/ontology/mo/>
+					SELECT ?s
+					WHERE { 
+					?s rdfs:label \""""+withoutBand+"""\" .
+					?s rdf:type mo:MusicArtist .
+					}
+				""")
+			sparql.setReturnFormat(JSON)
+			results = sparql.query().convert()
+			for result in results["results"]["bindings"]:
+				self.dbtuneURL = result["s"]["value"]
+
 			#Oft hat musicbrainz ein The XY und dbtune kein The bzw vice versa, daher:
 			nameshort = self.name[:3]
 			if not self.dbtuneURL and (nameshort != "The"):
