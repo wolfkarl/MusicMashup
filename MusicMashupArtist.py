@@ -103,7 +103,7 @@ class MusicMashupArtist:
 		if self.dbpediaURL:
 			self._decodeURL()
 
-		if not self.dbpediaURL or not self.dbtuneURL:
+		if not self.dbpediaURL and not self.dbtuneURL:
 			self.set_error_state()
 
 	def get_dbpediaURL_link(self):
@@ -210,9 +210,12 @@ class MusicMashupArtist:
 	# ABSTRACT get and _pull
 	# ========================================================================================
 	def get_abstract(self):
-		if not self.abstract and self.state == 0:
-			print("[~] Pulling abstract")
-			self.abstract = self._pull_abstract()
+		try:
+			if not self.abstract and self.state == 0:
+				print("[~] Pulling abstract")
+				self.abstract = self._pull_abstract()
+		except:
+			self.abstract = "Abstract Error"
 		return self.abstract
 
 	def get_abstract_excerpt(self, len=100):
