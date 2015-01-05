@@ -11,6 +11,8 @@ import json
 import urllib
 from urllib import urlopen
 
+from titlecase import titlecase
+
 from pyechonest import config
 config.ECHO_NEST_API_KEY="GZVL1ZHR0GIYXJZXG"
 from pyechonest import artist
@@ -72,7 +74,7 @@ class MusicMashupArtist:
 			self.dbpediaURL = query
 			self.dbpedia_set = 1
 		else:
-			self.name = query
+			self.name = titlecase(query)
 
 
 		if reco != "":
