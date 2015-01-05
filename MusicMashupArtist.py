@@ -61,14 +61,12 @@ class MusicMashupArtist:
 		self.dbpedia_set = 0
 		self.dbtune_set = 0
 
-
-
-
-
 		self.currentMembers = []
 		self.formerMembers = []
 		self.relatedSources = []
+
 		query = urllib.unquote(query)
+
 		if query[:4] == "http":
 			self.name = self._uri_to_name(query)
 			self.dbpediaURL = query
@@ -107,7 +105,7 @@ class MusicMashupArtist:
 			self.set_error_state()
 
 	def get_dbpediaURL_link(self):
-		return urllib.quote_plus(self.get_dbpediaURL())
+		return urllib.quote_plus(self.get_dbpediaURL().encode('utf8'))
 
 	def	_decodeURL(self):
 		self.dbpediaURL = string.replace(self.dbpediaURL, '%28', '(')
@@ -241,19 +239,11 @@ class MusicMashupArtist:
 			self.abstract = result["o"]["value"]
 		return self.abstract
 
-
-	# ========================================================================================
-	# TODO
-	# UPCOMING EVENTS
-	# ========================================================================================
-	def get_upcoming_tours(self):
-		pass
-
-
 	# ========================================================================================
 	# SPOTIFY get and _pull
 	# ========================================================================================
-	def get_spotify_uri(self):
+
+	def get_spotify_id(self):
 		if self.state == 0:
 			if not self.spotifyID:
 				print("[~] Pulling Spotify ID")
@@ -296,7 +286,7 @@ class MusicMashupArtist:
 
 					SELECT ?o
 					WHERE {
-					<"""+self.dbtuneURL+"""> owl:sameAs ?o .
+					<"""+self.get_dbtuneURL()+"""> owl:sameAs ?o .
 					}
 					""")
 
@@ -320,10 +310,8 @@ class MusicMashupArtist:
 			print("[-] dbtune problem while fetching dbpedia url")
 			return -1
 
-
-
 	# ========================================================================================
-	# RELATET get and _pull
+	# RELATED get and _pull
 	# ========================================================================================
 	def get_related(self):
 		# if not self.related:
@@ -361,7 +349,6 @@ class MusicMashupArtist:
 		# self._pull_events()
 		# return self.related
 
-
 	# ========================================================================================
 	# ECHONEST-ARTIST get and _pull
 	# ========================================================================================
@@ -381,15 +368,13 @@ class MusicMashupArtist:
 		else:
 			return -1
 
-
-	# def _pull_songkick_id(self):
-	# 	self.songkickID = self.get_echoNestArtist().get_foreign_id('songkick')
-	# 	return self.songkickID
+	# ========================================================================================
+	# SONGKICK-EVENTS get and _pull
+	# ========================================================================================
 
 	def get_events(self):
 		self._pull_events()
 		return self.events
-
 
 	def _pull_events(self):
 		print ("[~] Pulling Songkick Events")
@@ -405,8 +390,10 @@ class MusicMashupArtist:
 		else:
 			self.events.append("No Concerts found.")
 
-			
-	# TODO ERROR HANDLING!!!!!!!!!!!!!!!!!!!! wirft oft fehler
+	# ========================================================================================
+	# MEMBER _pull
+	# ========================================================================================
+
 	def _pull_current_members(self):
 		print("[~] Pulling current Members of: "+self.get_dbpediaURL())
 		sparql = SPARQLWrapper("http://dbpedia.org/sparql")
@@ -446,8 +433,6 @@ class MusicMashupArtist:
 				else:
 					print("[-] No Resource on dbpedia for: "+result["member"]["value"])
 
-
-
 	def _pull_former_members(self):
 		print("[~] Pulling former Members of: "+self.get_dbpediaURL())
 		sparql = SPARQLWrapper("http://dbpedia.org/sparql")
@@ -469,18 +454,10 @@ class MusicMashupArtist:
 			else:
 				print("[-] No Resource on dbpedia for: "+result["member"]["value"])
 
+	# ===============================================================
 	# TODO ERROR-HANDLING
 	# 			ab hier untegesteter code ohne error handling
 	# ===============================================================
-	def _uri_to_name(self, uri):
-		# print("[~] Converting URI to name")
-		uri = uri[28:]
-		uri = uri.replace('_', ' ')
-		return uri
-
-	def addReason(self, reason):
-		self.reason.append(reason)
-
 
 	def _pull_producer_relation(self):
 		for member in self.currentMembers:
@@ -521,8 +498,6 @@ class MusicMashupArtist:
 					# 	self.related[self.related.index(result["band"]["value"])].append(MusicMashupArtist(self._uri_to_name(result["band"]["value"]), "Because "+self._uri_to_name(member)+" was active as producer"))
 					# 	for rel in self.related[self.related.index(result["band"]["value"])]:
 					# 		print ("YEAH: "+rel)
-
-
 
 	def _pull_current_bands_of_current_members(self):
 		for member in self.currentMembers:
@@ -635,7 +610,6 @@ class MusicMashupArtist:
 					# else:
 					# 	print("====================================================================================")
 
-
 	def _pull_former_bands_of_former_members(self):
 		print ("[~] Searching current Bands of former Members")
 		for member in self.formerMembers:
@@ -671,6 +645,14 @@ class MusicMashupArtist:
 					# else:
 					# 	print("====================================================================================")
 
+	def _uri_to_name(self, uri):
+		# print("[~] Converting URI to name")
+		uri = uri[28:]
+		uri = uri.replace('_', ' ')
+		return uri
+
+	def addReason(self, reason):
+		self.reason.append(reason)
 
 	# ========================================================================================
 	# Parse Methoden
@@ -708,7 +690,13 @@ class MusicMashupArtist:
 		for artist in self.relatedSources:
 			file.write("<"+self.get_dbpediaURL()+"> dbpedia-owl:associatedMusicalArtist <"+artist+"> .\n")
 
+	# ========================================================================================
+	# brauchen wir das noch?
+	# ========================================================================================
 
+	# def _pull_songkick_id(self):
+	# 	self.songkickID = self.get_echoNestArtist().get_foreign_id('songkick')
+	# 	return self.songkickID
 
 # run from console for test setup
 if __name__ == '__main__':
@@ -716,11 +704,11 @@ if __name__ == '__main__':
 	print("this is a test.")
 	print(test.get_name())
 	print(test.get_abstract())
-	print(test.get_spotify_uri())
+	print(test.get_spotify_id())
 	# print(test.get_abstract())
 	# print(test.dbtuneURL)
 	# print (test.dbpediaURL)
 	blubb = test.get_related()
 	# print(blubb)
 	for r in blubb:
-		print(" + "+r.get_name() + " - " + r.get_abstract_excerpt(50) + " - " + r.get_spotify_uri())
+		print(" + "+r.get_name() + " - " + r.get_abstract_excerpt(50) + " - " + r.get_spotify_id())
