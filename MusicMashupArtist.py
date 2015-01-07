@@ -67,12 +67,17 @@ class MusicMashupArtist:
 		self.formerMembers = []
 		self.relatedSources = []
 
+		self.dbpediaCommonsURL = None
+		self.thumbnail = None
+		self.images = []
+
 		query = urllib.unquote(query)
 
 		if query[:4] == "http":
 			self.name = self._uri_to_name(query)
 			self.dbpediaURL = query
 			self.dbpedia_set = 1
+			self.thumbnail = None
 		else:
 			self.name = titlecase(query)
 
@@ -96,11 +101,13 @@ class MusicMashupArtist:
 
 
 	def _find_resources(self):
+		self._pull_commons()
 		self._pull_dbtune()
 		if self.dbtuneURL and not self.dbpediaURL:
 			self._pull_dbpedia_url()
 			
 		if self.dbpediaURL:
+			self._pullThumbnail()
 			self._decodeURL()
 
 		if not self.dbpediaURL and not self.dbtuneURL:
@@ -112,6 +119,70 @@ class MusicMashupArtist:
 	def	_decodeURL(self):
 		self.dbpediaURL = string.replace(self.dbpediaURL, '%28', '(')
 		self.dbpediaURL = string.replace(self.dbpediaURL, '%29', ')')
+
+	def getThumbnail(self):
+		return self.thumbnail
+
+	def _pullThumbnail(self):
+		sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+		sparql.setQuery("""
+			PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+
+			SELECT ?o
+			WHERE {
+			<"""+self.get_dbpediaURL()+"""> dbpedia-owl:thumbnail ?o
+			}""")
+
+		sparql.setReturnFormat(JSON)
+		results = sparql.query().convert()
+
+		for result in results["results"]["bindings"]:
+			self.thumbnail = result["o"]["value"]
+			print ("FOUND THUMBNAIL: "+ self.thumbnail)
+
+	def get_images(self):
+		return self.images
+
+	def _pull_commons(self):
+		print("[~] Pulling Commomns ")
+		sparql = SPARQLWrapper("http://commons.dbpedia.org/sparql")
+		sparql.setQuery("""
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+		    SELECT ?band
+		    WHERE { 
+		      ?band rdfs:label \""""+self.get_name()+"""\"@en .
+		}""")
+		sparql.setReturnFormat(JSON)
+		results = sparql.query().convert()
+
+		
+		for result in results["results"]["bindings"]:
+		    self.dbpediaCommonsURL = result["band"]["value"]
+
+		self.dbpediaCommonsURL = self.dbpediaCommonsURL.replace('Category:', '')
+		print "==================="
+		print self.dbpediaCommonsURL
+		print "==================="
+
+		sparql.setQuery("""
+		    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+		    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+		    PREFIX mo: <http://purl.org/ontology/mo/>
+
+		    SELECT ?url
+		    WHERE { 
+		      <"""+self.dbpediaCommonsURL+"""> dbpedia-owl:galleryItem ?picture .
+		      ?picture dbpedia-owl:fileURL ?url
+		    }
+		""")
+		sparql.setReturnFormat(JSON)
+		results = sparql.query().convert()
+
+		for result in results["results"]["bindings"]:
+		    self.images.append(result["url"]["value"])
+		    print result["url"]["value"]
+
+
 
 	def _pull_dbtune(self):
 		try:
