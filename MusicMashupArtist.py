@@ -385,7 +385,10 @@ class MusicMashupArtist:
 		self._convert_events()
 
 	def _convert_events(self):
-		entries = self.eventsJSON["resultsPage"]["totalEntries"]
+		# entries = self.eventsJSON["resultsPage"]["totalEntries"]
+		# print (entries)
+		entries = len(self.eventsJSON["resultsPage"]["results"]["event"])
+		print (entries)
 		if entries > 0:
 			for i in range(entries):
 				self.events.append(self.eventsJSON["resultsPage"]["results"]["event"][i]["displayName"])
