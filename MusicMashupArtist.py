@@ -100,11 +100,16 @@ class MusicMashupArtist:
 		
 		# hier mit Fallback anfangen
 
-		if not self.dbtuneURL:
-			self._pull_mbdump()
+		print (not self.dbtuneURL)
 
-		if self.dbtuneURL and not self.dbpediaURL:
-			self._pull_dbpedia_url()
+		if not self.dbtuneURL:
+			print ("ran an den dump")
+			self._pull_mbdump()
+			print ("und jetzt ab zu dbpedia")
+			self._pull_dbpedia_url_from_dbpedia()
+		else:
+			if self.dbtuneURL and not self.dbpediaURL:
+				self._pull_dbpedia_url()
 
 		if self.dbpediaURL:
 			self._decodeURL()
@@ -335,6 +340,31 @@ class MusicMashupArtist:
 			self.problem = "dbtune problem while fetching dbpedia url"
 			print("[-] dbtune problem while fetching dbpedia url")
 			return -1
+
+	def _pull_dbpedia_url_from_dbpedia(self):
+		sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+		sparql.setQuery("""
+			SELECT ?s
+			WHERE {
+			?s rdfs:label \""""+self.get_name()+"""\"@en.
+			?s dbpedia-owl:background "group_or_band".
+			}
+			""")
+
+		sparql.setReturnFormat(JSON)
+		results = sparql.query().convert()
+
+		for result in results["results"]["bindings"]:
+			if "dbpedia.org/resource" in result["s"]["value"]:
+				self.dbpediaURL = result["s"]["value"]
+
+				if self.dbpediaURL:
+					print("[+] Found dbpedia URL")
+					return 0
+				else:
+					#TODO wird nicht geprinted wenn keine dbpedia url
+					print ("[-] Could not find dbpedia URL")
+					return -1
 
 	# ========================================================================================
 	# RELATED get and _pull
