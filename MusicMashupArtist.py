@@ -97,9 +97,15 @@ class MusicMashupArtist:
 
 	def _find_resources(self):
 		self._pull_dbtune()
+		
+		# hier mit Fallback anfangen
+
+		if not self.dbtuneURL:
+			self._pull_mbdump()
+
 		if self.dbtuneURL and not self.dbpediaURL:
 			self._pull_dbpedia_url()
-			
+
 		if self.dbpediaURL:
 			self._decodeURL()
 
@@ -193,6 +199,24 @@ class MusicMashupArtist:
 			print("[-] dbtune problem while fetching dbtune url")
 			self.dbtune_set = -1
 			return -1
+
+	def _pull_mbdump(self):
+		sparql = SPARQLWrapper("http://141.89.225.50:8896/sparql")
+		sparql.setQuery("""
+			PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+    		SELECT ?artist
+    		WHERE { 
+    		?artist foaf:name \""""+self.get_name()+"""\".
+    		}
+			""")
+		sparql.setReturnFormat(JSON)
+		results = sparql.query().convert()
+
+		for result in results["results"]["bindings"]:
+   			self.musicbrainzID = result["artist"]["value"][30:-2]
+
+   		print (self.musicbrainzID)
 
 	def get_name(self):
 		return self.name
