@@ -97,9 +97,20 @@ class MusicMashupArtist:
 
 	def _find_resources(self):
 		self._pull_dbtune()
-		if self.dbtuneURL and not self.dbpediaURL:
-			self._pull_dbpedia_url()
-			
+		
+		# hier mit Fallback anfangen
+
+		print (not self.dbtuneURL)
+
+		if not self.dbtuneURL:
+			print ("ran an den dump")
+			self._pull_mbdump()
+			print ("und jetzt ab zu dbpedia")
+			self._pull_dbpedia_url_from_dbpedia()
+		else:
+			if self.dbtuneURL and not self.dbpediaURL:
+				self._pull_dbpedia_url()
+
 		if self.dbpediaURL:
 			self._decodeURL()
 
@@ -193,6 +204,24 @@ class MusicMashupArtist:
 			print("[-] dbtune problem while fetching dbtune url")
 			self.dbtune_set = -1
 			return -1
+
+	def _pull_mbdump(self):
+		sparql = SPARQLWrapper("http://141.89.225.50:8896/sparql")
+		sparql.setQuery("""
+			PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+    		SELECT ?artist
+    		WHERE { 
+    		?artist foaf:name \""""+self.get_name()+"""\".
+    		}
+			""")
+		sparql.setReturnFormat(JSON)
+		results = sparql.query().convert()
+
+		for result in results["results"]["bindings"]:
+   			self.musicbrainzID = result["artist"]["value"][30:-2]
+
+   		print (self.musicbrainzID)
 
 	def get_name(self):
 		return self.name
@@ -311,6 +340,31 @@ class MusicMashupArtist:
 			self.problem = "dbtune problem while fetching dbpedia url"
 			print("[-] dbtune problem while fetching dbpedia url")
 			return -1
+
+	def _pull_dbpedia_url_from_dbpedia(self):
+		sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+		sparql.setQuery("""
+			SELECT ?s
+			WHERE {
+			?s rdfs:label \""""+self.get_name()+"""\"@en.
+			?s dbpedia-owl:background "group_or_band".
+			}
+			""")
+
+		sparql.setReturnFormat(JSON)
+		results = sparql.query().convert()
+
+		for result in results["results"]["bindings"]:
+			if "dbpedia.org/resource" in result["s"]["value"]:
+				self.dbpediaURL = result["s"]["value"]
+
+				if self.dbpediaURL:
+					print("[+] Found dbpedia URL")
+					return 0
+				else:
+					#TODO wird nicht geprinted wenn keine dbpedia url
+					print ("[-] Could not find dbpedia URL")
+					return -1
 
 	# ========================================================================================
 	# RELATED get and _pull
