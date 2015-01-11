@@ -101,7 +101,6 @@ class MusicMashupArtist:
 
 
 	def _find_resources(self):
-		self._pull_commons()
 		self._pull_dbtune()
 		if self.dbtuneURL and not self.dbpediaURL:
 			self._pull_dbpedia_url()
@@ -141,6 +140,7 @@ class MusicMashupArtist:
 			print ("FOUND THUMBNAIL: "+ self.thumbnail)
 
 	def get_images(self):
+		self._pull_commons()
 		return self.images
 
 	def _pull_commons(self):
@@ -159,28 +159,31 @@ class MusicMashupArtist:
 		for result in results["results"]["bindings"]:
 		    self.dbpediaCommonsURL = result["band"]["value"]
 
-		self.dbpediaCommonsURL = self.dbpediaCommonsURL.replace('Category:', '')
-		print "==================="
-		print self.dbpediaCommonsURL
-		print "==================="
+		if self.dbpediaCommonsURL:
+			self.dbpediaCommonsURL = self.dbpediaCommonsURL.replace('Category:', '')
+			print "==================="
+			print self.dbpediaCommonsURL
+			print "==================="
 
-		sparql.setQuery("""
-		    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-		    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-		    PREFIX mo: <http://purl.org/ontology/mo/>
+			sparql.setQuery("""
+			    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			    PREFIX mo: <http://purl.org/ontology/mo/>
 
-		    SELECT ?url
-		    WHERE { 
-		      <"""+self.dbpediaCommonsURL+"""> dbpedia-owl:galleryItem ?picture .
-		      ?picture dbpedia-owl:fileURL ?url
-		    }
-		""")
-		sparql.setReturnFormat(JSON)
-		results = sparql.query().convert()
+			    SELECT ?url
+			    WHERE { 
+			      <"""+self.dbpediaCommonsURL+"""> dbpedia-owl:galleryItem ?picture .
+			      ?picture dbpedia-owl:fileURL ?url
+			    }
+			""")
+			sparql.setReturnFormat(JSON)
+			results = sparql.query().convert()
 
-		for result in results["results"]["bindings"]:
-		    self.images.append(result["url"]["value"])
-		    print result["url"]["value"]
+			for result in results["results"]["bindings"]:
+			    self.images.append(result["url"]["value"])
+			    print result["url"]["value"]
+		else: 
+			print ("[-] There was no commons entry for this band")
 
 
 
