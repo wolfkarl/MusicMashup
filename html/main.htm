@@ -14,6 +14,14 @@
   <link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="static/mashup.css" rel="stylesheet">
 
+  <link rel="stylesheet" href="static/nivo-slider.css" type="text/css" />
+  <link rel="stylesheet" href="static/themes/default/default.css" type="text/css" />
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js" type="text/javascript"></script>
+  <script src="static/jquery.nivo.slider.pack.js" type="text/javascript"></script>
+  
+
+
+
 </head>
 
 <body>
@@ -48,6 +56,15 @@
             
                 <p>${artist.get_abstract()}</p>
             
+
+<div id="slider" class="nivoSlider theme-default">
+% for img in artist.get_images():
+<img src="${img}" alt="" />
+%endfor
+</div>
+
+
+
             <h3>Recommendations</h3>
             
             <div class="reco-wrapper">
@@ -55,10 +72,19 @@
 
               % for r in artist.get_related():
 
+
+
+
+
+
+
 <div class="reco row">
-  <div class="col-sm-2"><div class="img"></div></div>
+  <div class="col-sm-2"><div class="img" style="overflow: hidden">
+    <img src="${r.getThumbnail()}" style="max-height:100%">
+  </div>
+</div>
 <div class="col-sm-10">
-  <h4><a href="/?query=${r.get_dbpediaURL_link()}">${r.get_name()}</a> <small>${r.get_abstract_excerpt(600)}</small></h4>
+  <h4><a href="/?query=${r.get_dbpediaURL_link()}">${r.get_name()}</a> <small>${r.get_abstract_excerpt(300)}</small></h4>
   <ul>
   % for reason in r.get_reason(): 
   <li>${reason}</li>
@@ -95,8 +121,13 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
     <script src="bootstrap/js/bootstrap.min.js"></script>
+
+      <script type="text/javascript">
+  $(window).load(function() {
+    $('#slider').nivoSlider();});
+  </script>
 
   </body>
   </html>

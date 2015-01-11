@@ -5,6 +5,12 @@ body
 	background-image: url(shattered.png);
 }
 
+#slider
+{
+	display: block;
+	height: 300px;
+}
+
 .logo
 {
 	font-weight: bold;
