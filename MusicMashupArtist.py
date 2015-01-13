@@ -65,7 +65,11 @@ class MusicMashupArtist:
 
 		self.currentMembers = []
 		self.formerMembers = []
+		self.formerMembersNR = []
+		self.currentMembersNR = []
 		self.relatedSources = []
+
+		self.soloArtist = False
 
 		self.dbpediaCommonsURL = None
 		self.thumbnail = None
@@ -105,12 +109,12 @@ class MusicMashupArtist:
 		
 		# hier mit Fallback anfangen
 
-		print (not self.dbtuneURL)
+		# print (not self.dbtuneURL)
 
 		if not self.dbtuneURL:
-			print ("ran an den dump")
+			print ("[-] Could not find Resource on DBTune => Trying with musicbrainz dump now")
 			self._pull_mbdump()
-			print ("und jetzt ab zu dbpedia")
+			print ("[~] Trying again for DBPedia")
 			self._pull_dbpedia_url_from_dbpedia()
 		else:
 			if self.dbtuneURL and not self.dbpediaURL:
@@ -123,8 +127,11 @@ class MusicMashupArtist:
 		if not self.dbpediaURL and not self.dbtuneURL:
 			self.set_error_state()
 
-	def get_dbpediaURL_link(self):
-		return urllib.quote_plus(self.get_dbpediaURL().encode('utf8'))
+	def get_dbpediaURL_link(self, url=""):
+		if url:
+			return urllib.quote_plus(url.encode('utf8'))
+		else:
+			return urllib.quote_plus(self.get_dbpediaURL().encode('utf8'))
 
 	def	_decodeURL(self):
 		self.dbpediaURL = string.replace(self.dbpediaURL, '%28', '(')
@@ -148,11 +155,23 @@ class MusicMashupArtist:
 
 		for result in results["results"]["bindings"]:
 			self.thumbnail = result["o"]["value"]
-			print ("FOUND THUMBNAIL: "+ self.thumbnail)
+			print ("[+] Found Thumbnail: "+ self.thumbnail)
 
 	def get_images(self):
 		self._pull_commons()
 		return self.images
+
+	def get_current_members(self):
+		return self.currentMembers
+
+	def get_former_members(self):
+		return self.formerMembers
+
+	def get_current_membersNR(self):
+		return self.currentMembersNR
+
+	def get_former_membersNR(self):
+		return self.formerMembersNR
 
 	def _pull_commons(self):
 		print("[~] Pulling Commomns ")
@@ -173,7 +192,7 @@ class MusicMashupArtist:
 		if self.dbpediaCommonsURL:
 			self.dbpediaCommonsURL = self.dbpediaCommonsURL.replace('Category:', '')
 			print "==================="
-			print self.dbpediaCommonsURL
+			print ("[+] Found Commons "+self.dbpediaCommonsURL)
 			print "==================="
 
 			sparql.setQuery("""
@@ -192,7 +211,7 @@ class MusicMashupArtist:
 
 			for result in results["results"]["bindings"]:
 			    self.images.append(result["url"]["value"])
-			    print result["url"]["value"]
+			    # print result["url"]["value"]
 		else: 
 			print ("[-] There was no commons entry for this band")
 
@@ -217,7 +236,7 @@ class MusicMashupArtist:
 				self.dbtuneURL = result["s"]["value"]
 
 			lastSix = self.name[len(self.get_name())-6:]
-			print lastSix
+			# print lastSix
 			if not self.dbtuneURL and (lastSix == "(Band)" or lastSix == "(band)"):
 				withoutBand = self.get_name()[:-6]
 				if withoutBand[len(withoutBand)-1:] == " ":
@@ -315,7 +334,7 @@ class MusicMashupArtist:
 	def get_abstract(self):
 		try:
 			if not self.abstract and self.state == 0:
-				print("[~] Pulling abstract")
+				print("[~] Pulling abstract for: "+self.get_dbpediaURL())
 				self.abstract = self._pull_abstract()
 		except:
 			self.abstract = "Abstract Error"
@@ -464,6 +483,9 @@ class MusicMashupArtist:
 		try:
 			self._pull_current_members()
 			self._pull_former_members()
+			if not self.currentMembers and not self.formerMembers:
+				print("[~] No members => Trying Resource as Solo-Artist")
+				self.soloArtist = True
 			self._pull_current_bands_of_current_members()
 			self._pull_former_bands_of_current_members()
 			self._pull_current_bands_of_former_members()
@@ -516,10 +538,10 @@ class MusicMashupArtist:
 		# entries = self.eventsJSON["resultsPage"]["totalEntries"]
 		# print (entries)
 		entries = 0
-		print (type(self.eventsJSON["resultsPage"]["totalEntries"]))
+		# print (type(self.eventsJSON["resultsPage"]["totalEntries"]))
 		if (self.eventsJSON["resultsPage"]["totalEntries"]) != 0:
 			entries = len(self.eventsJSON["resultsPage"]["results"]["event"])
-		print (entries)
+		# print (entries)
 		if entries > 0:
 			for i in range(entries):
 				self.events.append(self.eventsJSON["resultsPage"]["results"]["event"][i]["displayName"])
@@ -544,14 +566,15 @@ class MusicMashupArtist:
 		results = sparql.query().convert()			
 
 		for result in results["results"]["bindings"]:
-			if result["member"]["value"][:4] == "http":
+			if result["member"]["value"][:4] == "http" and 'List_of' not in result["member"]["value"]:
 				self.currentMembers.append(result["member"]["value"])
 				print result["member"]["value"]
 			else:
+				self.currentMembersNR.append(result["member"]["value"])
 				print("[-] No Resource on dbpedia for: "+result["member"]["value"])
 
 		if not self.currentMembers:
-			print("[~] Pulling current Members of: "+self.get_dbpediaURL()+"With dbpedia-owl:bandMembers")
+			print("[~] Pulling current Members of: "+self.get_dbpediaURL()+" with dbpedia-owl:bandMembers")
 			sparql = SPARQLWrapper("http://dbpedia.org/sparql")
 			sparql.setQuery("""
 				PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
@@ -563,10 +586,11 @@ class MusicMashupArtist:
 			results = sparql.query().convert()			
 
 			for result in results["results"]["bindings"]:
-				if result["member"]["value"][:4] == "http":
+				if result["member"]["value"][:4] == "http" and 'List_of' not in result["member"]["value"]:
 					self.currentMembers.append(result["member"]["value"])
 					print result["member"]["value"]
 				else:
+					self.currentMembersNR.append(result["member"]["value"])
 					print("[-] No Resource on dbpedia for: "+result["member"]["value"])
 
 	def _pull_former_members(self):
@@ -584,12 +608,34 @@ class MusicMashupArtist:
 		results = sparql.query().convert()			
 
 		for result in results["results"]["bindings"]:
-			if result["member"]["value"][:4] == "http":
+			if result["member"]["value"][:4] == "http" and 'List_of' not in result["member"]["value"]:
 				self.formerMembers.append(result["member"]["value"])
 				print result["member"]["value"]
 			else:
+				self.formerMembersNR.append(result["member"]["value"])
 				print("[-] No Resource on dbpedia for: "+result["member"]["value"])
 
+		if not self.formerMembers:
+			print("[~] Pulling former Members of: "+self.get_dbpediaURL()+" with dbpprop:pastMembers")
+			sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+			sparql.setQuery("""
+				PREFIX dbprop: <http://dbpedia.org/property/>
+				PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+
+				SELECT ?member WHERE {
+	    			<"""+self.get_dbpediaURL()+"""> dbpprop:pastMembers ?member.
+					}
+				""")
+			sparql.setReturnFormat(JSON)
+			results = sparql.query().convert()			
+
+			for result in results["results"]["bindings"]:
+				if result["member"]["value"][:4] == "http" and 'List_of' not in result["member"]["value"]:
+					self.formerMembers.append(result["member"]["value"])
+					print result["member"]["value"]
+				else:
+					self.formerMembersNR.append(result["member"]["value"])
+					print("[-] No Resource on dbpedia for: "+result["member"]["value"])
 	# ===============================================================
 	# TODO ERROR-HANDLING
 	# 			ab hier untegesteter code ohne error handling
@@ -610,7 +656,7 @@ class MusicMashupArtist:
 			sparql.setReturnFormat(JSON)
 			results = sparql.query().convert()	
 			for result in results["results"]["bindings"]:
-				if result["band"]["value"] != self.get_dbpediaURL():
+				if result["band"]["value"] != self.get_dbpediaURL() and 'List_of' not in result["band"]["value"]:
 					new = True
 					knownArtist = None
 					for r in self.recommendation:
@@ -622,18 +668,33 @@ class MusicMashupArtist:
 					else:
 						knownArtist.addReason("Because "+self._uri_to_name(member)+" was active as producer")
 
+		if self.soloArtist:
+			print ("[~] searching producer relations for maybe solo-Artist: "+ self.get_dbpediaURL())
+			sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+			sparql.setQuery("""
+				PREFIX dbprop: <http://dbpedia.org/property/>
+				PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+				SELECT DISTINCT ?band WHERE {
+	    			?production dbprop:producer <"""+self.get_dbpediaURL()+""">.
+	    			?production dbpedia-owl:artist ?band.
+					}
+				""")
+			sparql.setReturnFormat(JSON)
+			results = sparql.query().convert()	
+			for result in results["results"]["bindings"]:
+				if result["band"]["value"] != self.get_dbpediaURL() and 'List_of' not in result["band"]["value"]:
+					new = True
+					knownArtist = None
+					for r in self.recommendation:
+						if result["band"]["value"] == r.get_dbpediaURL():
+							knownArtist = r
+							new = False
+					if new:
+						self.recommendation.append(MusicMashupArtist(result["band"]["value"], "Because "+self._uri_to_name(self.get_dbpediaURL())+" was active as producer"))
+					else:
+						knownArtist.addReason("Because "+self._uri_to_name(self.get_dbpediaURL())+" was active as producer")
 
-					# if result["band"]["value"] not in self.related:
-					# 	print ("[+] Found NEW Producer Relation: "+result["band"]["value"])
-					# 	self.related.append([])
-					# 	self.related[-1].append(result["band"]["value"])
-					# 	self.related[-1].append(MusicMashupArtist(self._uri_to_name(result["band"]["value"]), "Because "+self._uri_to_name(member)+" was active as producer"))
-					# else:
-					# 	print("====================================================================================")
-					# 	print("[+] Found ANOTHER Relation (Producer) for: "+result["band"]["value"])
-					# 	self.related[self.related.index(result["band"]["value"])].append(MusicMashupArtist(self._uri_to_name(result["band"]["value"]), "Because "+self._uri_to_name(member)+" was active as producer"))
-					# 	for rel in self.related[self.related.index(result["band"]["value"])]:
-					# 		print ("YEAH: "+rel)
+
 
 	def _pull_current_bands_of_current_members(self):
 		for member in self.currentMembers:
@@ -650,7 +711,7 @@ class MusicMashupArtist:
 			sparql.setReturnFormat(JSON)
 			results = sparql.query().convert()	
 			for result in results["results"]["bindings"]:
-				if result["band"]["value"] != self.get_dbpediaURL():
+				if result["band"]["value"] != self.get_dbpediaURL() and 'List_of' not in result["band"]["value"]:
 					new = True
 					knownArtist = None
 					for r in self.recommendation:
@@ -663,17 +724,33 @@ class MusicMashupArtist:
 					else:
 						knownArtist.addReason("Because "+self._uri_to_name(member)+" is also a member of this band.")
 
+		if self.soloArtist:
+			print ("[~] searching current band of maybe solo-artist: "+ self.get_dbpediaURL())
+			sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+			sparql.setQuery("""
+				PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
 
-					# if (result["band"]["value"] not in self.related):
-					# 	print ("[+] Found current-member-band Relation: "+result["band"]["value"])
-					# 	self.related.append([result["band"]["value"]])
-					# 	self.related[-1].append(MusicMashupArtist(self._uri_to_name(result["band"]["value"]), "Because "+self._uri_to_name(member)+" is also a member of this band."))
-					# else:
-					# 	print("====================================================================================")
-					# 	print("[+] Found ANOTHER Relation (cuurent band) for: "+result["band"]["value"])
-					# 	self.related[self.related.index(result["band"]["value"])].append(MusicMashupArtist(self._uri_to_name(result["band"]["value"]), "Because "+self._uri_to_name(member)+" is also a member of this band."))
-					# 	for rel in self.related[self.related.index(result["band"]["value"])]:
-					# 		print ("YEAH: "+rel)
+				SELECT DISTINCT ?band WHERE {
+	    			?band dbpedia-owl:bandMember <"""+self.get_dbpediaURL()+""">.
+	    			}
+				""")
+			sparql.setReturnFormat(JSON)
+			results = sparql.query().convert()	
+			for result in results["results"]["bindings"]:
+				if result["band"]["value"] != self.get_dbpediaURL() and 'List_of' not in result["band"]["value"]:
+					new = True
+					knownArtist = None
+					for r in self.recommendation:
+						if result["band"]["value"] == r.get_dbpediaURL():
+							print ("DEBUG: Not a new Artist: "+r.get_dbpediaURL())
+							knownArtist = r
+							new = False
+					if new:
+						self.recommendation.append(MusicMashupArtist(result["band"]["value"], "Because "+self._uri_to_name(self.get_dbpediaURL())+" is also a member of this band."))
+					else:
+						knownArtist.addReason("Because "+self._uri_to_name(self.get_dbpediaURL())+" is also a member of this band.")
+
+
 
 	def _pull_former_bands_of_current_members(self):
 		for member in self.currentMembers:
@@ -689,7 +766,7 @@ class MusicMashupArtist:
 			sparql.setReturnFormat(JSON)
 			results = sparql.query().convert()	
 			for result in results["results"]["bindings"]:
-				if result["band"]["value"] != self.get_dbpediaURL(): 
+				if result["band"]["value"] != self.get_dbpediaURL() and 'List_of' not in result["band"]["value"]: 
 					new = True
 					knownArtist = None
 					for r in self.recommendation:
@@ -701,6 +778,33 @@ class MusicMashupArtist:
 					else:
 						knownArtist.addReason("Because "+self._uri_to_name(member)+" was also a member of this band.")
 
+		if self.soloArtist:
+			print ("[~] searching former band of maybe solo-artist: "+ self.get_dbpediaURL())
+			sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+			sparql.setQuery("""
+				PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+
+				SELECT DISTINCT ?band WHERE {
+	    			?band dbpedia-owl:formerBandMember <"""+self.get_dbpediaURL()+""">.
+	    			}
+				""")
+
+			sparql.setReturnFormat(JSON)
+			results = sparql.query().convert()	
+			for result in results["results"]["bindings"]:
+				if result["band"]["value"] != self.get_dbpediaURL() and 'List_of' not in result["band"]["value"]:
+					new = True
+					knownArtist = None
+					for r in self.recommendation:
+						if result["band"]["value"] == r.get_dbpediaURL():
+							print ("DEBUG: Not a new Artist: "+r.get_dbpediaURL())
+							knownArtist = r
+							new = False
+					if new:
+						self.recommendation.append(MusicMashupArtist(result["band"]["value"], "Because "+self._uri_to_name(self.get_dbpediaURL())+" is also a member of this band."))
+					else:
+						knownArtist.addReason("Because "+self._uri_to_name(self.get_dbpediaURL())+" is also a member of this band.")
+
 
 					# if(result["band"]["value"] not in self.related):
 					# 	print ("[+] Found former-member-band Relation: "+result["band"]["value"])
@@ -710,6 +814,8 @@ class MusicMashupArtist:
 					# 	print("====================================================================================")
 
 	def _pull_current_bands_of_former_members(self):
+		if self.soloArtist:
+			return 0
 		print ("[~] Searching current Bands of former Members")
 		for member in self.formerMembers:
 			print ("[~] searching current bands of former member: "+ member)
@@ -725,7 +831,7 @@ class MusicMashupArtist:
 			sparql.setReturnFormat(JSON)
 			results = sparql.query().convert()	
 			for result in results["results"]["bindings"]:
-				if result["band"]["value"] != self.get_dbpediaURL(): 
+				if result["band"]["value"] != self.get_dbpediaURL() and 'List_of' not in result["band"]["value"]: 
 					new = True
 					knownArtist = None
 					for r in self.recommendation:
@@ -738,15 +844,9 @@ class MusicMashupArtist:
 						knownArtist.addReason("Because "+self._uri_to_name(member)+" is also a member of this band.")
 
 
-
-					# if(result["band"]["value"] not in self.related) :
-					# 	print ("[+] Found current-member-band Relation: "+result["band"]["value"])
-					# 	self.related.append([result["band"]["value"]])
-					# 	self.related[-1].append(MusicMashupArtist(self._uri_to_name(result["band"]["value"]), "Because "+self._uri_to_name(member)+" is also a member of this band."))
-					# else:
-					# 	print("====================================================================================")
-
 	def _pull_former_bands_of_former_members(self):
+		if self.soloArtist:
+			return 0
 		print ("[~] Searching current Bands of former Members")
 		for member in self.formerMembers:
 			print ("[~] searching former bands of former member: "+ member)
@@ -762,7 +862,7 @@ class MusicMashupArtist:
 			sparql.setReturnFormat(JSON)
 			results = sparql.query().convert()	
 			for result in results["results"]["bindings"]:
-				if result["band"]["value"] != self.get_dbpediaURL():
+				if result["band"]["value"] != self.get_dbpediaURL() and 'List_of' not in result["band"]["value"]:
 					new = True
 					knownArtist = None
 					for r in self.recommendation:
@@ -774,12 +874,6 @@ class MusicMashupArtist:
 					else:
 						knownArtist.addReason("Because "+self._uri_to_name(member)+" was also a member of this band.")
 
-					# if(result["band"]["value"] not in self.related):
-					# 	print ("[+] Found current-member-band Relation: "+result["band"]["value"])
-					# 	self.related.append([result["band"]["value"]])
-					# 	self.related[-1].append(MusicMashupArtist(self._uri_to_name(result["band"]["value"]), "Because "+self._uri_to_name(member)+" was also a member of this band."))
-					# else:
-					# 	print("====================================================================================")
 
 	def _uri_to_name(self, uri):
 		# print("[~] Converting URI to name")

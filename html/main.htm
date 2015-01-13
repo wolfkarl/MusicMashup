@@ -27,13 +27,12 @@
 <body>
 
 
-<div class="container">
-  <div class="row menu">
-    <div class="col-md-4"><span class="logo">MusicMashup</span></div>
-    <div class="col-md-8 search">
-      
+  <div class="container">
 
-              <form role="form" method="get" action="/">
+    <div class="row menu">
+      <div class="col-md-4"><span class="logo">MusicMashup</span></div>
+      <div class="col-md-8 search">
+        <form role="form" method="get" action="/">
           <div class="form-group form-inline">
             <label for="artistSearch">Search</label>
             <input type="search" name="query"   class="form-control" id="artistSearch" placeholder="Enter artist here">
@@ -41,82 +40,95 @@
           </div>
         </form>
 
+      </div>
     </div>
-  </div>
-
 
     <div class="row hero">
       <div class="col-md-12"><h1>Music Mashup: ${artist.get_name()}</h1>
         <br>
+      </div>
+    </div>
 
-      </div></div>
-        
-        <div class="row">
-          <div class="col-md-8"><h3>General Information</h3>
-            
-                <p>${artist.get_abstract()}</p>
-            
+    <div class="row">
+      <div class="col-md-8"><h3>General Information</h3>      
+        <p>${artist.get_abstract()}</p>
 
-<div id="slider" class="nivoSlider theme-default">
-% for img in artist.get_images():
-<img src="${img}" alt="" />
-%endfor
-</div>
+        <div id="slider" class="nivoSlider theme-default">
+          % for img in artist.get_images():
+          <img src="${img}" alt="" />
+          %endfor
+        </div>
 
+        <h3>Recommendations</h3>            
+        <div class="reco-wrapper">
+          % for r in artist.get_related():
+          <div class="reco row">
+            <div class="col-sm-2"><div class="img" style="overflow: hidden">
+              <img src="${r.getThumbnail()}" style="max-height:100%">
+            </div>
+          </div>
+          <div class="col-sm-10">
+            <h4><a href="/?query=${r.get_dbpediaURL_link()}">${r.get_name()}</a> <small>${r.get_abstract_excerpt(300)}</small></h4>
+            <ul>
+              % for reason in r.get_reason(): 
+              <li>${reason}</li>
+              %endfor
+            </ul>
+          </div>
+        </div>
+        % endfor
 
+      </div>
+    </div>
 
-            <h3>Recommendations</h3>
-            
-            <div class="reco-wrapper">
+    <div class="col-md-4 widget">
+      <h3>Listen</h3>
+      <iframe src="https://embed.spotify.com/?uri=${artist.get_spotify_id()}" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
+    </div>
+    % if artist.get_current_members() or artist.get_former_members() or artist.get_current_membersNR() or artist.get_former_membersNR():
+    <div class="col-md-4 widget">
+      <h3>Members</h3>
 
+      % if artist.get_current_members() or artist.get_current_membersNR():
+        <h4>Current Members</h4>
+        <ul>
+        % for member in artist.get_current_members():
+          <li><a href="/?query=${artist.get_dbpediaURL_link(member)}">${artist._uri_to_name(member)}</a></li>
+        % endfor
+        % for member in artist.get_current_membersNR():
+          <li>${member}</li>
+        % endfor 
+        </ul>
+      % endif
 
-              % for r in artist.get_related():
+      % if artist.get_former_members() or artist.get_former_membersNR():
+        <h4>Former Members</h4>
+        <ul>
+        % for member in artist.get_former_members():
+          <li><a href="/?query=${artist.get_dbpediaURL_link(member)}">${artist._uri_to_name(member)}</a></li>
+        % endfor 
+        % for member in artist.get_former_membersNR():
+          <li>${member}</li>
+        % endfor 
+        </ul>
+      % endif
+    </div> 
+    % endif
 
-
-
-
-
-
-
-<div class="reco row">
-  <div class="col-sm-2"><div class="img" style="overflow: hidden">
-    <img src="${r.getThumbnail()}" style="max-height:100%">
+    <div class="col-md-4 gigs">
+      <h3>Upcoming Events</h3>             
+      <ul>
+        % for r in artist.get_events():
+      <li>${r}</li>
+      % endfor
+    </ul> 
   </div>
 </div>
-<div class="col-sm-10">
-  <h4><a href="/?query=${r.get_dbpediaURL_link()}">${r.get_name()}</a> <small>${r.get_abstract_excerpt(300)}</small></h4>
-  <ul>
-  % for reason in r.get_reason(): 
-  <li>${reason}</li>
-  %endfor
-  </ul>
 </div>
 </div>
-              % endfor
-
-              </div>
-              </div>
-        
-         <div class="col-md-4 widget">
-         <h3>Listen</h3>
-           
-               <iframe src="https://embed.spotify.com/?uri=${artist.get_spotify_id()}" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
-           </div>     
-         
-         <div class="col-md-4 gigs">
-               <h3>Upcoming Events</h3>             
-                <ul>
-                % for r in artist.get_events():
-                <li>${r}</li>
-                % endfor
-                </ul> 
-               </div>
-       </div>
-</div>
-  </div>
 
 
-    <link href='http://fonts.googleapis.com/css?family=Roboto+Slab:400,700,100,300' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Roboto+Slab:400,700,100,300' rel='stylesheet' type='text/css'>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
@@ -124,10 +136,10 @@
 
     <script src="bootstrap/js/bootstrap.min.js"></script>
 
-      <script type="text/javascript">
-  $(window).load(function() {
-    $('#slider').nivoSlider();});
-  </script>
+    <script type="text/javascript">
+      $(window).load(function() {
+        $('#slider').nivoSlider();});
+    </script>
 
   </body>
   </html>
