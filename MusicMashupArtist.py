@@ -569,9 +569,11 @@ class MusicMashupArtist:
 			if result["member"]["value"][:4] == "http" and 'List_of' not in result["member"]["value"]:
 				self.currentMembers.append(result["member"]["value"])
 				print result["member"]["value"]
-			else:
+			elif 'List_of' not in result["member"]["value"]:
 				self.currentMembersNR.append(result["member"]["value"])
 				print("[-] No Resource on dbpedia for: "+result["member"]["value"])
+			else:
+				print("[-] Found 'List of Members'-Resource, did not add it to members")
 
 		if not self.currentMembers:
 			print("[~] Pulling current Members of: "+self.get_dbpediaURL()+" with dbpedia-owl:bandMembers")
@@ -589,9 +591,11 @@ class MusicMashupArtist:
 				if result["member"]["value"][:4] == "http" and 'List_of' not in result["member"]["value"]:
 					self.currentMembers.append(result["member"]["value"])
 					print result["member"]["value"]
-				else:
+				elif 'List_of' not in result["member"]["value"]:
 					self.currentMembersNR.append(result["member"]["value"])
 					print("[-] No Resource on dbpedia for: "+result["member"]["value"])
+				else:
+					print("[-] Found 'List of Members'-Resource, did not add it to members")
 
 	def _pull_former_members(self):
 		print("[~] Pulling former Members of: "+self.get_dbpediaURL())
@@ -611,9 +615,11 @@ class MusicMashupArtist:
 			if result["member"]["value"][:4] == "http" and 'List_of' not in result["member"]["value"]:
 				self.formerMembers.append(result["member"]["value"])
 				print result["member"]["value"]
-			else:
+			elif 'List_of' not in result["member"]["value"]:
 				self.formerMembersNR.append(result["member"]["value"])
 				print("[-] No Resource on dbpedia for: "+result["member"]["value"])
+			else:
+				print("[-] Found 'List of Members'-Resource, did not add it to members")
 
 		if not self.formerMembers:
 			print("[~] Pulling former Members of: "+self.get_dbpediaURL()+" with dbpprop:pastMembers")
@@ -633,9 +639,11 @@ class MusicMashupArtist:
 				if result["member"]["value"][:4] == "http" and 'List_of' not in result["member"]["value"]:
 					self.formerMembers.append(result["member"]["value"])
 					print result["member"]["value"]
-				else:
+				elif 'List_of' not in result["member"]["value"]:
 					self.formerMembersNR.append(result["member"]["value"])
 					print("[-] No Resource on dbpedia for: "+result["member"]["value"])
+				else:
+					print("[-] Found 'List of Members'-Resource, did not add it to members")
 	# ===============================================================
 	# TODO ERROR-HANDLING
 	# 			ab hier untegesteter code ohne error handling
