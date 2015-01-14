@@ -21,28 +21,6 @@ class MusicMashupArtist:
 
 	songkickApiKey = "BxSDhcU0tXLU4yHQ"
 
-	# Instanzvariablen
-	# erlaubt das halten von URLs etc. über einzelne Funktionen hinaus
-
-	# dbpediaURL = None
-	# dbtuneURL = None
-	# musicbrainzID = 0
-	# echoNestArtist = None
-	# spotifyID = 0
-	# songkickID = 0
-	# state = 0
-	# problem = ""
-	# events = None
-	# recommendation = []
-	# reason = []
-
-	# related = []
-	# abstract = ""
-
-	# currentMembers = []
-	# formerMembers = []
-	# relatedSources = []
-
 	def __init__(self, query, reco = ""):
 		self.dbpediaURL = None
 		self.dbtuneURL = None
@@ -572,6 +550,7 @@ class MusicMashupArtist:
 	# ========================================================================================
 
 	def _pull_current_members(self):
+
 		try:
 			print("[~] Pulling current Members of: "+self.get_dbpediaURL())
 			sparql = SPARQLWrapper("http://dbpedia.org/sparql")
@@ -589,9 +568,11 @@ class MusicMashupArtist:
 				if result["member"]["value"][:4] == "http" and 'List_of' not in result["member"]["value"]:
 					self.currentMembers.append(result["member"]["value"])
 					print result["member"]["value"]
-				else:
+				elif 'List_of' not in result["member"]["value"]:
 					self.currentMembersNR.append(result["member"]["value"])
 					print("[-] No Resource on dbpedia for: "+result["member"]["value"])
+				else:
+					print("[-] Found 'List of Members'-Resource, did not add it to members")
 
 			if not self.currentMembers:
 				print("[~] Pulling current Members of: "+self.get_dbpediaURL()+" with dbpedia-owl:bandMembers")
@@ -604,14 +585,15 @@ class MusicMashupArtist:
 					""")
 				sparql.setReturnFormat(JSON)
 				results = sparql.query().convert()			
-
 				for result in results["results"]["bindings"]:
 					if result["member"]["value"][:4] == "http" and 'List_of' not in result["member"]["value"]:
-						self.currentMembers.append(result["member"]["value"])
+						self.formerMembers.append(result["member"]["value"])
 						print result["member"]["value"]
-					else:
-						self.currentMembersNR.append(result["member"]["value"])
+					elif 'List_of' not in result["member"]["value"]:
+						self.formerMembersNR.append(result["member"]["value"])
 						print("[-] No Resource on dbpedia for: "+result["member"]["value"])
+					else:
+						print("[-] Found 'List of Members'-Resource, did not add it to members")
 		except:
 			print ("[-] error while pulling current members")
 
@@ -634,10 +616,11 @@ class MusicMashupArtist:
 				if result["member"]["value"][:4] == "http" and 'List_of' not in result["member"]["value"]:
 					self.formerMembers.append(result["member"]["value"])
 					print result["member"]["value"]
-				else:
+				elif 'List_of' not in result["member"]["value"]:
 					self.formerMembersNR.append(result["member"]["value"])
 					print("[-] No Resource on dbpedia for: "+result["member"]["value"])
-
+				else:
+					print("[-] Found 'List of Members'-Resource, did not add it to members")
 			if not self.formerMembers:
 				print("[~] Pulling former Members of: "+self.get_dbpediaURL()+" with dbpprop:pastMembers")
 				sparql = SPARQLWrapper("http://dbpedia.org/sparql")
@@ -656,9 +639,11 @@ class MusicMashupArtist:
 					if result["member"]["value"][:4] == "http" and 'List_of' not in result["member"]["value"]:
 						self.formerMembers.append(result["member"]["value"])
 						print result["member"]["value"]
-					else:
+					elif 'List_of' not in result["member"]["value"]:
 						self.formerMembersNR.append(result["member"]["value"])
 						print("[-] No Resource on dbpedia for: "+result["member"]["value"])
+					else:
+						print("[-] Found 'List of Members'-Resource, did not add it to members")
 		except:
 			print ("[-] error while pulling former members")
 
