@@ -119,7 +119,7 @@
       <h3>Upcoming Events</h3>             
       <ul>
         % for r in artist.get_events():
-      <li>${r}</li>
+      <li><a href="${r[1]}">${r[0]}</a></li>
       % endfor
     </ul> 
   </div>

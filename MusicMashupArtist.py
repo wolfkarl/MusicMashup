@@ -32,6 +32,7 @@ class MusicMashupArtist:
 		self.problem = ""
 		self.eventsJSON = None
 		self.events = []
+		self.eventLinks = []
 		self.recommendation = []
 		self.reason = []
 
@@ -541,7 +542,8 @@ class MusicMashupArtist:
 		# print (entries)
 		if entries > 0:
 			for i in range(entries):
-				self.events.append(self.eventsJSON["resultsPage"]["results"]["event"][i]["displayName"])
+				temp = [self.eventsJSON["resultsPage"]["results"]["event"][i]["displayName"], self.eventsJSON["resultsPage"]["results"]["event"][i]["uri"]]
+				self.events.append(temp)
 		else:
 			self.events.append("No Concerts found.")
 
