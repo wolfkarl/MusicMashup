@@ -485,6 +485,10 @@ class MusicMashupArtist:
 		# self.recommendation = sorted(self.recommendation, key=lambda reco: len(reco))
 		# self.recommendation = sorted(self.recommendation, key=lambda reco: len(reco))
 
+		# Voting starts here
+
+		self._vote()
+
 		return self.recommendation
 
 	def get_reason(self):
@@ -939,17 +943,30 @@ class MusicMashupArtist:
 	def parse_current_members(self, file):
 		for member in self.currentMembers:
 			file.write("<"+self.get_dbpediaURL()+"> dbprop:currentMember <"+member+"> .\n")
+
 	def parse_related_artists(self, file):
 		for artist in self.relatedSources:
 			file.write("<"+self.get_dbpediaURL()+"> dbpedia-owl:associatedMusicalArtist <"+artist+"> .\n")
 
 	# ========================================================================================
-	# brauchen wir das noch?
+	# VOTING
 	# ========================================================================================
 
-	# def _pull_songkick_id(self):
-	# 	self.songkickID = self.get_echoNestArtist().get_foreign_id('songkick')
-	# 	return self.songkickID
+	def _vote(self):
+		numberOfReasons = []
+		for r in self.recommendation:
+			numberOfReasons.append(len(r.reason))
+		count = 0
+		length = len(self.recommendation)
+		for i in range(0, length):
+			for j in range(0, length-1):
+				if numberOfReasons[j] < numberOfReasons[j+1]:
+					temp = self.recommendation[j]
+					self.recommendation[j] = self.recommendation[j+1]
+					self.recommendation[j+1] = temp
+					temp = numberOfReasons[j]
+					numberOfReasons[j] = numberOfReasons[j+1]
+					numberOfReasons[j+1] = temp
 
 # run from console for test setup
 if __name__ == '__main__':
