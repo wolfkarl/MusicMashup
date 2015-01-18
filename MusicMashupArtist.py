@@ -42,6 +42,17 @@ class MusicMashupArtist:
 		self.dbpedia_set = 0
 		self.dbtune_set = 0
 
+		self.further_urls = None
+		self.discogs = None
+		self.discogs_url = ""
+		self.musixmatch = None
+		self.musixmatch_url = ""
+		self.official = ""
+		self.lastfm = ""
+		self.wikipedia = ""
+		self.myspace = ""
+		self.twitter = ""
+
 		self.currentMembers = []
 		self.formerMembers = []
 		self.formerMembersNR = []
@@ -485,6 +496,9 @@ class MusicMashupArtist:
 			self._pull_former_bands_of_current_members()
 			self._pull_current_bands_of_former_members()
 			self._pull_former_bands_of_former_members()
+			self._pull_further_urls()
+			self._pull_discogs()
+			self._pull_musixmatch()
 		except:
 			pass # bestes error handling aller zeiten
 		
@@ -503,17 +517,95 @@ class MusicMashupArtist:
 		if not self.echoNestArtist and self.state == 0:
 			print("[~] pulling echoNestArtist")
 			self._pull_echoNest_artist()
-			return self.echoNestArtist
+			if self.echoNestArtist:
+				return self.echoNestArtist
 		else:
 			return self.echoNestArtist
 
 	def _pull_echoNest_artist(self):
 		if self.musicbrainzID:
 			self.echoNestArtist = artist.Artist('musicbrainz:artist:'+self.musicbrainzID)
-			print("[+] pulled echoNestArtist")
-			return self.echoNestArtist
+			if self.echoNestArtist:
+				print("[+] pulled echoNestArtist")
+			else:
+				print("[-] Could not find echoNestArtist")
 		else:
 			return -1
+
+	def _pull_further_urls(self):
+		print("[~] Trying to pull Further Urls")
+		
+		self.further_urls = self.get_echoNestArtist().get_urls()
+		if not self.further_urls:
+			print("[-] Could not find further URLs")
+		else:
+			print("[+] Found further URLs")
+
+			if 'official_url' in self.further_urls:
+				self.official = self.further_urls[u'official_url']
+				print ("[+] Offizielle Website: "+self.official)
+			if 'lastfm_url' in self.further_urls:
+				self.lastfm = self.further_urls[u'lastfm_url']
+				print ("[+] Last Fm: "+self.lastfm)
+			if 'wikipedia_url' in self.further_urls:
+				self.wikipedia = self.further_urls[u'wikipedia_url']
+				print ("[+] Wikipedia: "+self.lastfm)
+			if 'myspace_url' in self.further_urls:
+				self.myspace = self.further_urls[u'myspace_url']
+				print ("[+] Myspace: "+self.lastfm)
+			if 'twitter_url' in self.further_urls:
+				self.twitter = self.further_urls[u'twitter_url']
+				print ("[+] Twitter: "+self.lastfm)
+
+	def get_discogs(self):
+		if not self.discogs:
+			self._pull_discogs()
+		if self.discogs:
+			return self.discogs
+
+	def _pull_discogs(self):
+		try:
+			print("[~] Trying to pull discogs")
+			self.discogs = self.get_echoNestArtist().get_foreign_id('discogs')
+			if self.discogs:
+				print("[+] Found Discogs Resource: "+ self.discogs)
+				self.convert_discogs_to_url()
+
+			else: 
+				print("[-] Could not find discogs")
+		except:
+			pass
+
+	def convert_discogs_to_url(self):
+		self.discogs_url = "http://www.discogs.com/artist/"+self.discogs[15:]
+		print("[+] discogs-url: "+self.discogs_url)
+
+	# ========================================================================================
+	# MUSIXMATCH get and _pull
+	# ========================================================================================
+
+	def get_musixmatch(self):
+		if not self.musixmatch:
+			self._pull_musixmatch()
+		if self.musixmatch:
+			return self.musixmatch
+
+	def _pull_musixmatch(self):
+		try:
+			print("[~] Trying to pull musixmatch")
+			self.musixmatch = self.get_echoNestArtist().get_foreign_id('musixmatch-WW')
+			if self.musixmatch:
+				print("[+] Found musixmatch Resource: "+ self.musixmatch)
+				self.convert_musixmatch_to_url()
+
+			else: 
+				print("[-] Could not find musixmatch")
+		except:
+			pass
+
+	def convert_musixmatch_to_url(self):
+		self.musixmatch_url = "https://www.musixmatch.com/artist/"+self.musixmatch[21:]
+		print("[+] musixmatch-url: "+self.musixmatch_url)
 
 	# ========================================================================================
 	# SONGKICK-EVENTS get and _pull
