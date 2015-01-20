@@ -16,9 +16,13 @@ from titlecase import titlecase
 from pyechonest import config
 config.ECHO_NEST_API_KEY="GZVL1ZHR0GIYXJZXG"
 from pyechonest import artist
+from MusicMashupParser import MusicMashupParser
+
 
 class MusicMashupArtist:
 
+
+	parser = MusicMashupParser()
 	songkickApiKey = "BxSDhcU0tXLU4yHQ"
 
 	def __init__(self, query, reco = ""):
@@ -478,6 +482,10 @@ class MusicMashupArtist:
 		# Voting starts here
 
 		self._vote()
+
+		# Parsing starts here
+
+		self.parser.start(self)
 
 		return self.recommendation
 
