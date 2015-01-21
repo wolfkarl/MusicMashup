@@ -7,6 +7,7 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 import re
 import string
 import json
+import discogs_client
 
 import urllib
 from urllib import urlopen
@@ -18,7 +19,7 @@ config.ECHO_NEST_API_KEY="GZVL1ZHR0GIYXJZXG"
 from pyechonest import artist
 
 class MusicMashupArtist:
-
+	d = discogs_client.Client('ExampleApplication/0.1')
 	songkickApiKey = "BxSDhcU0tXLU4yHQ"
 
 	def __init__(self, query, reco = ""):
@@ -45,6 +46,8 @@ class MusicMashupArtist:
 		self.further_urls = None
 		self.discogs = None
 		self.discogs_url = ""
+		self.discogsArtist = None
+		self.discogsID = None
 		self.musixmatch = None
 		self.musixmatch_url = ""
 		self.official = ""
@@ -52,6 +55,7 @@ class MusicMashupArtist:
 		self.wikipedia = ""
 		self.myspace = ""
 		self.twitter = ""
+		self.twitterUsername = ""
 
 		self.currentMembers = []
 		self.formerMembers = []
@@ -499,10 +503,12 @@ class MusicMashupArtist:
 			self._pull_further_urls()
 			self._pull_discogs()
 			self._pull_musixmatch()
+			self._pull_discogs_artist()
 		except:
 			pass # bestes error handling aller zeiten
 		
 		try:	
+			self._pull_writer_relation()
 			self._pull_producer_relation()
 		except:
 			pass
@@ -532,6 +538,26 @@ class MusicMashupArtist:
 		else:
 			return -1
 
+	def get_discogsArtist(self):
+		if not self.discogsArtist and self.state == 0:
+			print("[~] pulling discogsArtist")
+			self._pull_discogs_artist()
+			if self.discogsArtist:
+				return self.discogsArtist
+		else:
+			return self.discogsArtist
+
+	def _pull_discogs_artist(self):
+		print("[~] Trying to pull discogs artist")
+		if self.discogs_url:
+			self.discogsArtist = d.artist(self.discogsID)
+			if self.discogsArtist:
+				print("[+] pulled discogsArtist")
+			else:
+				print("[-] Could not find discogsArtist")
+		else:
+			return -1
+
 	def _pull_further_urls(self):
 		print("[~] Trying to pull Further Urls")
 		
@@ -549,13 +575,14 @@ class MusicMashupArtist:
 				print ("[+] Last Fm: "+self.lastfm)
 			if 'wikipedia_url' in self.further_urls:
 				self.wikipedia = self.further_urls[u'wikipedia_url']
-				print ("[+] Wikipedia: "+self.lastfm)
+				print ("[+] Wikipedia: "+self.wikipedia)
 			if 'myspace_url' in self.further_urls:
 				self.myspace = self.further_urls[u'myspace_url']
-				print ("[+] Myspace: "+self.lastfm)
+				print ("[+] Myspace: "+self.myspace)
 			if 'twitter_url' in self.further_urls:
 				self.twitter = self.further_urls[u'twitter_url']
-				print ("[+] Twitter: "+self.lastfm)
+				print ("[+] Twitter: "+self.twitter)
+				self.twitterUsername = self.twitter[20:]
 
 	def get_discogs(self):
 		if not self.discogs:
@@ -577,7 +604,8 @@ class MusicMashupArtist:
 			pass
 
 	def convert_discogs_to_url(self):
-		self.discogs_url = "http://www.discogs.com/artist/"+self.discogs[15:]
+		self.discogsID = self.discogs[15:]
+		self.discogs_url = "http://www.discogs.com/artist/"+self.discogsID
 		print("[+] discogs-url: "+self.discogs_url)
 
 	# ========================================================================================
@@ -802,6 +830,67 @@ class MusicMashupArtist:
 		except:
 			print ("[-] error while pulling producer relation")
 
+	def _pull_writer_relation(self):
+		try:
+			for member in self.currentMembers:
+				print ("[~] searching writer realtion of current member: "+ member)
+				sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+				sparql.setQuery("""
+					PREFIX dbprop: <http://dbpedia.org/property/>
+					PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+
+					SELECT DISTINCT ?artist WHERE {
+		    			?work dbprop:writer <"""+member+""">.
+		    			?work dbpedia-owl:artist ?artist
+		    			}
+					""")
+
+				sparql.setReturnFormat(JSON)
+				results = sparql.query().convert()	
+				for result in results["results"]["bindings"]:
+					if result["artist"]["value"] != self.get_dbpediaURL() and 'List_of' not in result["artist"]["value"]:
+						new = True
+						knownArtist = None
+						for r in self.recommendation:
+							if result["artist"]["value"] == r.get_dbpediaURL():
+								print ("DEBUG: Not a new Artist: "+r.get_dbpediaURL())
+								knownArtist = r
+								new = False
+						if new:
+							self.recommendation.append(MusicMashupArtist(result["artist"]["value"], "Because "+self._uri_to_name(member)+" was active as writer."))
+						else:
+							knownArtist.addReason("Because "+self._uri_to_name(member)+" was active as writer.")
+
+			if self.soloArtist:
+				print ("[~] searching writer realtion of maybe solo-artist: "+ self.get_dbpediaURL())
+				sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+				sparql.setQuery("""
+					PREFIX dbprop: <http://dbpedia.org/property/>
+					PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+
+					SELECT DISTINCT ?artist WHERE {
+		    			?work dbprop:writer <"""+self.get_dbpediaURL()+""">.
+		    			?work dbpedia-owl:artist ?artist.
+		    			}
+					""")
+				sparql.setReturnFormat(JSON)
+				results = sparql.query().convert()	
+				for result in results["results"]["bindings"]:
+					if result["artist"]["value"] != self.get_dbpediaURL() and 'List_of' not in result["artist"]["value"]:
+						new = True
+						knownArtist = None
+						for r in self.recommendation:
+							if result["artist"]["value"] == r.get_dbpediaURL():
+								print ("DEBUG: Not a new Artist: "+r.get_dbpediaURL())
+								knownArtist = r
+								new = False
+						if new:
+							self.recommendation.append(MusicMashupArtist(result["artist"]["value"], "Because "+self._uri_to_name(self.get_dbpediaURL())+" was active as writer."))
+						else:
+							knownArtist.addReason("Because "+self._uri_to_name(self.get_dbpediaURL())+" was active as writer.")
+		except:
+			print ("[-] error while pulling writer relation")
+
 	def _pull_current_bands_of_current_members(self):
 		try:
 			for member in self.currentMembers:
@@ -857,7 +946,7 @@ class MusicMashupArtist:
 						else:
 							knownArtist.addReason("Because "+self._uri_to_name(self.get_dbpediaURL())+" is also a member of this band.")
 		except:
-			print ("[-] error while pulling")
+			print ("[-] error while pulling current band of current member")
 
 	def _pull_former_bands_of_current_members(self):
 		try:
