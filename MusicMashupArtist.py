@@ -16,32 +16,14 @@ from titlecase import titlecase
 from pyechonest import config
 config.ECHO_NEST_API_KEY="GZVL1ZHR0GIYXJZXG"
 from pyechonest import artist
+from MusicMashupParser import MusicMashupParser
+
 
 class MusicMashupArtist:
 
+
+	parser = MusicMashupParser()
 	songkickApiKey = "BxSDhcU0tXLU4yHQ"
-
-	# Instanzvariablen
-	# erlaubt das halten von URLs etc. über einzelne Funktionen hinaus
-
-	# dbpediaURL = None
-	# dbtuneURL = None
-	# musicbrainzID = 0
-	# echoNestArtist = None
-	# spotifyID = 0
-	# songkickID = 0
-	# state = 0
-	# problem = ""
-	# events = None
-	# recommendation = []
-	# reason = []
-
-	# related = []
-	# abstract = ""
-
-	# currentMembers = []
-	# formerMembers = []
-	# relatedSources = []
 
 	def __init__(self, query, reco = ""):
 		self.dbpediaURL = None
@@ -54,6 +36,7 @@ class MusicMashupArtist:
 		self.problem = ""
 		self.eventsJSON = None
 		self.events = []
+		self.eventLinks = []
 		self.recommendation = []
 		self.reason = []
 
@@ -62,6 +45,17 @@ class MusicMashupArtist:
 
 		self.dbpedia_set = 0
 		self.dbtune_set = 0
+
+		self.further_urls = None
+		self.discogs = None
+		self.discogs_url = ""
+		self.musixmatch = None
+		self.musixmatch_url = ""
+		self.official = ""
+		self.lastfm = ""
+		self.wikipedia = ""
+		self.myspace = ""
+		self.twitter = ""
 
 		self.currentMembers = []
 		self.formerMembers = []
@@ -485,6 +479,14 @@ class MusicMashupArtist:
 		# self.recommendation = sorted(self.recommendation, key=lambda reco: len(reco))
 		# self.recommendation = sorted(self.recommendation, key=lambda reco: len(reco))
 
+		# Voting starts here
+
+		self._vote()
+
+		# Parsing starts here
+
+		self.parser.start(self)
+
 		return self.recommendation
 
 	def get_reason(self):
@@ -502,6 +504,9 @@ class MusicMashupArtist:
 			self._pull_former_bands_of_current_members()
 			self._pull_current_bands_of_former_members()
 			self._pull_former_bands_of_former_members()
+			self._pull_further_urls()
+			self._pull_discogs()
+			self._pull_musixmatch()
 		except:
 			pass # bestes error handling aller zeiten
 		
@@ -520,17 +525,95 @@ class MusicMashupArtist:
 		if not self.echoNestArtist and self.state == 0:
 			print("[~] pulling echoNestArtist")
 			self._pull_echoNest_artist()
-			return self.echoNestArtist
+			if self.echoNestArtist:
+				return self.echoNestArtist
 		else:
 			return self.echoNestArtist
 
 	def _pull_echoNest_artist(self):
 		if self.musicbrainzID:
 			self.echoNestArtist = artist.Artist('musicbrainz:artist:'+self.musicbrainzID)
-			print("[+] pulled echoNestArtist")
-			return self.echoNestArtist
+			if self.echoNestArtist:
+				print("[+] pulled echoNestArtist")
+			else:
+				print("[-] Could not find echoNestArtist")
 		else:
 			return -1
+
+	def _pull_further_urls(self):
+		print("[~] Trying to pull Further Urls")
+		
+		self.further_urls = self.get_echoNestArtist().get_urls()
+		if not self.further_urls:
+			print("[-] Could not find further URLs")
+		else:
+			print("[+] Found further URLs")
+
+			if 'official_url' in self.further_urls:
+				self.official = self.further_urls[u'official_url']
+				print ("[+] Offizielle Website: "+self.official)
+			if 'lastfm_url' in self.further_urls:
+				self.lastfm = self.further_urls[u'lastfm_url']
+				print ("[+] Last Fm: "+self.lastfm)
+			if 'wikipedia_url' in self.further_urls:
+				self.wikipedia = self.further_urls[u'wikipedia_url']
+				print ("[+] Wikipedia: "+self.lastfm)
+			if 'myspace_url' in self.further_urls:
+				self.myspace = self.further_urls[u'myspace_url']
+				print ("[+] Myspace: "+self.lastfm)
+			if 'twitter_url' in self.further_urls:
+				self.twitter = self.further_urls[u'twitter_url']
+				print ("[+] Twitter: "+self.lastfm)
+
+	def get_discogs(self):
+		if not self.discogs:
+			self._pull_discogs()
+		if self.discogs:
+			return self.discogs
+
+	def _pull_discogs(self):
+		try:
+			print("[~] Trying to pull discogs")
+			self.discogs = self.get_echoNestArtist().get_foreign_id('discogs')
+			if self.discogs:
+				print("[+] Found Discogs Resource: "+ self.discogs)
+				self.convert_discogs_to_url()
+
+			else: 
+				print("[-] Could not find discogs")
+		except:
+			pass
+
+	def convert_discogs_to_url(self):
+		self.discogs_url = "http://www.discogs.com/artist/"+self.discogs[15:]
+		print("[+] discogs-url: "+self.discogs_url)
+
+	# ========================================================================================
+	# MUSIXMATCH get and _pull
+	# ========================================================================================
+
+	def get_musixmatch(self):
+		if not self.musixmatch:
+			self._pull_musixmatch()
+		if self.musixmatch:
+			return self.musixmatch
+
+	def _pull_musixmatch(self):
+		try:
+			print("[~] Trying to pull musixmatch")
+			self.musixmatch = self.get_echoNestArtist().get_foreign_id('musixmatch-WW')
+			if self.musixmatch:
+				print("[+] Found musixmatch Resource: "+ self.musixmatch)
+				self.convert_musixmatch_to_url()
+
+			else: 
+				print("[-] Could not find musixmatch")
+		except:
+			pass
+
+	def convert_musixmatch_to_url(self):
+		self.musixmatch_url = "https://www.musixmatch.com/artist/"+self.musixmatch[21:]
+		print("[+] musixmatch-url: "+self.musixmatch_url)
 
 	# ========================================================================================
 	# SONGKICK-EVENTS get and _pull
@@ -559,15 +642,18 @@ class MusicMashupArtist:
 		# print (entries)
 		if entries > 0:
 			for i in range(entries):
-				self.events.append(self.eventsJSON["resultsPage"]["results"]["event"][i]["displayName"])
+				temp = [self.eventsJSON["resultsPage"]["results"]["event"][i]["displayName"], self.eventsJSON["resultsPage"]["results"]["event"][i]["uri"]]
+				self.events.append(temp)
 		else:
-			self.events.append("No Concerts found.")
+			temp = ["No Concerts found.", ""]
+			self.events.append(temp)
 
 	# ========================================================================================
 	# MEMBER _pull
 	# ========================================================================================
 
 	def _pull_current_members(self):
+
 		try:
 			print("[~] Pulling current Members of: "+self.get_dbpediaURL())
 			sparql = SPARQLWrapper("http://dbpedia.org/sparql")
@@ -585,9 +671,11 @@ class MusicMashupArtist:
 				if result["member"]["value"][:4] == "http" and 'List_of' not in result["member"]["value"]:
 					self.currentMembers.append(result["member"]["value"])
 					print result["member"]["value"]
-				else:
+				elif 'List_of' not in result["member"]["value"]:
 					self.currentMembersNR.append(result["member"]["value"])
 					print("[-] No Resource on dbpedia for: "+result["member"]["value"])
+				else:
+					print("[-] Found 'List of Members'-Resource, did not add it to members")
 
 			if not self.currentMembers:
 				print("[~] Pulling current Members of: "+self.get_dbpediaURL()+" with dbpedia-owl:bandMembers")
@@ -600,14 +688,15 @@ class MusicMashupArtist:
 					""")
 				sparql.setReturnFormat(JSON)
 				results = sparql.query().convert()			
-
 				for result in results["results"]["bindings"]:
 					if result["member"]["value"][:4] == "http" and 'List_of' not in result["member"]["value"]:
-						self.currentMembers.append(result["member"]["value"])
+						self.formerMembers.append(result["member"]["value"])
 						print result["member"]["value"]
-					else:
-						self.currentMembersNR.append(result["member"]["value"])
+					elif 'List_of' not in result["member"]["value"]:
+						self.formerMembersNR.append(result["member"]["value"])
 						print("[-] No Resource on dbpedia for: "+result["member"]["value"])
+					else:
+						print("[-] Found 'List of Members'-Resource, did not add it to members")
 		except:
 			print ("[-] error while pulling current members")
 
@@ -630,10 +719,11 @@ class MusicMashupArtist:
 				if result["member"]["value"][:4] == "http" and 'List_of' not in result["member"]["value"]:
 					self.formerMembers.append(result["member"]["value"])
 					print result["member"]["value"]
-				else:
+				elif 'List_of' not in result["member"]["value"]:
 					self.formerMembersNR.append(result["member"]["value"])
 					print("[-] No Resource on dbpedia for: "+result["member"]["value"])
-
+				else:
+					print("[-] Found 'List of Members'-Resource, did not add it to members")
 			if not self.formerMembers:
 				print("[~] Pulling former Members of: "+self.get_dbpediaURL()+" with dbpprop:pastMembers")
 				sparql = SPARQLWrapper("http://dbpedia.org/sparql")
@@ -652,9 +742,11 @@ class MusicMashupArtist:
 					if result["member"]["value"][:4] == "http" and 'List_of' not in result["member"]["value"]:
 						self.formerMembers.append(result["member"]["value"])
 						print result["member"]["value"]
-					else:
+					elif 'List_of' not in result["member"]["value"]:
 						self.formerMembersNR.append(result["member"]["value"])
 						print("[-] No Resource on dbpedia for: "+result["member"]["value"])
+					else:
+						print("[-] Found 'List of Members'-Resource, did not add it to members")
 		except:
 			print ("[-] error while pulling former members")
 
@@ -914,48 +1006,24 @@ class MusicMashupArtist:
 		self.reason.append(reason)
 
 	# ========================================================================================
-	# Parse Methoden
+	# VOTING
 	# ========================================================================================
 
-	def parse_to_rdf(self):
-		filename = self.get_name().lower().replace(' ', '_')
-		filepath = "dumps/"+filename
-		# fileExists = os.path.exists(filepath)
-		
-		file = open(filepath, 'w+')
-		
-		self.parse_prefixes(file)
-		self.parse_abstract(file)
-		self.parse_current_members(file)
-		
-		self.parse_related_artists(file)
-		file.close()
-	
-	def parse_prefixes(self, file):
-		file.write("@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n")
-		file.write("@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n")
-		file.write("@prefix mo: <http://purl.org/ontology/mo/> .\n")
-		file.write("@prefix dbpedia-owl: <http://dbpedia.org/ontology/> .\n")
-		file.write("@prefix dbprop: <http://dbpedia.org/property/> .\n")
-		file.write("@prefix owl: <http://www.w3.org/2002/07/owl#> .\n\n")
-	
-	def parse_abstract(self, file):
-		file.write("<"+self.get_dbpediaURL()+"> dbpedia-owl:abstract \""+self.abstract+"\" .\n")
-	
-	def parse_current_members(self, file):
-		for member in self.currentMembers:
-			file.write("<"+self.get_dbpediaURL()+"> dbprop:currentMember <"+member+"> .\n")
-	def parse_related_artists(self, file):
-		for artist in self.relatedSources:
-			file.write("<"+self.get_dbpediaURL()+"> dbpedia-owl:associatedMusicalArtist <"+artist+"> .\n")
-
-	# ========================================================================================
-	# brauchen wir das noch?
-	# ========================================================================================
-
-	# def _pull_songkick_id(self):
-	# 	self.songkickID = self.get_echoNestArtist().get_foreign_id('songkick')
-	# 	return self.songkickID
+	def _vote(self):
+		numberOfReasons = []
+		for r in self.recommendation:
+			numberOfReasons.append(len(r.reason))
+		count = 0
+		length = len(self.recommendation)
+		for i in range(0, length):
+			for j in range(0, length-1):
+				if numberOfReasons[j] < numberOfReasons[j+1]:
+					temp = self.recommendation[j]
+					self.recommendation[j] = self.recommendation[j+1]
+					self.recommendation[j+1] = temp
+					temp = numberOfReasons[j]
+					numberOfReasons[j] = numberOfReasons[j+1]
+					numberOfReasons[j+1] = temp
 
 # run from console for test setup
 if __name__ == '__main__':
