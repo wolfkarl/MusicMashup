@@ -39,7 +39,8 @@ class MusicMashupParser:
 		file.write("@prefix owl: <http://www.w3.org/2002/07/owl#> .\n\n")
 	
 	def parse_abstract(self, file):
-		file.write("<"+self.artist.get_dbpediaURL()+"> dbpedia-owl:abstract \""+self.artist.get_abstract().encode('ascii', 'replace')+"\" .\n")
+		if self.artist.abstract:	
+			file.write("<"+self.artist.get_dbpediaURL()+"> dbpedia-owl:abstract \""+self.artist.get_abstract().encode('ascii', 'replace')+"\" .\n")
 		## encode('ascii', 'replace') ist ein ziemlich harter workaround.
 		## Der Parser wirft eine UnicodeDecodeError Exception, wenn merkwürdige Sonderzeichen kommen (die nebenbei gesagt komplett fehl am Platz sind...)
 	

@@ -645,7 +645,8 @@ class MusicMashupArtist:
 				temp = [self.eventsJSON["resultsPage"]["results"]["event"][i]["displayName"], self.eventsJSON["resultsPage"]["results"]["event"][i]["uri"]]
 				self.events.append(temp)
 		else:
-			self.events.append("No Concerts found.")
+			temp = ["No Concerts found.", ""]
+			self.events.append(temp)
 
 	# ========================================================================================
 	# MEMBER _pull
