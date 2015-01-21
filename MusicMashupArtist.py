@@ -904,6 +904,12 @@ class MusicMashupArtist:
 		uri = uri.replace('_', ' ')
 		return uri
 
+	def uri_to_name_if_necessary(self, uri):
+		if uri[:4] == "http":
+			return self._uri_to_name(uri)
+		else:
+			return uri
+
 	def addReason(self, reason):
 		self.reason.append(reason)
 
