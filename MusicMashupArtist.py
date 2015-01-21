@@ -17,9 +17,12 @@ from titlecase import titlecase
 from pyechonest import config
 config.ECHO_NEST_API_KEY="GZVL1ZHR0GIYXJZXG"
 from pyechonest import artist
+from MusicMashupParser import MusicMashupParser
+
 
 class MusicMashupArtist:
 	d = discogs_client.Client('ExampleApplication/0.1')
+	parser = MusicMashupParser()
 	songkickApiKey = "BxSDhcU0tXLU4yHQ"
 
 	def __init__(self, query, reco = ""):
@@ -483,6 +486,10 @@ class MusicMashupArtist:
 
 		self._vote()
 
+		# Parsing starts here
+
+		self.parser.start(self)
+
 		return self.recommendation
 
 	def get_reason(self):
@@ -665,7 +672,8 @@ class MusicMashupArtist:
 				temp = [self.eventsJSON["resultsPage"]["results"]["event"][i]["displayName"], self.eventsJSON["resultsPage"]["results"]["event"][i]["uri"]]
 				self.events.append(temp)
 		else:
-			self.events.append("No Concerts found.")
+			temp = ["No Concerts found.", ""]
+			self.events.append(temp)
 
 	# ========================================================================================
 	# MEMBER _pull
@@ -1076,45 +1084,14 @@ class MusicMashupArtist:
 		uri = uri.replace('_', ' ')
 		return uri
 
+	def uri_to_name_if_necessary(self, uri):
+		if uri[:4] == "http":
+			return self._uri_to_name(uri)
+		else:
+			return uri
+
 	def addReason(self, reason):
 		self.reason.append(reason)
-
-	# ========================================================================================
-	# Parse Methoden
-	# ========================================================================================
-
-	def parse_to_rdf(self):
-		filename = self.get_name().lower().replace(' ', '_')
-		filepath = "dumps/"+filename
-		# fileExists = os.path.exists(filepath)
-		
-		file = open(filepath, 'w+')
-		
-		self.parse_prefixes(file)
-		self.parse_abstract(file)
-		self.parse_current_members(file)
-		
-		self.parse_related_artists(file)
-		file.close()
-	
-	def parse_prefixes(self, file):
-		file.write("@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n")
-		file.write("@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n")
-		file.write("@prefix mo: <http://purl.org/ontology/mo/> .\n")
-		file.write("@prefix dbpedia-owl: <http://dbpedia.org/ontology/> .\n")
-		file.write("@prefix dbprop: <http://dbpedia.org/property/> .\n")
-		file.write("@prefix owl: <http://www.w3.org/2002/07/owl#> .\n\n")
-	
-	def parse_abstract(self, file):
-		file.write("<"+self.get_dbpediaURL()+"> dbpedia-owl:abstract \""+self.abstract+"\" .\n")
-	
-	def parse_current_members(self, file):
-		for member in self.currentMembers:
-			file.write("<"+self.get_dbpediaURL()+"> dbprop:currentMember <"+member+"> .\n")
-
-	def parse_related_artists(self, file):
-		for artist in self.relatedSources:
-			file.write("<"+self.get_dbpediaURL()+"> dbpedia-owl:associatedMusicalArtist <"+artist+"> .\n")
 
 	# ========================================================================================
 	# VOTING
