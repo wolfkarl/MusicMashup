@@ -1,8 +1,16 @@
+# server shizzle
 import cherrypy
 import os
+
+# eigentliche arbeit macht die artist klasse
 from MusicMashupArtist import MusicMashupArtist
+
+# template gedoens
 from mako.template import Template
 from mako.lookup import TemplateLookup
+
+# fuer history generation
+from urllib import quote_plus
 
 class MusicMashupServer(object):
 
@@ -15,14 +23,27 @@ class MusicMashupServer(object):
 
 		# create musicmashup object based on query:
 		self.artist = MusicMashupArtist(query)
+
+		# add new query to breadcrumbs list. create as list if not present
+		if not "history" in cherrypy.session:
+			cherrypy.session['history'] = []
+
+		# append newest query to list, template will determine if it's a URI or name
+		cherrypy.session['history'].append(query)
+
+		# make sure the list has no more than 5 entries
+		maxentries = 5
+		if len(cherrypy.session['history']) > maxentries:
+			cherrypy.session['history'].pop
+
+
+		# load mako templates
 		lookup = TemplateLookup(directories=['html'])
 		tmpl = lookup.get_template("main.htm")
-		return tmpl.render(artist=self.artist)		
-		# return tmpl.render(
-		# 		query 		= self.artist.get_name(), 
-		# 		abstract	= self.artist.get_abstract(),
-		# 		spotify_uri	= self.artist.get_spotify_uri()
-		# 		)
+
+		# add whole Artist object and history array from sessions
+		return tmpl.render(artist=self.artist, history=cherrypy.session['history'])		
+
  
 
 

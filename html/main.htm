@@ -154,6 +154,15 @@
       % endif
     </ul> 
   </div>
+
+  <div class="col-md-4 breadcrumbs">
+  <h3>Suchhistorie</h3>
+  <ul>
+    % for crumb in history:     
+      <li><a href="?query=${crumb}">${artist.uri_to_name_if_necessary(crumb)}</a></li>
+    %endfor
+    </ul>
+  </div>
 </div>
 </div>
 </div>
