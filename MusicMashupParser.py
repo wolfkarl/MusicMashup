@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import codecs
+
 class MusicMashupParser:
 
 	def __init__(self):
@@ -15,7 +17,7 @@ class MusicMashupParser:
 		filepath = "dumps/"+filename
 		# fileExists = os.path.exists(filepath)
 		
-		file = open(filepath, 'w+')
+		file = codecs.open(filepath, 'w+', 'utf-8')
 		
 		self.parse_prefixes(file)
 		self.parse_abstract(file)
@@ -40,7 +42,7 @@ class MusicMashupParser:
 	
 	def parse_abstract(self, file):
 		if self.artist.abstract:	
-			file.write("<"+self.artist.get_dbpediaURL()+"> dbpedia-owl:abstract \""+self.artist.get_abstract().encode('ascii', 'replace')+"\" .\n")
+			file.write("<"+self.artist.get_dbpediaURL()+"> dbpedia-owl:abstract \""+self.artist.get_abstract()+"\" .\n")
 		## encode('ascii', 'replace') ist ein ziemlich harter workaround.
 		## Der Parser wirft eine UnicodeDecodeError Exception, wenn merkwürdige Sonderzeichen kommen (die nebenbei gesagt komplett fehl am Platz sind...)
 	

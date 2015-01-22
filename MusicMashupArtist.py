@@ -24,7 +24,7 @@ from MusicMashupParser import MusicMashupParser
 
 
 class MusicMashupArtist:
-	d = discogs_client.Client('ExampleApplication/0.1')
+	# d = discogs_client.Client('ExampleApplication/0.1')
 	parser = MusicMashupParser()
 	songkickApiKey = "BxSDhcU0tXLU4yHQ"
 
