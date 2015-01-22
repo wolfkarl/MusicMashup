@@ -164,8 +164,13 @@ class MusicMashupArtist:
 			print ("[-] error while pulling thumbnail")
 
 	def get_images(self):
-		self._pull_commons()
+		if not self.images:
+			self._pull_commons()
 		return self.images
+
+	def has_images(self):
+		self.get_images()
+		return len(self.images) > 0 and self.images[0] != "None"
 
 	def get_current_members(self):
 		return self.currentMembers
@@ -218,7 +223,9 @@ class MusicMashupArtist:
 
 				for result in results["results"]["bindings"]:
 				    self.images.append(result["url"]["value"])
-				    # print result["url"]["value"]
+
+				    print "Neues BILD!"
+				    print result["url"]["value"]
 			else: 
 				print ("[-] There was no commons entry for this band")
 		except:
@@ -1125,15 +1132,17 @@ class MusicMashupArtist:
 
 # run from console for test setup
 if __name__ == '__main__':
-	test = MusicMashupArtist("Queens of the Stone Age")
+	test = MusicMashupArtist("Page and Plant")
 	print("this is a test.")
 	print(test.get_name())
 	print(test.get_abstract())
 	print(test.get_spotify_id())
+	test.get_images()
 	# print(test.get_abstract())
 	# print(test.dbtuneURL)
 	# print (test.dbpediaURL)
-	blubb = test.get_related()
+	#blubb = test.get_related()
 	# print(blubb)
-	for r in blubb:
-		print(" + "+r.get_name() + " - " + r.get_abstract_excerpt(50) + " - " + r.get_spotify_id())
+	#for r in blubb:
+#		print(" + "+r.get_name() + " - " + r.get_abstract_excerpt(50) + " - " + r.get_spotify_id())
+	print(test.has_images())

@@ -93,12 +93,13 @@
     </div>
 
     <div class="col-md-4">
-      
+        % if artist.has_images():
               <div id="slider" class="nivoSlider theme-default">
           % for img in artist.get_images():
           <img src="${img}" alt="" />
           %endfor
         </div>
+        % endif
     </div>
 
     <div class="col-md-4 widget">

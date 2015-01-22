@@ -33,7 +33,7 @@ class MusicMashupServer(object):
 			cherrypy.session['history'].append(query)
 
 		# make sure the list has no more than 5 entries
-		maxentries = 5
+		maxentries = 10
 		if len(cherrypy.session['history']) > maxentries:
 			cherrypy.session['history'].pop
 
