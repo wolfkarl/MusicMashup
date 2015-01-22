@@ -40,24 +40,24 @@ class MusicMashupParser:
 	
 	def parse_abstract(self, file):
 		if self.artist.abstract:	
-			file.write("<"+self.artist.get_dbpediaURL()+"> dbpedia-owl:abstract \""+self.artist.get_abstract().encode('ascii', 'replace')+"\" .\n")
+			file.write("<"+self.artist.get_dbpediaURL().encode('ascii', 'replace')+"> dbpedia-owl:abstract \""+self.artist.get_abstract().encode('ascii', 'replace')+"\" .\n")
 		## encode('ascii', 'replace') ist ein ziemlich harter workaround.
 		## Der Parser wirft eine UnicodeDecodeError Exception, wenn merkwürdige Sonderzeichen kommen (die nebenbei gesagt komplett fehl am Platz sind...)
 	
 	def parse_current_members(self, file):
 		if self.artist.currentMembers:
 			for member in self.artist.currentMembers:
-				file.write("<"+self.artist.get_dbpediaURL()+"> dbprop:currentMember <"+member+"> .\n")
+				file.write("<"+self.artist.get_dbpediaURL()+"> dbprop:currentMember <"+member.encode('ascii', 'replace')+"> .\n")
 
 	def parse_former_members(self, file):
 		if self.artist.formerMembers:
 			for member in self.artist.formerMembers:
-				file.write("<"+self.artist.get_dbpediaURL()+"> dbprop:currentMember <"+member+"> .\n")
+				file.write("<"+self.artist.get_dbpediaURL()+"> dbprop:currentMember <"+member.encode('ascii', 'replace')+"> .\n")
 
 	def parse_related_artists(self, file):
 		if self.artist.recommendation:
 			for artist in self.artist.recommendation:
-				file.write("<"+self.artist.get_dbpediaURL()+"> dbpedia-owl:associatedMusicalArtist <"+artist.get_dbpediaURL()+"> .\n")
+				file.write("<"+self.artist.get_dbpediaURL()+"> dbpedia-owl:associatedMusicalArtist <"+artist.get_dbpediaURL().encode('ascii', 'replace')+"> .\n")
 
 	def parse_thumbnail(self, file):
 		if self.artist.thumbnail:
@@ -74,7 +74,7 @@ class MusicMashupParser:
 		if self.artist.musicbrainzID:
 			file.write("<"+self.artist.get_dbpediaURL()+"> owl:sameAs <http://musicbrainz.org/artist/"+str(self.artist.musicbrainzID)+"> .\n")
 		if self.artist.dbpediaCommonsURL:
-			file.write("<"+self.artist.get_dbpediaURL()+"> owl:sameAs <"+str(self.artist.dbpediaCommonsURL)+"> .\n")
+			file.write("<"+self.artist.get_dbpediaURL()+"> owl:sameAs <"+str(self.artist.dbpediaCommonsURL).encode('ascii', 'replace')+"> .\n")
 
 	def parse_see_also(self, file):
 		if self.artist.discogs_url:
@@ -82,7 +82,7 @@ class MusicMashupParser:
 		if self.artist.musixmatch_url:
 			file.write("<"+self.artist.get_dbpediaURL()+"> rdfs:seeAlso <"+self.artist.musixmatch_url+"> .\n")
 		if self.artist.official:
-			file.write("<"+self.artist.get_dbpediaURL()+"> rdfs:seeAlso <"+self.artist.official+"> .\n")
+			file.write("<"+self.artist.get_dbpediaURL()+"> rdfs:seeAlso <"+self.artist.official.encode('ascii', 'replace')+"> .\n")
 		if self.artist.lastfm:
 			file.write("<"+self.artist.get_dbpediaURL()+"> rdfs:seeAlso <"+self.artist.lastfm+"> .\n")
 		if self.artist.wikipedia:
