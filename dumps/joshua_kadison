@@ -1,0 +1,17 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix mo: <http://purl.org/ontology/mo/> .
+@prefix dbpedia-owl: <http://dbpedia.org/ontology/> .
+@prefix dbprop: <http://dbpedia.org/property/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/Image> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+<http://dbpedia.org/resource/Joshua_Kadison> dbpedia-owl:abstract "Joshua Kadison (born February 8, 1963, Los Angeles, California) is an American singer-songwriter, pianist, and writer. He is perhaps best known for the Top 40 hits "Jessie" and "Beautiful in My Eyes" from his debut album Painted Desert Serenade." .
+<http://dbpedia.org/resource/Joshua_Kadison> dbpedia-owl:thumbnail <http://commons.wikimedia.org/wiki/Special:FilePath/Joshua_Kadison_2008.jpg?width=300> .
+<http://dbpedia.org/resource/Joshua_Kadison> owl:sameAs <http://dbtune.org/musicbrainz/resource/artist/fef99732-88b6-4ac1-9a49-4bfcca88d8fe> .
+<http://dbpedia.org/resource/Joshua_Kadison> owl:sameAs <http://musicbrainz.org/artist/fef99732-88b6-4ac1-9a49-4bfcca88d8fe> .
+<http://dbpedia.org/resource/Joshua_Kadison> rdfs:seeAlso <http://www.discogs.com/artist/219074> .
+<http://dbpedia.org/resource/Joshua_Kadison> rdfs:seeAlso <https://www.musixmatch.com/artist/7928> .
+<http://dbpedia.org/resource/Joshua_Kadison> rdfs:seeAlso <http://www.last.fm/music/Joshua+Kadison> .
+<http://dbpedia.org/resource/Joshua_Kadison> rdfs:seeAlso <http://en.wikipedia.org/wiki/Joshua_Kadison> .
+<http://dbpedia.org/resource/Joshua_Kadison> rdfs:seeAlso <http://www.myspace.com/joshuakadison> .

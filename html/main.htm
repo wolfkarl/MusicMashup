@@ -44,41 +44,61 @@
     </div>
 
     <div class="row hero">
-      <div class="col-md-12"><h1>Music Mashup: ${artist.get_name()}</h1>
+      <div class="col-md-12"><h1>${artist.get_name()}</h1>
         <br>
       </div>
     </div>
 
-    <div class="row">
-      <div class="col-md-8"><h3>General Information</h3>      
-        <p>${artist.get_abstract()}</p>
+    <div class="row subhero breadcrumbs">
+<div class="col-sm-12"><ul>
+      % for crumb in history:     
+        <li><a href="?query=${crumb}">${artist.uri_to_name_if_necessary(crumb)}</a>
+        <span class="glyphicon glyphicon-chevron-right"></span></li>
+  
+      %endfor
+ 
+      </ul>   </div>
+    </div>
 
-        <div id="slider" class="nivoSlider theme-default">
+      <div class="row">
+    <div class="col-md-8">
+        <div class="row">
+          <div class="col-md-12">
+          <h3>General Information</h3>      
+            <p>${artist.get_abstract()}</p>
+        
+        
+            <h3>Recommendations</h3>            
+            <div class="reco-wrapper">
+              % for r in artist.get_related():
+              <div class="reco row">
+                <div class="col-sm-2"><div class="img" style="overflow: hidden">
+                  <img src="${r.getThumbnail()}" style="max-height:100%">
+                </div>
+              </div>
+              <div class="col-sm-10">
+                <h4><a href="/?query=${r.get_dbpediaURL_link()}">${r.get_name()}</a> <small>${r.get_abstract_excerpt(300)}</small></h4>
+                <ul>
+                  % for reason in r.get_reason(): 
+                  <li>${reason}</li>
+                  %endfor
+                </ul>
+              </div>
+            </div>
+            % endfor
+        
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      
+              <div id="slider" class="nivoSlider theme-default">
           % for img in artist.get_images():
           <img src="${img}" alt="" />
           %endfor
         </div>
-
-        <h3>Recommendations</h3>            
-        <div class="reco-wrapper">
-          % for r in artist.get_related():
-          <div class="reco row">
-            <div class="col-sm-2"><div class="img" style="overflow: hidden">
-              <img src="${r.getThumbnail()}" style="max-height:100%">
-            </div>
-          </div>
-          <div class="col-sm-10">
-            <h4><a href="/?query=${r.get_dbpediaURL_link()}">${r.get_name()}</a> <small>${r.get_abstract_excerpt(300)}</small></h4>
-            <ul>
-              % for reason in r.get_reason(): 
-              <li>${reason}</li>
-              %endfor
-            </ul>
-          </div>
-        </div>
-        % endfor
-
-      </div>
     </div>
 
     <div class="col-md-4 widget">
@@ -155,15 +175,14 @@
     </ul> 
   </div>
 
-  <div class="col-md-4 breadcrumbs">
-  <h3>Suchhistorie</h3>
-  <ul>
-    % for crumb in history:     
-      <li><a href="?query=${crumb}">${artist.uri_to_name_if_necessary(crumb)}</a></li>
-    %endfor
-    </ul>
-  </div>
+
+<footer>
+<div class="col-md-12 text-center">
+  <span>MusicMashup, the best thing since mashed potatoes.</span> &middot;
+  <span>Load time: ${"%1.2f" % artist.current_load_time()} seconds</span>
+
 </div>
+</footer>
 </div>
 </div>
 

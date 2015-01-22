@@ -1,0 +1,18 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix mo: <http://purl.org/ontology/mo/> .
+@prefix dbpedia-owl: <http://dbpedia.org/ontology/> .
+@prefix dbprop: <http://dbpedia.org/property/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/Image> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+<http://dbpedia.org/resource/Coverdale_and_Page> dbpedia-owl:abstract "Coverdale/Page was a musical collaboration featuring Whitesnake and former Deep Purple lead vocalist David Coverdale, and former Led Zeppelin guitarist Jimmy Page.The project between the two artists commenced in 1991 at the suggestion of American A&R executive John Kalodner, as both artists were signed to Geffen Records at the time. Their debut album, Coverdale/Page was released on 15 March 1993, reaching No. 4 in the UK and No. 5 on the US Billboard 200 chart. Five singles were released to promote the album: "Pride and Joy", "Shake My Tree", "Take Me for a Little While", "Take a Look at Yourself" and "Over Now".The album was certified Gold by the RIAA for sales of the LP, CD & Cassette in excess of 500,000 copies and eventually went Platinum. The album also received the official Japanese Sony Music in-house award for sales in excess of 150,000 copies in Japan as well as the EMI in-house sales award for sales in excess of 60,000 copies in the UK.It has been rumored that Page collaborated with Coverdale in order to irk Page's former Led Zeppelin bandmate Robert Plant,[citation needed] who up to that point had been reluctant to reunite with Page. In interviews at the time, Plant expressed some derision at the guitarist's collaboration with Coverdale.An American arena tour was planned for the summer of 1993, but after sluggish ticket sales the tour was scrapped in favor of a series of concerts in Japan, after which the partnership was dissolved.[citation needed] Page subsequently teamed up with Plant for an "UnLedded" MTV project and Coverdale returned to Whitesnake." .
+<http://dbpedia.org/resource/Coverdale_and_Page> dbprop:currentMember <http://dbpedia.org/resource/Jimmy_Page> .
+<http://dbpedia.org/resource/Coverdale_and_Page> dbprop:currentMember <http://dbpedia.org/resource/David_Coverdale> .
+<http://dbpedia.org/resource/Coverdale_and_Page> dbpedia-owl:associatedMusicalArtist <http://dbpedia.org/resource/Whitesnake> .
+<http://dbpedia.org/resource/Coverdale_and_Page> dbpedia-owl:associatedMusicalArtist <http://dbpedia.org/resource/Led_Zeppelin> .
+<http://dbpedia.org/resource/Coverdale_and_Page> dbpedia-owl:associatedMusicalArtist <http://dbpedia.org/resource/Page_and_Plant> .
+<http://dbpedia.org/resource/Coverdale_and_Page> dbpedia-owl:associatedMusicalArtist <http://dbpedia.org/resource/The_Firm_(rock_band)> .
+<http://dbpedia.org/resource/Coverdale_and_Page> dbpedia-owl:associatedMusicalArtist <http://dbpedia.org/resource/The_Honeydrippers> .
+<http://dbpedia.org/resource/Coverdale_and_Page> dbpedia-owl:associatedMusicalArtist <http://dbpedia.org/resource/XYZ_(UK_band)> .
+<http://dbpedia.org/resource/Coverdale_and_Page> dbpedia-owl:associatedMusicalArtist <http://dbpedia.org/resource/Deep_Purple> .

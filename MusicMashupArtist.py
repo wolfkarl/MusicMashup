@@ -11,6 +11,9 @@ import json
 import urllib
 from urllib import urlopen
 
+# for statistics
+import time
+
 from titlecase import titlecase
 
 from pyechonest import config
@@ -26,6 +29,9 @@ class MusicMashupArtist:
 	songkickApiKey = "BxSDhcU0tXLU4yHQ"
 
 	def __init__(self, query, reco = ""):
+
+		self.starttime = time.clock()
+
 		self.dbpediaURL = None
 		self.dbtuneURL = None
 		self.musicbrainzID = 0
@@ -1024,6 +1030,10 @@ class MusicMashupArtist:
 					temp = numberOfReasons[j]
 					numberOfReasons[j] = numberOfReasons[j+1]
 					numberOfReasons[j+1] = temp
+
+
+	def current_load_time(self):
+		return time.clock()-self.starttime
 
 # run from console for test setup
 if __name__ == '__main__':
