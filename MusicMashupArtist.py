@@ -72,15 +72,23 @@ class MusicMashupArtist:
 		self.thumbnail = None
 		self.images = []
 
+		self.input = ""
+		self.manualQuery = False
+
 		query = urllib.unquote(query)
+
 
 		if query[:4] == "http":
 			self.name = self._uri_to_name(query)
+			self.input = self.name
 			self.dbpediaURL = query
 			self.dbpedia_set = 1
 			self.thumbnail = None
 		else:
+			self.input = query
 			self.name = titlecase(query)
+			print ("[~] Converted to titlecase: "+ self.name)
+			self.manualQuery = True
 
 
 		if reco != "":
@@ -111,6 +119,15 @@ class MusicMashupArtist:
 		if not self.dbtuneURL:
 			print ("[-] Could not find Resource on DBTune => Trying with musicbrainz dump now")
 			self._pull_mbdump()
+			if not self.musicbrainzID and self.manualQuery:
+				print ("[-] Could not find Resource on musicbrainz-dump => Trying with original Input now")
+				self.name = self.input
+				self._pull_dbtune()
+				if not self.dbtuneURL:
+					print ("[-] Could not find Resource on DBTune with original input => Trying with musicbrainz dump now")
+					self._pull_mbdump()
+
+
 			print ("[~] Trying again for DBPedia")
 			self._pull_dbpedia_url_from_dbpedia()
 		else:
@@ -488,7 +505,7 @@ class MusicMashupArtist:
 
 		# Parsing starts here
 
-		self.parser.start(self)
+		# self.parser.start(self)
 
 		return self.recommendation
 
