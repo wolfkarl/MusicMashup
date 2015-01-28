@@ -532,17 +532,18 @@ class MusicMashupArtist:
 			if not self.currentMembers and not self.formerMembers:
 				print("[~] No members => Trying Resource as Solo-Artist")
 				self.soloArtist = True
+
 			if self.currentMembers or self.soloArtist:
 				self._pull_current_bands_of_current_members()
 				self._pull_former_bands_of_current_members()
 				self._pull_writer_relation_of_current_members()
 				self._pull_producer_relation_of_current_members()
+
 			if self.formerMembers:
 				self._pull_current_bands_of_former_members()
 				self._pull_former_bands_of_former_members()
 				self._pull_producer_relation_of_former_members()
 				self._pull_writer_relation_of_former_members()
-
 
 			self._pull_further_urls()
 			self._pull_discogs()
@@ -1217,20 +1218,22 @@ class MusicMashupArtist:
 	# ========================================================================================
 
 	def _vote(self):
-		numberOfReasons = []
+		voteValue = []
 		for r in self.recommendation:
-			numberOfReasons.append(len(r.reason))
-		count = 0
+			voteValue.append(r.get_vote())
 		length = len(self.recommendation)
 		for i in range(0, length):
 			for j in range(0, length-1):
-				if numberOfReasons[j] < numberOfReasons[j+1]:
+				if voteValue[j] < voteValue[j+1]:
 					temp = self.recommendation[j]
 					self.recommendation[j] = self.recommendation[j+1]
 					self.recommendation[j+1] = temp
-					temp = numberOfReasons[j]
-					numberOfReasons[j] = numberOfReasons[j+1]
-					numberOfReasons[j+1] = temp
+					temp = voteValue[j]
+					voteValue[j] = voteValue[j+1]
+					voteValue[j+1] = temp
+		print ("After Sorting: ")
+		for artist in self.recommendation:
+			print "Artist: "+artist.get_name()+" has Vote: ",artist.get_vote()
 
 # run from console for test setup
 if __name__ == '__main__':
