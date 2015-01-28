@@ -9,7 +9,6 @@ class MusicMashupParser:
 	def start(self, artistObject):
 		self.artist = artistObject
 		self.baseArtist = ":" + str(self.artist.get_name().replace(' ', '_'))
-		print ("THIS WILL BE PARSED AS BASEARTIST: "+self.baseArtist)
 		self.parse_to_rdf()
 
 	def parse_to_rdf(self):
@@ -28,6 +27,7 @@ class MusicMashupParser:
 		self.parse_same_as(file)
 		self.parse_see_also(file)
 		self.parse_related_artists(file)
+		self.parse_events(file)
 		self.parse_api_keys(file)
 
 		file.close()
@@ -106,6 +106,10 @@ class MusicMashupParser:
 		if self.artist.echoNestArtist:
 			file.write(self.baseArtist+" mm:echonestArtist \""+str(self.artist.echoNestArtist)+"\" .\n")
 
+	def parse_events(self, file):
+		if self.artist.events:
+			for event in self.artist.events:
+				file.write(self.baseArtist+" mm:songkickEvent \""+event[1]+"\" .\n")
 
 	def _decode_reason(self, reason):
 		if "writer" in reason:
