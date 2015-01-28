@@ -61,7 +61,7 @@
     </div>
 
       <div class="row">
-    <div class="col-md-8">
+    <div class="col-md-8 main">
         <div class="row">
           <div class="col-md-12">
           <h3>General Information</h3>      
@@ -92,7 +92,9 @@
       </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-4 sidebar">
+    <div class="row">
+    <div class="col-md-12">
         % if artist.has_images():
               <div id="slider" class="nivoSlider theme-default">
           % for img in artist.get_images():
@@ -102,12 +104,12 @@
         % endif
     </div>
 
-    <div class="col-md-4 widget">
+    <div class="col-md-12 widget">
       <h3>Listen</h3>
       <iframe src="https://embed.spotify.com/?uri=${artist.get_spotify_id()}" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
     </div>
     % if artist.get_current_members() or artist.get_former_members() or artist.get_current_membersNR() or artist.get_former_membersNR():
-    <div class="col-md-4 widget">
+    <div class="col-md-12 widget">
       <h3>Members</h3>
 
       % if artist.get_current_members() or artist.get_current_membersNR():
@@ -136,7 +138,7 @@
     </div> 
     % endif
 
-    <div class="col-md-4 gigs">
+    <div class="col-md-12 gigs">
       <h3>Upcoming Events</h3>             
       <ul>
         % for r in artist.get_events():
@@ -149,7 +151,7 @@
     </ul> 
 
   </div>
-    <div class="col-md-4 links">
+    <div class="col-md-12 links">
       <h3>See also</h3>             
       <ul>
         % if artist.official:
@@ -176,7 +178,8 @@
       </ul> 
     </div>
   </div>
-
+</div>
+</div>
 
 <footer>
 <div class="col-md-12 text-center">
