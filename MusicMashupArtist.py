@@ -23,13 +23,21 @@ from pyechonest import artist
 from MusicMashupParser import MusicMashupParser
 
 
+cMcurrentBandVote = 3
+fMcurrentBandVote = 1.5
+cMformerBandVote  = 2
+fMformertBandVote = 1
+cMproducer = 1.5
+fMproducer = 0.75
+cMwriter = 0.8
+fMwriter = 0.4
+
 class MusicMashupArtist:
 	# d = discogs_client.Client('ExampleApplication/0.1')
 	parser = MusicMashupParser()
 	songkickApiKey = "BxSDhcU0tXLU4yHQ"
 
-	def __init__(self, query, reco = ""):
-
+	def __init__(self, query, voteValue = 0, reco = ""):
 		self.starttime = time.clock()
 
 		self.dbpediaURL = None
@@ -81,6 +89,9 @@ class MusicMashupArtist:
 		self.input = ""
 		self.manualQuery = False
 
+		self.vote = voteValue
+		print "[+] VOTE INCREASED BY: ",voteValue
+
 		query = urllib.unquote(query)
 
 
@@ -99,6 +110,7 @@ class MusicMashupArtist:
 
 		if reco != "":
 			self.reason.append(reco)
+			
 
 
 
@@ -106,8 +118,7 @@ class MusicMashupArtist:
 		# locate artist on musicbrainz (via dbtune) and dbpedia
 		print("[~][~] Fetching data sources for " + self.get_name())
 		self._find_resources()
-		if self.state == 0:
-			print("[+] done")
+
 
 	# ========================================================================================
 	# 	GETTER 
@@ -527,22 +538,31 @@ class MusicMashupArtist:
 			if not self.currentMembers and not self.formerMembers:
 				print("[~] No members => Trying Resource as Solo-Artist")
 				self.soloArtist = True
-			self._pull_current_bands_of_current_members()
-			self._pull_former_bands_of_current_members()
-			self._pull_current_bands_of_former_members()
-			self._pull_former_bands_of_former_members()
+
+			if self.currentMembers or self.soloArtist:
+				self._pull_current_bands_of_current_members()
+				self._pull_former_bands_of_current_members()
+				self._pull_writer_relation_of_current_members()
+				self._pull_producer_relation_of_current_members()
+
+			if self.formerMembers:
+				self._pull_current_bands_of_former_members()
+				self._pull_former_bands_of_former_members()
+				self._pull_producer_relation_of_former_members()
+				self._pull_writer_relation_of_former_members()
+
 			self._pull_further_urls()
 			self._pull_discogs()
 			self._pull_musixmatch()
 			self._pull_discogs_artist()
-		except:
-			pass # bestes error handling aller zeiten
-		
-		try:	
-			self._pull_writer_relation()
-			self._pull_producer_relation()
+
 		except:
 			pass
+
+		if self.state == 0:
+			print("[+] done")
+			for artist in self.recommendation:
+				print "Artist: "+artist.get_name()+" has Vote: ",artist.get_vote()
 		# self.parse_to_rdf()
 		# self._pull_events()
 		# return self.related
@@ -801,7 +821,12 @@ class MusicMashupArtist:
 		except:
 			print ("[-] error while pulling former members")
 
-	def _pull_producer_relation(self):
+	# ===============================================================
+	# TODO ERROR-HANDLING
+	# 			ab hier untegesteter code ohne error handling
+	# ===============================================================
+
+	def _pull_producer_relation_of_current_members(self):
 		try:
 			for member in self.currentMembers:
 				print ("[~] searching producer relations for: "+ member)
@@ -825,9 +850,10 @@ class MusicMashupArtist:
 								knownArtist = r
 								new = False
 						if new:
-							self.recommendation.append(MusicMashupArtist(result["band"]["value"], "Because "+self._uri_to_name(member)+" was active as producer"))
+							self.recommendation.append(MusicMashupArtist(result["band"]["value"], cMproducer, "Because "+self._uri_to_name(member)+" was active as producer"))
 						else:
 							knownArtist.addReason("Because "+self._uri_to_name(member)+" was active as producer")
+							knownArtist.addVote(cMproducer)
 
 			if self.soloArtist:
 				print ("[~] searching producer relations for maybe solo-Artist: "+ self.get_dbpediaURL())
@@ -851,13 +877,45 @@ class MusicMashupArtist:
 								knownArtist = r
 								new = False
 						if new:
-							self.recommendation.append(MusicMashupArtist(result["band"]["value"], "Because "+self._uri_to_name(self.get_dbpediaURL())+" was active as producer"))
+							self.recommendation.append(MusicMashupArtist(result["band"]["value"], cMproducer, "Because "+self._uri_to_name(self.get_dbpediaURL())+" was active as producer"))
 						else:
 							knownArtist.addReason("Because "+self._uri_to_name(self.get_dbpediaURL())+" was active as producer")
+							knownArtist.addVote(cMproducer)
 		except:
-			print ("[-] error while pulling producer relation")
+			print ("[-] error while pulling producer relation for current members")
 
-	def _pull_writer_relation(self):
+	def _pull_producer_relation_of_former_members(self):
+		try:
+			for member in self.formerMembers:
+				print ("[~] searching producer relations for: "+ member)
+				sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+				sparql.setQuery("""
+					PREFIX dbprop: <http://dbpedia.org/property/>
+					PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+					SELECT DISTINCT ?band WHERE {
+		    			?production dbprop:producer <"""+member+""">.
+		    			?production dbpedia-owl:artist ?band.
+						}
+					""")
+				sparql.setReturnFormat(JSON)
+				results = sparql.query().convert()	
+				for result in results["results"]["bindings"]:
+					if result["band"]["value"] != self.get_dbpediaURL() and 'List_of' not in result["band"]["value"]:
+						new = True
+						knownArtist = None
+						for r in self.recommendation:
+							if result["band"]["value"] == r.get_dbpediaURL():
+								knownArtist = r
+								new = False
+						if new:
+							self.recommendation.append(MusicMashupArtist(result["band"]["value"], fMproducer, "Because "+self._uri_to_name(member)+" was active as producer"))
+						else:
+							knownArtist.addReason("Because "+self._uri_to_name(member)+" was active as producer")
+							knownArtist.addVote(fMproducer)
+		except:
+			print ("[-] error while pulling producer relation for former members")
+
+	def _pull_writer_relation_of_current_members(self):
 		try:
 			for member in self.currentMembers:
 				print ("[~] searching writer realtion of current member: "+ member)
@@ -884,9 +942,10 @@ class MusicMashupArtist:
 								knownArtist = r
 								new = False
 						if new:
-							self.recommendation.append(MusicMashupArtist(result["artist"]["value"], "Because "+self._uri_to_name(member)+" was active as writer."))
+							self.recommendation.append(MusicMashupArtist(result["artist"]["value"], cMwriter, "Because "+self._uri_to_name(member)+" was active as writer."))
 						else:
 							knownArtist.addReason("Because "+self._uri_to_name(member)+" was active as writer.")
+							knownArtist.addVote(cMwriter)
 
 			if self.soloArtist:
 				print ("[~] searching writer realtion of maybe solo-artist: "+ self.get_dbpediaURL())
@@ -912,11 +971,46 @@ class MusicMashupArtist:
 								knownArtist = r
 								new = False
 						if new:
-							self.recommendation.append(MusicMashupArtist(result["artist"]["value"], "Because "+self._uri_to_name(self.get_dbpediaURL())+" was active as writer."))
+							self.recommendation.append(MusicMashupArtist(result["artist"]["value"], cMwriter, "Because "+self._uri_to_name(self.get_dbpediaURL())+" was active as writer."))
 						else:
 							knownArtist.addReason("Because "+self._uri_to_name(self.get_dbpediaURL())+" was active as writer.")
+							knownArtist.addVote(cMwriter)
 		except:
-			print ("[-] error while pulling writer relation")
+			print ("[-] error while pulling writer relation for current members")
+
+	def _pull_writer_relation_of_current_members(self):
+		try:
+			for member in self.formerMembers:
+				print ("[~] searching writer realtion of current member: "+ member)
+				sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+				sparql.setQuery("""
+					PREFIX dbprop: <http://dbpedia.org/property/>
+					PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+
+					SELECT DISTINCT ?artist WHERE {
+		    			?work dbprop:writer <"""+member+""">.
+		    			?work dbpedia-owl:artist ?artist
+		    			}
+					""")
+
+				sparql.setReturnFormat(JSON)
+				results = sparql.query().convert()	
+				for result in results["results"]["bindings"]:
+					if result["artist"]["value"] != self.get_dbpediaURL() and 'List_of' not in result["artist"]["value"]:
+						new = True
+						knownArtist = None
+						for r in self.recommendation:
+							if result["artist"]["value"] == r.get_dbpediaURL():
+								print ("DEBUG: Not a new Artist: "+r.get_dbpediaURL())
+								knownArtist = r
+								new = False
+						if new:
+							self.recommendation.append(MusicMashupArtist(result["artist"]["value"], fMwriter, "Because "+self._uri_to_name(member)+" was active as writer."))
+						else:
+							knownArtist.addReason("Because "+self._uri_to_name(member)+" was active as writer.")
+							knownArtist.addVote(fMwriter)
+		except:
+			print ("[-] error while pulling writer relation for former members")
 
 	def _pull_current_bands_of_current_members(self):
 		try:
@@ -943,9 +1037,10 @@ class MusicMashupArtist:
 								knownArtist = r
 								new = False
 						if new:
-							self.recommendation.append(MusicMashupArtist(result["band"]["value"], "Because "+self._uri_to_name(member)+" is also a member of this band."))
+							self.recommendation.append(MusicMashupArtist(result["band"]["value"], cMcurrentBandVote, "Because "+self._uri_to_name(member)+" is also a member of this band."))
 						else:
 							knownArtist.addReason("Because "+self._uri_to_name(member)+" is also a member of this band.")
+							knownArtist.addVote(cMcurrentBandVote)
 
 			if self.soloArtist:
 				print ("[~] searching current band of maybe solo-artist: "+ self.get_dbpediaURL())
@@ -969,9 +1064,10 @@ class MusicMashupArtist:
 								knownArtist = r
 								new = False
 						if new:
-							self.recommendation.append(MusicMashupArtist(result["band"]["value"], "Because "+self._uri_to_name(self.get_dbpediaURL())+" is also a member of this band."))
+							self.recommendation.append(MusicMashupArtist(result["band"]["value"], cMcurrentBandVote, "Because "+self._uri_to_name(self.get_dbpediaURL())+" is also a member of this band."))
 						else:
 							knownArtist.addReason("Because "+self._uri_to_name(self.get_dbpediaURL())+" is also a member of this band.")
+							knownArtist.addVote(cMcurrentBandVote)
 		except:
 			print ("[-] error while pulling current band of current member")
 
@@ -998,9 +1094,10 @@ class MusicMashupArtist:
 								knownArtist = r
 								new = False
 						if new:
-							self.recommendation.append(MusicMashupArtist(result["band"]["value"], "Because "+self._uri_to_name(member)+" was also a member of this band."))
+							self.recommendation.append(MusicMashupArtist(result["band"]["value"], cMformerBandVote,"Because "+self._uri_to_name(member)+" was also a member of this band."))
 						else:
 							knownArtist.addReason("Because "+self._uri_to_name(member)+" was also a member of this band.")
+							knownArtist.addVote(cMformerBandVote)
 
 			if self.soloArtist:
 				print ("[~] searching former band of maybe solo-artist: "+ self.get_dbpediaURL())
@@ -1025,9 +1122,10 @@ class MusicMashupArtist:
 								knownArtist = r
 								new = False
 						if new:
-							self.recommendation.append(MusicMashupArtist(result["band"]["value"], "Because "+self._uri_to_name(self.get_dbpediaURL())+" is also a member of this band."))
+							self.recommendation.append(MusicMashupArtist(result["band"]["value"], cMformerBandVote, "Because "+self._uri_to_name(self.get_dbpediaURL())+" is also a member of this band."))
 						else:
 							knownArtist.addReason("Because "+self._uri_to_name(self.get_dbpediaURL())+" is also a member of this band.")
+							knownArtist.addVote(cMformerBandVote)
 		except:
 			print ("[-] error while pulling former bands of current members")
 
@@ -1058,9 +1156,10 @@ class MusicMashupArtist:
 								knownArtist = r
 								new = False
 						if new:
-							self.recommendation.append(MusicMashupArtist(result["band"]["value"], "Because "+self._uri_to_name(member)+" is also a member of this band."))
+							self.recommendation.append(MusicMashupArtist(result["band"]["value"], fMcurrentBandVote, "Because "+self._uri_to_name(member)+" is also a member of this band."))
 						else:
 							knownArtist.addReason("Because "+self._uri_to_name(member)+" is also a member of this band.")
+							knownArtist.addVote(fMcurrentBandVote)
 		except:
 			print ("[-] error while pulling current bands of former Members")
 
@@ -1091,9 +1190,10 @@ class MusicMashupArtist:
 								knownArtist = r
 								new = False
 						if new:
-							self.recommendation.append(MusicMashupArtist(result["band"]["value"], "Because "+self._uri_to_name(member)+" was also a member of this band."))
+							self.recommendation.append(MusicMashupArtist(result["band"]["value"], fMformertBandVote, "Because "+self._uri_to_name(member)+" was also a member of this band."))
 						else:
 							knownArtist.addReason("Because "+self._uri_to_name(member)+" was also a member of this band.")
+							knownArtist.addVote(fMformertBandVote)
 		except:
 			print ("[-] error while pulling former bands of former members")	
 
@@ -1112,25 +1212,34 @@ class MusicMashupArtist:
 	def addReason(self, reason):
 		self.reason.append(reason)
 
+	def addVote(self, voteValue):
+		self.vote += voteValue
+		print ("[+] VOTE INCREASED BY: "+VoteValue)
+
+	def get_vote(self):
+		return self.vote
+
 	# ========================================================================================
 	# VOTING
 	# ========================================================================================
 
 	def _vote(self):
-		numberOfReasons = []
+		voteValue = []
 		for r in self.recommendation:
-			numberOfReasons.append(len(r.reason))
-		count = 0
+			voteValue.append(r.get_vote())
 		length = len(self.recommendation)
 		for i in range(0, length):
 			for j in range(0, length-1):
-				if numberOfReasons[j] < numberOfReasons[j+1]:
+				if voteValue[j] < voteValue[j+1]:
 					temp = self.recommendation[j]
 					self.recommendation[j] = self.recommendation[j+1]
 					self.recommendation[j+1] = temp
-					temp = numberOfReasons[j]
-					numberOfReasons[j] = numberOfReasons[j+1]
-					numberOfReasons[j+1] = temp
+					temp = voteValue[j]
+					voteValue[j] = voteValue[j+1]
+					voteValue[j+1] = temp
+		print ("After Sorting: ")
+		for artist in self.recommendation:
+			print "Artist: "+artist.get_name()+" has Vote: ",artist.get_vote()
 
 
 	def current_load_time(self):
