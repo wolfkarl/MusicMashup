@@ -98,9 +98,7 @@ class MusicMashupParser:
 		if self.artist.musicbrainzID:
 			file.write(self.baseArtist+" mm:musicbrainzID \""+self.artist.musicbrainzID+"\" .\n")
 		if self.artist.spotifyID:
-			file.write(self.baseArtist+" mm:spotifyID \""+self.artist.get_spotifyID()+"\" .\n")
-		if self.artist.songkickID:
-			file.write(self.baseArtist+" mm:songkickID \""+self.artist.get_songkickID()+"\" .\n")
+			file.write(self.baseArtist+" mm:spotifyID \""+self.artist.spotifyID+"\" .\n")
 		if self.artist.echoNestArtist:
 			file.write(self.baseArtist+" mm:echonestArtist \""+str(self.artist.echoNestArtist)+"\" .\n")
 
