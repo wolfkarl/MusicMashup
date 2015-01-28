@@ -326,7 +326,7 @@ class MusicMashupArtist:
 		except:
 			self.problem = "dbtune problem while fetching dbtune url"
 			print("[-] dbtune problem while fetching dbtune url")
-			self.dbtune_set = -1
+			# self.dbtune_set = -1
 			return -1
 
 	def _pull_mbdump(self):
@@ -404,24 +404,18 @@ class MusicMashupArtist:
 	# ========================================================================================
 
 	def get_spotify_id(self):
-		if self.state == 0:
-			if not self.spotifyID:
-				print("[~] Pulling Spotify ID")
-				self.spotifyID = self._pull_spotify_id()
-				return self.spotifyID
-		else:
-			return "0000"
+		if not self.spotifyID:
+			print("[~] Pulling Spotify ID")
+			self.spotifyID = self._pull_spotify_id()
+		return self.spotifyID
 
 	def _pull_spotify_id(self):
 		try:
 			if self.dbtune_set == 1:
 				self.spotifyID = self.get_echoNestArtist().get_foreign_id('spotify')
-			else:
-				self.spotifyID = "1234"
 			return self.spotifyID
 		except:
-			self.spotifyID = "2345"
-			return self.spotifyID
+			print "[!] Error fetching spotifyID"
 
 
 	# ========================================================================================
@@ -806,11 +800,6 @@ class MusicMashupArtist:
 						print("[-] Found 'List of Members'-Resource, did not add it to members")
 		except:
 			print ("[-] error while pulling former members")
-
-	# ===============================================================
-	# TODO ERROR-HANDLING
-	# 			ab hier untegesteter code ohne error handling
-	# ===============================================================
 
 	def _pull_producer_relation(self):
 		try:
