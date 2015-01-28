@@ -1,0 +1,21 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix mo: <http://purl.org/ontology/mo/> .
+@prefix dbpedia-owl: <http://dbpedia.org/ontology/> .
+@prefix dbprop: <http://dbpedia.org/property/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/Image> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+<http://dbpedia.org/resource/The_Roulettes> dbpedia-owl:abstract "The Roulettes were a British rock and roll group formed in London in 1962. They were shortly recruited to play as the backing group to singer Adam Faith, in order for him to compete with the beat bands then emerging from Merseyside. With Faith, they subsequently enjoyed a run of chart hits in the 1960s, billed as Adam Faith with The Roulettes on the Parlophone label. They backed Faith on the UK chart hits; 'The First Time', 'We Are in Love', 'I Love Being in Love With You', 'If He Tells You', and 'Someone's Taken Maria Away' (between 1964?65) In 1963, The Roulettes signed to EMI and began releasing their own material, scoring one UK chart hit 'A Bad Time' and releasing a now rare album for Parlophone 'Stakes And Chips', and in addition they continued to work with Faith as well until October 1965, most notably backing him on a 'Live' album. Their own later records, however, were less successful, although they toured in Europe until 1967, when the group split up.Members Russ Ballard and Bob Henrit went on to join Unit 4 + 2 formed by original Roulettes' member Brian Parker (on whose 1965 number one song, "Concrete and Clay", they had both previously played); the two would later also become members of rock band Argent. In addition Ballard had later success as a solo artist and songwriter, whilst Henrit became a renowned session drummer and also replaced The Kinks' long serving drummer Mick Avory in their later years." .
+<http://dbpedia.org/resource/The_Roulettes> dbprop:currentMember <http://dbpedia.org/resource/Bob_Henrit> .
+<http://dbpedia.org/resource/The_Roulettes> dbprop:currentMember <http://dbpedia.org/resource/Russ_Ballard> .
+<http://dbpedia.org/resource/The_Roulettes> dbpedia-owl:associatedMusicalArtist <http://dbpedia.org/resource/Argent_(band)> .
+<http://dbpedia.org/resource/The_Roulettes> dbpedia-owl:associatedMusicalArtist <http://dbpedia.org/resource/Unit_4_+_2> .
+<http://dbpedia.org/resource/The_Roulettes> dbpedia-owl:associatedMusicalArtist <http://dbpedia.org/resource/The_Kinks> .
+<http://dbpedia.org/resource/The_Roulettes> owl:sameAs <http://dbtune.org/musicbrainz/resource/artist/127fea7b-d16c-4c63-839a-d1d13160c5fb> .
+<http://dbpedia.org/resource/The_Roulettes> owl:sameAs <http://musicbrainz.org/artist/127fea7b-d16c-4c63-839a-d1d13160c5fb> .
+<http://dbpedia.org/resource/The_Roulettes> rdfs:seeAlso <http://www.discogs.com/artist/366236> .
+<http://dbpedia.org/resource/The_Roulettes> rdfs:seeAlso <https://www.musixmatch.com/artist/78427> .
+<http://dbpedia.org/resource/The_Roulettes> rdfs:seeAlso <http://www.last.fm/music/The+Roulettes> .
+<http://dbpedia.org/resource/The_Roulettes> rdfs:seeAlso <http://en.wikipedia.org/wiki/The_Roulettes> .
+<http://dbpedia.org/resource/The_Roulettes> rdfs:seeAlso <http://www.myspace.com/roulettesband> .
