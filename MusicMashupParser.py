@@ -13,7 +13,7 @@ class MusicMashupParser:
 		self.parse_to_rdf()
 
 	def parse_to_rdf(self):
-		filename = self.artist.get_name().lower().replace(' ', '_')
+		filename = self.artist.get_name().lower().replace(' ', '_') + ".ttl"
 		filepath = "dumps/"+filename
 		# fileExists = os.path.exists(filepath)
 		
@@ -93,6 +93,10 @@ class MusicMashupParser:
 		if self.artist.recommendation:
 			for artist in self.artist.recommendation:
 				file.write(self.baseArtist+" mm:recommendedArtist :"+artist.get_name().replace(' ', '_')+" .\n")
+				for reason in artist.reason:
+					prop = self._decode_reason(reason)
+					member = self._get_name_from_reason(reason)
+					file.write(":"+member.replace(' ', '_') + " " + prop + " " + self.baseArtist + " .\n")
 
 	def parse_api_keys(self, file):
 		if self.artist.musicbrainzID:
@@ -103,4 +107,33 @@ class MusicMashupParser:
 			file.write(self.baseArtist+" mm:echonestArtist \""+str(self.artist.echoNestArtist)+"\" .\n")
 
 
+	def _decode_reason(self, reason):
+		if "writer" in reason:
+			return ":writer"
+		elif "producer" in reason:
+			return ":producer"
+		elif "member" in reason:
+			if "is" in reason:
+				return ":currentMember"
+			else:
+				return ":formerMember"
+		else:
+			return ":WRONG"
+
+	def _get_name_from_reason(self, reason):
+		reason = reason.replace('Because ', '')
+		reason = reason.replace(' was ', '')
+		reason = reason.replace('active', '')
+		reason = reason.replace(' as ', '')
+		reason = reason.replace('writer.', '')
+		reason = reason.replace('producer', '')
+		reason = reason.replace(' is ', '')
+		reason = reason.replace('also', '')
+		reason = reason.replace(' a ', '')
+		reason = reason.replace('member', '')
+		reason = reason.replace(' of', '')
+		reason = reason.replace(' this', '')
+		reason = reason.replace(' band.', '')
+		# print ("HIER SOLLTE NUR EIN NAME STEHEN::"+reason)
+		return reason
 
