@@ -106,7 +106,11 @@
 
     <div class="col-md-12 widget">
       <h3>Listen</h3>
+      % if artist.get_spotify_id() != 0:
       <iframe src="https://embed.spotify.com/?uri=${artist.get_spotify_id()}" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
+      % else:
+      <p>No spotify widget available for this artist :(</p>
+      % endif
     </div>
     % if artist.get_current_members() or artist.get_former_members() or artist.get_current_membersNR() or artist.get_former_membersNR():
     <div class="col-md-12 widget">
