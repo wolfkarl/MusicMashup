@@ -31,6 +31,8 @@ cMproducer = 1.5
 fMproducer = 0.75
 cMwriter = 0.8
 fMwriter = 0.4
+cMcomposer = 0.8
+fMcomposer = 0.4
 
 class MusicMashupArtist:
 	# d = discogs_client.Client('ExampleApplication/0.1')
@@ -547,12 +549,14 @@ class MusicMashupArtist:
 				self._pull_former_bands_of_current_members()
 				self._pull_writer_relation_of_current_members()
 				self._pull_producer_relation_of_current_members()
+				self._pull_composer_relation_of_current_members()
 
 			if self.formerMembers:
 				self._pull_current_bands_of_former_members()
 				self._pull_former_bands_of_former_members()
 				self._pull_producer_relation_of_former_members()
 				self._pull_writer_relation_of_former_members()
+				self._pull_composer_relation_of_former_members()
 
 			self._pull_further_urls()
 			self._pull_discogs()
@@ -1031,6 +1035,100 @@ class MusicMashupArtist:
 							knownArtist.addVote(fMwriter)
 		except:
 			print ("[-] error while pulling writer relation for former members")
+
+	def _pull_composer_relation_of_current_members(self):
+		try:
+			for member in self.currentMembers:
+				print ("[~] searching composer realtion of current member: "+ member)
+				sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+				sparql.setQuery("""
+					PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+
+					SELECT DISTINCT ?artist WHERE {
+		    			?work dbpedia-owl:composer <"""+member+""">.
+		    			?work dbpedia-owl:artist ?artist
+		    			}
+					""")
+
+				sparql.setReturnFormat(JSON)
+				results = sparql.query().convert()	
+				for result in results["results"]["bindings"]:
+					if result["artist"]["value"] != self.get_dbpediaURL() and 'List_of' not in result["artist"]["value"]:
+						new = True
+						knownArtist = None
+						for r in self.recommendation:
+							if result["artist"]["value"] == r.get_dbpediaURL():
+								print ("DEBUG: Not a new Artist: "+r.get_dbpediaURL())
+								knownArtist = r
+								new = False
+						if new:
+							self.recommendation.append(MusicMashupArtist(result["artist"]["value"], cMcomposer, "Because "+self._uri_to_name(member)+" was active as composer."))
+						else:
+							knownArtist.addReason("Because "+self._uri_to_name(member)+" was active as composer.")
+							knownArtist.addVote(cMcomposer)
+
+			if self.soloArtist:
+				print ("[~] searching composer realtion of maybe solo-artist: "+ self.get_dbpediaURL())
+				sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+				sparql.setQuery("""
+					PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+
+					SELECT DISTINCT ?artist WHERE {
+		    			?work dbpedia-owl:composer <"""+self.get_dbpediaURL()+""">.
+		    			?work dbpedia-owl:artist ?artist.
+		    			}
+					""")
+				sparql.setReturnFormat(JSON)
+				results = sparql.query().convert()	
+				for result in results["results"]["bindings"]:
+					if result["artist"]["value"] != self.get_dbpediaURL() and 'List_of' not in result["artist"]["value"]:
+						new = True
+						knownArtist = None
+						for r in self.recommendation:
+							if result["artist"]["value"] == r.get_dbpediaURL():
+								print ("DEBUG: Not a new Artist: "+r.get_dbpediaURL())
+								knownArtist = r
+								new = False
+						if new:
+							self.recommendation.append(MusicMashupArtist(result["artist"]["value"], cMcomposer, "Because "+self._uri_to_name(self.get_dbpediaURL())+" was active as composer."))
+						else:
+							knownArtist.addReason("Because "+self._uri_to_name(self.get_dbpediaURL())+" was active as composer.")
+							knownArtist.addVote(cMcomposer)
+		except:
+			print ("[-] error while pulling composer relation for current members")
+
+	def _pull_composer_relation_of_former_members(self):
+		try:
+			for member in self.formerMembers:
+				print ("[~] searching composer realtion of former member: "+ member)
+				sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+				sparql.setQuery("""
+					PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+
+					SELECT DISTINCT ?artist WHERE {
+		    			?work dbpedia-owl:composer <"""+member+""">.
+		    			?work dbpedia-owl:artist ?artist
+		    			}
+					""")
+
+				sparql.setReturnFormat(JSON)
+				results = sparql.query().convert()	
+				for result in results["results"]["bindings"]:
+					if result["artist"]["value"] != self.get_dbpediaURL() and 'List_of' not in result["artist"]["value"]:
+						new = True
+						knownArtist = None
+						for r in self.recommendation:
+							if result["artist"]["value"] == r.get_dbpediaURL():
+								print ("DEBUG: Not a new Artist: "+r.get_dbpediaURL())
+								knownArtist = r
+								new = False
+						if new:
+							self.recommendation.append(MusicMashupArtist(result["artist"]["value"], cMcomposer, "Because "+self._uri_to_name(member)+" was active as composer."))
+						else:
+							knownArtist.addReason("Because "+self._uri_to_name(member)+" was active as composer.")
+							knownArtist.addVote(cMcomposer)
+		except:
+			print ("[-] error while pulling composer relation for former members")
 
 	def _pull_current_bands_of_current_members(self):
 		try:
