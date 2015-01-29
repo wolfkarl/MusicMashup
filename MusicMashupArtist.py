@@ -125,6 +125,8 @@ class MusicMashupArtist:
 	# (rufen puller auf falls noch nicht geschehen; spart Resourcen wenn nicht alles gebraucht wird)
 	# ========================================================================================
 
+	def start_parser(self):
+		self.parser.start(self)
 
 	def _find_resources(self):
 		self._pull_dbtune()
