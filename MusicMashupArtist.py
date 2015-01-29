@@ -998,10 +998,10 @@ class MusicMashupArtist:
 		except:
 			print ("[-] error while pulling writer relation for current members")
 
-	def _pull_writer_relation_of_current_members(self):
+	def _pull_writer_relation_of_former_members(self):
 		try:
 			for member in self.formerMembers:
-				print ("[~] searching writer realtion of current member: "+ member)
+				print ("[~] searching writer realtion of former member: "+ member)
 				sparql = SPARQLWrapper("http://dbpedia.org/sparql")
 				sparql.setQuery("""
 					PREFIX dbprop: <http://dbpedia.org/property/>
