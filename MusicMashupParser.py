@@ -96,7 +96,7 @@ class MusicMashupParser:
 				for reason in artist.reason:
 					prop = self._decode_reason(reason)
 					member = self._get_name_from_reason(reason)
-					file.write(":"+member.replace(' ', '_') + " " + prop + " " + self.baseArtist + " .\n")
+					file.write(":"+member.replace(' ', '_') + " " + prop + " " + artist.get_name().replace(' ', '_') + " .\n")
 
 	def parse_api_keys(self, file):
 		if self.artist.musicbrainzID:
