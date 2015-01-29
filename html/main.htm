@@ -73,7 +73,7 @@
               % for r in artist.get_related():
               <div class="reco row">
                 <div class="col-sm-2"><div class="img" style="overflow: hidden">
-                  <img src="${r.getThumbnail()}" style="max-height:100%">
+                  <a href="/?query=${r.get_dbpediaURL_link()}"><img src="${r.getThumbnail()}" style="max-height:100%"></a>
                 </div>
               </div>
               <div class="col-sm-10">
