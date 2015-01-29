@@ -83,9 +83,12 @@ class MusicMashupArtist:
 
 		self.input = ""
 		self.manualQuery = False
+		if voteValue != 0:
+			self.vote = voteValue
+		else:
+			self.vote = 0
 
-		self.vote = voteValue
-		print "[+] VOTE INCREASED BY: ",voteValue
+		print "[+] Vote increased in constructor by: ",voteValue
 
 		query = urllib.unquote(query)
 
@@ -1035,7 +1038,6 @@ class MusicMashupArtist:
 						else:
 							knownArtist.addReason("Because "+self._uri_to_name(member)+" is also a member of this band.")
 							knownArtist.addVote(cMcurrentBandVote)
-
 			if self.soloArtist:
 				print ("[~] searching current band of maybe solo-artist: "+ self.get_dbpediaURL())
 				sparql = SPARQLWrapper("http://dbpedia.org/sparql")
@@ -1063,7 +1065,7 @@ class MusicMashupArtist:
 							knownArtist.addReason("Because "+self._uri_to_name(self.get_dbpediaURL())+" is also a member of this band.")
 							knownArtist.addVote(cMcurrentBandVote)
 		except:
-			print ("[-] error while pulling current band of current member")
+			print ("[-] error while pulling cuurent band of current member")
 
 	def _pull_former_bands_of_current_members(self):
 		try:
@@ -1207,8 +1209,9 @@ class MusicMashupArtist:
 		self.reason.append(reason)
 
 	def addVote(self, voteValue):
+		print ("[+] VOTE INCREASED BY: ",voteValue)
 		self.vote += voteValue
-		print ("[+] VOTE INCREASED BY: "+VoteValue)
+		print ("[+] Vote is now: ", self.vote)
 
 	def get_vote(self):
 		return self.vote
