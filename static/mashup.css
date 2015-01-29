@@ -54,3 +54,46 @@ body
 	height: 100px;
 	margin-top: 10px;
 }
+
+footer div
+{
+	background-color: #444;
+	color: #ddd;
+	font-size: 80%;
+}
+
+footer span
+{
+	padding: 0.5em;
+}
+
+.subhero
+{
+	background-color: #f3f3f3;
+	padding-top: 1em;
+	padding-bottom: 1em;
+}
+
+.breadcrumbs ul
+{
+	padding: 0em;
+	margin: 0px;
+}
+
+.breadcrumbs li
+{
+	display: inline-block;
+}
+
+.breadcrumbs a
+{
+	color: #666;
+
+}
+
+.breadcrumbs li:last-child a
+{
+	color: #333;
+	text-decoration: none;
+	font-weight: bold;
+}

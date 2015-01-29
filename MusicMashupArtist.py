@@ -12,6 +12,9 @@ import discogs_client
 import urllib
 from urllib import urlopen
 
+# for statistics
+import time
+
 from titlecase import titlecase
 
 from pyechonest import config
@@ -35,6 +38,8 @@ class MusicMashupArtist:
 	songkickApiKey = "BxSDhcU0tXLU4yHQ"
 
 	def __init__(self, query, voteValue = 0, reco = ""):
+		self.starttime = time.clock()
+
 		self.dbpediaURL = None
 		self.dbtuneURL = None
 		self.musicbrainzID = 0
@@ -123,6 +128,8 @@ class MusicMashupArtist:
 	# (rufen puller auf falls noch nicht geschehen; spart Resourcen wenn nicht alles gebraucht wird)
 	# ========================================================================================
 
+	def start_parser(self):
+		self.parser.start(self)
 
 	def _find_resources(self):
 		self._pull_dbtune()
@@ -190,8 +197,13 @@ class MusicMashupArtist:
 			print ("[-] error while pulling thumbnail")
 
 	def get_images(self):
-		self._pull_commons()
+		if not self.images:
+			self._pull_commons()
 		return self.images
+
+	def has_images(self):
+		self.get_images()
+		return len(self.images) > 0 and self.images[0] != "None"
 
 	def get_current_members(self):
 		return self.currentMembers
@@ -244,7 +256,9 @@ class MusicMashupArtist:
 
 				for result in results["results"]["bindings"]:
 				    self.images.append(result["url"]["value"])
-				    # print result["url"]["value"]
+
+				    print "Neues BILD!"
+				    print result["url"]["value"]
 			else: 
 				print ("[-] There was no commons entry for this band")
 		except:
@@ -328,7 +342,7 @@ class MusicMashupArtist:
 		except:
 			self.problem = "dbtune problem while fetching dbtune url"
 			print("[-] dbtune problem while fetching dbtune url")
-			self.dbtune_set = -1
+			# self.dbtune_set = -1
 			return -1
 
 	def _pull_mbdump(self):
@@ -406,24 +420,18 @@ class MusicMashupArtist:
 	# ========================================================================================
 
 	def get_spotify_id(self):
-		if self.state == 0:
-			if not self.spotifyID:
-				print("[~] Pulling Spotify ID")
-				self.spotifyID = self._pull_spotify_id()
-				return self.spotifyID
-		else:
-			return "0000"
+		if not self.spotifyID:
+			print("[~] Pulling Spotify ID")
+			self.spotifyID = self._pull_spotify_id()
+		return self.spotifyID
 
 	def _pull_spotify_id(self):
 		try:
 			if self.dbtune_set == 1:
 				self.spotifyID = self.get_echoNestArtist().get_foreign_id('spotify')
-			else:
-				self.spotifyID = "1234"
 			return self.spotifyID
 		except:
-			self.spotifyID = "2345"
-			return self.spotifyID
+			print "[!] Error fetching spotifyID"
 
 
 	# ========================================================================================
@@ -1197,6 +1205,7 @@ class MusicMashupArtist:
 		# print("[~] Converting URI to name")
 		uri = uri[28:]
 		uri = uri.replace('_', ' ')
+		# uri = urllib.unquote_plus(uri)
 		return uri
 
 	def uri_to_name_if_necessary(self, uri):
@@ -1204,6 +1213,9 @@ class MusicMashupArtist:
 			return self._uri_to_name(uri)
 		else:
 			return uri
+
+	def quote_anything(self, anything):
+		return urllib.quote_plus(anything)
 
 	def addReason(self, reason):
 		self.reason.append(reason)
@@ -1238,17 +1250,23 @@ class MusicMashupArtist:
 		for artist in self.recommendation:
 			print "Artist: "+artist.get_name()+" has Vote: ",artist.get_vote()
 
+
+	def current_load_time(self):
+		return time.clock()-self.starttime
+
 # run from console for test setup
 if __name__ == '__main__':
-	test = MusicMashupArtist("Queens of the Stone Age")
+	test = MusicMashupArtist("Page and Plant")
 	print("this is a test.")
 	print(test.get_name())
 	print(test.get_abstract())
 	print(test.get_spotify_id())
+	test.get_images()
 	# print(test.get_abstract())
 	# print(test.dbtuneURL)
 	# print (test.dbpediaURL)
-	blubb = test.get_related()
+	#blubb = test.get_related()
 	# print(blubb)
-	for r in blubb:
-		print(" + "+r.get_name() + " - " + r.get_abstract_excerpt(50) + " - " + r.get_spotify_id())
+	#for r in blubb:
+#		print(" + "+r.get_name() + " - " + r.get_abstract_excerpt(50) + " - " + r.get_spotify_id())
+	print(test.has_images())

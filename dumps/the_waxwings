@@ -1,0 +1,19 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix mo: <http://purl.org/ontology/mo/> .
+@prefix dbpedia-owl: <http://dbpedia.org/ontology/> .
+@prefix dbprop: <http://dbpedia.org/property/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/Image> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+<http://dbpedia.org/resource/The_Waxwings> dbpedia-owl:abstract "For the Seattle band featuring Rocky Votolato, see Waxwing (band).The Waxwings are a rock band from Detroit, Michigan, United States, formed in 1997. The band's lineup consists of Dean Fertita on vocals and guitar, James Edmunds on drums and percussion, and Kevin Peyok on bass guitar. Brendan Benson has filled in on guitar for touring, following the departure of guitarist/vocalist Dominic Romano.They have released three full-length albums: Low to the Ground in 2000, Shadows Of... in 2002, and Let's Make Our Descent in 2004. The band's music draws its influences from 1960s psychedelic pop and folk rock, featuring rich, complex instrumentation and vocal harmonies which separate them from the raw garage rock revival scene in Detroit.The Waxwings have toured with Guided By Voices, Travis, Matthew Sweet, The Strokes, and fellow Detroit band The White Stripes." .
+<http://dbpedia.org/resource/The_Waxwings> dbprop:currentMember <http://dbpedia.org/resource/Dean_Fertita> .
+<http://dbpedia.org/resource/The_Waxwings> dbpedia-owl:associatedMusicalArtist <http://dbpedia.org/resource/Queens_of_the_Stone_Age> .
+<http://dbpedia.org/resource/The_Waxwings> dbpedia-owl:associatedMusicalArtist <http://dbpedia.org/resource/The_Dead_Weather> .
+<http://dbpedia.org/resource/The_Waxwings> owl:sameAs <http://dbtune.org/musicbrainz/resource/artist/63875be0-d0a0-4cff-963f-327c300524bc> .
+<http://dbpedia.org/resource/The_Waxwings> owl:sameAs <http://musicbrainz.org/artist/63875be0-d0a0-4cff-963f-327c300524bc> .
+<http://dbpedia.org/resource/The_Waxwings> rdfs:seeAlso <http://www.discogs.com/artist/1275295> .
+<http://dbpedia.org/resource/The_Waxwings> rdfs:seeAlso <http://www.thewaxwings.com> .
+<http://dbpedia.org/resource/The_Waxwings> rdfs:seeAlso <http://www.last.fm/music/The+Waxwings> .
+<http://dbpedia.org/resource/The_Waxwings> rdfs:seeAlso <http://en.wikipedia.org/wiki/The_Waxwings> .
+<http://dbpedia.org/resource/The_Waxwings> rdfs:seeAlso <http://www.myspace.com/thewaxwings> .

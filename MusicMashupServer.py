@@ -28,11 +28,16 @@ class MusicMashupServer(object):
 		if not "history" in cherrypy.session:
 			cherrypy.session['history'] = []
 
+		# new search -> new breadcrumbs
+		if not query[:4] == "http":
+			cherrypy.session['history'] = []
+
 		# append newest query to list, template will determine if it's a URI or name
-		cherrypy.session['history'].append(query)
+		if not (len(cherrypy.session['history']) > 0 and cherrypy.session['history'][-1] == query):
+			cherrypy.session['history'].append(query)
 
 		# make sure the list has no more than 5 entries
-		maxentries = 5
+		maxentries = 10
 		if len(cherrypy.session['history']) > maxentries:
 			cherrypy.session['history'].pop
 
