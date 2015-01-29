@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import codecs
+
 class MusicMashupParser:
 
 	def __init__(self):
@@ -16,7 +18,7 @@ class MusicMashupParser:
 		filepath = "dumps/"+filename
 		# fileExists = os.path.exists(filepath)
 		
-		file = open(filepath, 'w+')
+		file = codecs.open(filepath, 'w+', 'utf-8')
 		
 		self.parse_prefixes(file)
 		self.parse_abstract(file)

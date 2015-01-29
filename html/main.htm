@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="static/themes/default/default.css" type="text/css" />
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js" type="text/javascript"></script>
   <script src="static/jquery.nivo.slider.pack.js" type="text/javascript"></script>
+  <script src="static/jquery.shorten.js" type="text/javascript"></script>
   
 
 
@@ -44,49 +45,76 @@
     </div>
 
     <div class="row hero">
-      <div class="col-md-12"><h1>Music Mashup: ${artist.get_name()}</h1>
+      <div class="col-md-12"><h1>${artist.get_name()}</h1>
         <br>
       </div>
     </div>
 
-    <div class="row">
-      <div class="col-md-8"><h3>General Information</h3>      
-        <p>${artist.get_abstract()}</p>
+    <div class="row subhero breadcrumbs">
+<div class="col-sm-12"><ul>
+      % for crumb in history:     
+        <li><a href="?query=${artist.quote_anything(crumb)}">${artist.uri_to_name_if_necessary(crumb)}</a>
+        <span class="glyphicon glyphicon-chevron-right"></span></li>
+      %endfor
+ 
+      </ul>   </div>
+    </div>
 
-        <div id="slider" class="nivoSlider theme-default">
+      <div class="row">
+    <div class="col-md-8 main">
+        <div class="row">
+          <div class="col-md-12">
+          <h3>General Information</h3>      
+            <p class="main-abstract">${artist.get_abstract()}</p>
+    
+        
+            <h3>Recommendations</h3>            
+            <div class="reco-wrapper">
+              % for r in artist.get_related():
+              <div class="reco row">
+                <div class="col-sm-2"><div class="img" style="overflow: hidden">
+                  <img src="${r.getThumbnail()}" style="max-height:100%">
+                </div>
+              </div>
+              <div class="col-sm-10">
+                <h4><a href="/?query=${r.get_dbpediaURL_link()}">${r.get_name()}</a></h4>
+                <p class="reco-abstract">${r.get_abstract()}</p>
+                <ul>
+                  % for reason in r.get_reason(): 
+                  <li>${reason}</li>
+                  %endfor
+                </ul>
+              </div>
+            </div>
+            % endfor
+        
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 sidebar">
+    <div class="row">
+    <div class="col-md-12">
+        % if artist.has_images():
+              <div id="slider" class="nivoSlider theme-default">
           % for img in artist.get_images():
           <img src="${img}" alt="" />
           %endfor
         </div>
-
-        <h3>Recommendations</h3>            
-        <div class="reco-wrapper">
-          % for r in artist.get_related():
-          <div class="reco row">
-            <div class="col-sm-2"><div class="img" style="overflow: hidden">
-              <img src="${r.getThumbnail()}" style="max-height:100%">
-            </div>
-          </div>
-          <div class="col-sm-10">
-            <h4><a href="/?query=${r.get_dbpediaURL_link()}">${r.get_name()}</a> <small>${r.get_abstract_excerpt(300)}</small></h4>
-            <ul>
-              % for reason in r.get_reason(): 
-              <li>${reason}</li>
-              %endfor
-            </ul>
-          </div>
-        </div>
-        % endfor
-
-      </div>
+        % endif
     </div>
 
-    <div class="col-md-4 widget">
+    <div class="col-md-12 widget">
       <h3>Listen</h3>
+      % if artist.get_spotify_id() != 0:
       <iframe src="https://embed.spotify.com/?uri=${artist.get_spotify_id()}" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
+      % else:
+      <p>No spotify widget available for this artist :(</p>
+      % endif
     </div>
     % if artist.get_current_members() or artist.get_former_members() or artist.get_current_membersNR() or artist.get_former_membersNR():
-    <div class="col-md-4 widget">
+    <div class="col-md-12 widget">
       <h3>Members</h3>
 
       % if artist.get_current_members() or artist.get_current_membersNR():
@@ -115,7 +143,7 @@
     </div> 
     % endif
 
-    <div class="col-md-4 gigs">
+    <div class="col-md-12 gigs">
       <h3>Upcoming Events</h3>             
       <ul>
         % for r in artist.get_events():
@@ -128,34 +156,43 @@
     </ul> 
 
   </div>
-    <div class="col-md-4 gigs">
-    <h3>See also</h3>             
-    <ul>
-      % if artist.official:
-      <li><a href="${artist.official}">Official Website</a></li>
-      % endif
-      % if artist.wikipedia:
-      <li><a href="${artist.wikipedia}">Wikipedia</a></li>
-      % endif
-      % if artist.discogs_url:
-      <li><a href="${artist.discogs_url}">Discogs</a></li>
-      % endif
-      % if artist.lastfm:
-      <li><a href="${artist.lastfm}">LastFM</a></li>
-      % endif
-      % if artist.musixmatch_url:
-      <li><a href="${artist.musixmatch_url}">MusiXmatch</a></li>
-      % endif
-      % if artist.twitter:
-      <li><a href="${artist.twitter}">Twitter</a></li>
-      % endif
-      % if artist.myspace:
-      <li><a href="${artist.myspace}">Myspace</a></li>
-      % endif
-    </ul> 
+    <div class="col-md-12 links">
+      <h3>See also</h3>             
+      <ul>
+        % if artist.official:
+        <li><a href="${artist.official}">Official Website</a></li>
+        % endif
+        % if artist.wikipedia:
+        <li><a href="${artist.wikipedia}">Wikipedia</a></li>
+        % endif
+        % if artist.discogs_url:
+        <li><a href="${artist.discogs_url}">Discogs</a></li>
+        % endif
+        % if artist.lastfm:
+        <li><a href="${artist.lastfm}">LastFM</a></li>
+        % endif
+        % if artist.musixmatch_url:
+        <li><a href="${artist.musixmatch_url}">MusiXmatch</a></li>
+        % endif
+        % if artist.twitter:
+        <li><a href="${artist.twitter}">Twitter</a></li>
+        % endif
+        % if artist.myspace:
+        <li><a href="${artist.myspace}">Myspace</a></li>
+        % endif
+      </ul> 
+    </div>
   </div>
 </div>
 </div>
+
+<footer>
+<div class="col-md-12 text-center">
+  <span>MusicMashup, the best thing since mashed potatoes.</span> &middot;
+  <span>Load time: ${"%1.2f" % artist.current_load_time()} seconds</span>
+
+</div>
+</footer>
 </div>
 <% artist.start_parser()%>
 
@@ -167,7 +204,18 @@
 
     <script src="bootstrap/js/bootstrap.min.js"></script>
 
+;
+
     <script type="text/javascript">
+
+      $('.main-abstract').shorten({
+          showChars: '720',
+        })
+
+      $('.reco-abstract').shorten({
+          showChars: '200',
+        })
+
       $(window).load(function() {
         $('#slider').nivoSlider();});
     </script>
