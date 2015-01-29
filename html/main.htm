@@ -53,7 +53,7 @@
     <div class="row subhero breadcrumbs">
 <div class="col-sm-12"><ul>
       % for crumb in history:     
-        <li><a href="?query=${crumb}">${artist.uri_to_name_if_necessary(crumb)}</a>
+        <li><a href="?query=${artist.quote_anything(crumb)}">${artist.uri_to_name_if_necessary(crumb)}</a>
         <span class="glyphicon glyphicon-chevron-right"></span></li>
   
       %endfor

@@ -1101,6 +1101,7 @@ class MusicMashupArtist:
 		# print("[~] Converting URI to name")
 		uri = uri[28:]
 		uri = uri.replace('_', ' ')
+		# uri = urllib.unquote_plus(uri)
 		return uri
 
 	def uri_to_name_if_necessary(self, uri):
@@ -1108,6 +1109,9 @@ class MusicMashupArtist:
 			return self._uri_to_name(uri)
 		else:
 			return uri
+
+	def quote_anything(self, anything):
+		return urllib.quote_plus(anything)
 
 	def addReason(self, reason):
 		self.reason.append(reason)
