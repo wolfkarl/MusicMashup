@@ -256,8 +256,6 @@ class MusicMashupArtist:
 
 				for result in results["results"]["bindings"]:
 				    self.images.append(result["url"]["value"])
-
-				    print "Neues BILD!"
 				    print result["url"]["value"]
 			else: 
 				print ("[-] There was no commons entry for this band")
