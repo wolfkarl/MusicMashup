@@ -92,6 +92,7 @@ class MusicMashupArtist:
 			self.vote = voteValue
 		else:
 			self.vote = 0
+		self.familiarity = 0.1
 
 		print "[+] Vote increased in constructor by: ",voteValue
 
@@ -521,7 +522,6 @@ class MusicMashupArtist:
 		# self.recommendation = sorted(self.recommendation, key=lambda reco: len(reco))
 
 		# Voting starts here
-
 		self._vote()
 
 		# Parsing starts here
@@ -662,6 +662,23 @@ class MusicMashupArtist:
 		self.discogs_url = "http://www.discogs.com/artist/"+self.discogsID
 		print("[+] discogs-url: "+self.discogs_url)
 
+	def get_familiarity(self, justGet = False):
+		if self.familiarity == 0.1 and not justGet:
+			self._pull_familiarity()
+			return self.familiarity
+		else:
+			return self.familiarity
+
+	def _pull_familiarity(self):
+		try:
+			print("[~] Trying to pull familiarity")
+			self.familiarity = self.get_echoNestArtist().get_familiarity()
+			if self.familiarity != 0.5:
+				print "[+] Found familiarity: ", self.familiarity
+			else: 
+				print("[-] Could not find familiarity")
+		except:
+			pass
 	# ========================================================================================
 	# MUSIXMATCH get and _pull
 	# ========================================================================================
@@ -1219,9 +1236,7 @@ class MusicMashupArtist:
 		self.reason.append(reason)
 
 	def addVote(self, voteValue):
-		print ("[+] VOTE INCREASED BY: ",voteValue)
 		self.vote += voteValue
-		print ("[+] Vote is now: ", self.vote)
 
 	def get_vote(self):
 		return self.vote
@@ -1231,9 +1246,10 @@ class MusicMashupArtist:
 	# ========================================================================================
 
 	def _vote(self):
+		print("[~] Now Voting")
 		voteValue = []
 		for r in self.recommendation:
-			voteValue.append(r.get_vote())
+			voteValue.append(r.get_vote() * r.get_familiarity())
 		length = len(self.recommendation)
 		for i in range(0, length):
 			for j in range(0, length-1):
@@ -1246,7 +1262,7 @@ class MusicMashupArtist:
 					voteValue[j+1] = temp
 		print ("After Sorting: ")
 		for artist in self.recommendation:
-			print "Artist: "+artist.get_name()+" has Vote: ",artist.get_vote()
+			print "Artist: "+artist.get_name()+" has Vote: ",(artist.get_vote()*artist.get_familiarity(justGet=True))
 
 
 	def current_load_time(self):
