@@ -948,10 +948,13 @@ class MusicMashupArtist:
 					PREFIX dbprop: <http://dbpedia.org/property/>
 					PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
 
-					SELECT DISTINCT ?artist WHERE {
+					SELECT DISTINCT ?artist WHERE {{
 		    			?work dbprop:writer <"""+member+""">.
-		    			?work dbpedia-owl:artist ?artist
-		    			}
+		    			?work dbpedia-owl:artist ?artist }
+		    			UNION {
+                        ?work dbpedia-owl:writer <"""+member+""">.
+		    			?work dbpedia-owl:artist ?artist		    			
+		    			}}
 					""")
 
 				sparql.setReturnFormat(JSON)
@@ -978,10 +981,13 @@ class MusicMashupArtist:
 					PREFIX dbprop: <http://dbpedia.org/property/>
 					PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
 
-					SELECT DISTINCT ?artist WHERE {
+					SELECT DISTINCT ?artist WHERE {{
 		    			?work dbprop:writer <"""+self.get_dbpediaURL()+""">.
-		    			?work dbpedia-owl:artist ?artist.
-		    			}
+		    			?work dbpedia-owl:artist ?artist. }
+		    			UNION {
+                        ?work dbpedia-owl:writer <"""+self.get_dbpediaURL()+""">.
+		    			?work dbpedia-owl:artist ?artist		    			
+		    			}}
 					""")
 				sparql.setReturnFormat(JSON)
 				results = sparql.query().convert()	
