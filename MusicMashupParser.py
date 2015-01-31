@@ -95,6 +95,8 @@ class MusicMashupParser:
 		if self.artist.recommendation:
 			for artist in self.artist.recommendation:
 				file.write(self.baseArtist+" mm:recommendedArtist :"+artist.get_name().replace(' ', '_')+" .\n")
+				file.write(":"+artist.get_name().replace(' ', '_')+" mm:voteValue "+str(artist.vote)+" .\n")
+				file.write(":"+artist.get_name().replace(' ', '_')+" mm:echonestFamiliarity "+str(artist.get_familiarity(justGet=True))+" .\n")
 				for reason in artist.reason:
 					prop = self._decode_reason(reason)
 					member = self._get_name_from_reason(reason)
