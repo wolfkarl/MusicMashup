@@ -858,10 +858,13 @@ class MusicMashupArtist:
 				sparql.setQuery("""
 					PREFIX dbprop: <http://dbpedia.org/property/>
 					PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
-					SELECT DISTINCT ?band WHERE {
+					SELECT DISTINCT ?band WHERE {{
 		    			?production dbprop:producer <"""+member+""">.
+		    			?production dbpedia-owl:artist ?band.}
+						UNION {
+						?production dbpedia-owl:producer <"""+member+""">.
 		    			?production dbpedia-owl:artist ?band.
-						}
+						}}
 					""")
 				sparql.setReturnFormat(JSON)
 				results = sparql.query().convert()	
@@ -885,10 +888,13 @@ class MusicMashupArtist:
 				sparql.setQuery("""
 					PREFIX dbprop: <http://dbpedia.org/property/>
 					PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
-					SELECT DISTINCT ?band WHERE {
+					SELECT DISTINCT ?band WHERE {{
 		    			?production dbprop:producer <"""+self.get_dbpediaURL()+""">.
-		    			?production dbpedia-owl:artist ?band.
-						}
+		    			?production dbpedia-owl:artist ?band. }
+						UNION {
+						?production dbpedia-owl:producer <"""+self.get_dbpediaURL()+""">.
+		    			?production dbpedia-owl:artist ?band. 
+						}}
 					""")
 				sparql.setReturnFormat(JSON)
 				results = sparql.query().convert()	
@@ -916,10 +922,13 @@ class MusicMashupArtist:
 				sparql.setQuery("""
 					PREFIX dbprop: <http://dbpedia.org/property/>
 					PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
-					SELECT DISTINCT ?band WHERE {
+					SELECT DISTINCT ?band WHERE {{
 		    			?production dbprop:producer <"""+member+""">.
+		    			?production dbpedia-owl:artist ?band.}
+						UNION {
+						?production dbpedia-owl:producer <"""+member+""">.
 		    			?production dbpedia-owl:artist ?band.
-						}
+						}}
 					""")
 				sparql.setReturnFormat(JSON)
 				results = sparql.query().convert()	
