@@ -8,7 +8,8 @@ import re
 import string
 import json
 import discogs_client
-
+import os
+import codecs
 import urllib
 from urllib import urlopen
 
@@ -117,19 +118,114 @@ class MusicMashupArtist:
 		if reco != "":
 			self.reason.append(reco)
 			
+		fileExists = False
+		filepath = "dumps/"+self.name.lower().replace(' ', '_')+".ttl"
+		fileExists = os.path.exists(filepath)
+		print ("FILEPATH = "+filepath +" :: "+ str(fileExists))
 
-
-
-
-		# locate artist on musicbrainz (via dbtune) and dbpedia
-		print("[~][~] Fetching data sources for " + self.get_name())
-		self._find_resources()
+		if fileExists == True:
+			print ("DUMP GEFUNDEN! für "+str(filepath))
+			self.dumpExists = fileExists
+			self._load_data_from_dump(filepath)
+		else:
+			# locate artist on musicbrainz (via dbtune) and dbpedia
+			print("[~][~] Fetching data sources for " + self.get_name())
+			self._find_resources()
 
 
 	# ========================================================================================
 	# 	GETTER 
 	# (rufen puller auf falls noch nicht geschehen; spart Resourcen wenn nicht alles gebraucht wird)
 	# ========================================================================================
+
+	def _load_data_from_dump(self, filepath):
+		file = codecs.open(filepath, 'r', 'utf-8')
+		print ("LADE DATEN! ======================================================")
+		count = -1
+		for line in file:
+			print (line)
+			count += 1
+			if 'prefix' in line:
+				True
+			elif 'abstract' in line: 
+				self.abstract = line.split(' ', 2)[2][1:-4]
+			elif 'currentMember' in line and line.split(' ', 2)[0] == ":"+self.name.replace(' ', '_'):
+				temp = line.split(' ', 2)[2][1:-3]
+				self.currentMembers.append("http://dbpedia.org/ressource/"+temp)
+			elif 'formerMember' in line and line.split(' ', 2)[0] == ":"+self.name.replace(' ', '_'):
+				temp = line.split(' ', 2)[2][1:-3]
+				self.currentMembers.append("http://dbpedia.org/ressource/"+temp)
+			elif 'dbtune' in line:
+				self.dbtuneURL = line.split(' ',2)[2][1:-4]
+				print (line.split(' ',2)[2][1:-4])
+			elif 'musicbrainz.org' in line:
+				self.musicbrainzID = line.split(' ',2)[2][31:-4]
+				print (line.split(' ',2)[2][31:-4])	
+			elif 'commons.dbpedia' in line and "owl:sameAs" in line:
+				self.dbpediaCommonsURL = line.split(' ',2)[2][1:-4]
+				print (line.split(' ',2)[2][1:-4])
+			elif 'myspace' in line:
+				self.myspace = line.split(' ',2)[2][1:-4]
+				print (line.split(' ',2)[2][1:-4])	
+			elif 'twitter' in line:
+				self.twitter = line.split(' ',2)[2][1:-4]
+				print (line.split(' ',2)[2][1:-4])
+			elif 'musixmatch' in line:
+				self.musixmatch_url = line.split(' ',2)[2][1:-4]
+				print (line.split(' ',2)[2][1:-4])
+			elif 'wikipedia' in line:
+				self.wikipedia = line.split(' ',2)[2][1:-4]
+				print (line.split(' ',2)[2][1:-4])
+			elif 'mm:official' in line:
+				self.official = line.split(' ',2)[2][1:-4]
+				print (line.split(' ',2)[2][1:-4])	
+			elif 'last.fm' in line:
+				self.lastfm = line.split(' ',2)[2][1:-4]
+				print (line.split(' ',2)[2][1:-4])
+			elif 'discogs' in line:
+				self.discogs_url = line.split(' ',2)[2][1:-4]
+				print (line.split(' ',2)[2][1:-4])
+			elif 'dbpedia-owl:thumbnail' in line:
+				self.thumbnail = line.split(' ',2)[2][1:-4]
+				print (line.split(' ',2)[2][1:-4])
+			elif 'foaf:image' in line:
+				self.images.append(line.split(' ',2)[2][1:-4])
+				print (line.split(' ',2)[2][1:-4])
+			elif 'mm:musicbrainzID' in line:
+				self.musicbrainzID = line.split(' ',2)[2][1:-4]
+				print (line.split(' ',2)[2][1:-4])
+			elif 'mm:spotifyID' in line:
+				self.spotifyID = line.split(' ',2)[2][1:-4]
+				print (line.split(' ',2)[2][1:-4])
+			elif 'mm:echonestArtist' in line:
+				self.echoNestArtist = line.split(' ',2)[2][1:-4]
+				print (line.split(' ',2)[2][1:-4])
+			elif 'mm:recommendedArtist' in line:
+				artist = "http://dbpedia.org/resource/"+line.split(' ', 2)[2][1:-3]
+				voteValue = float(file.next().split(' ', 2)[2][:-3])
+				familiarity = float(file.next().split(' ', 2)[2][:-3])
+				artistObject = MusicMashupArtist(artist, voteValue)
+				artistObject.familiarity = familiarity
+				tempLine = file.next()
+				# count += 3
+				while 'mm:recommendedArtist' not in tempLine:
+					if 'currentMember' in tempLine:
+						reason = "Because " + tempLine.split(' ', 2)[0][1:].replace('_', ' ') + " is also a member of this band."
+						artistObject.reason.append(reason)
+					elif 'formerMember' in tempLine:
+						reason = "Because " + tempLine.split(' ', 2)[0][1:].replace('_', ' ') + " was als a member of this band."
+						artistObject.reason.append(reason)
+					elif 'producer' in tempLine:
+						reason = "Because " + tempLine.split(' ', 2)[0][1:].replace('_', ' ') + " was active as producer."
+						artistObject.reason.append(reason)
+					elif 'writer' in tempLine:
+						reason = "Because " + tempLine.split(' ', 2)[0][1:].replace('_', ' ') + " was active as writer."
+						artistObject.reason.append(reason)
+					tempLine = file.next()
+					count += 1
+				self.recommendation.append(artistObject)
+				# file.seek(count-1)
+		file.close()
 
 	def start_parser(self):
 		self.parser.start(self)
