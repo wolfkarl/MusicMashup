@@ -96,6 +96,7 @@ class MusicMashupArtist:
 		else:
 			self.vote = 0
 		self.familiarity = 0.1
+		self.dumpExists = False
 
 		print "[+] Vote increased in constructor by: ",voteValue
 
@@ -141,10 +142,8 @@ class MusicMashupArtist:
 	def _load_data_from_dump(self, filepath):
 		file = codecs.open(filepath, 'r', 'utf-8')
 		print ("LADE DATEN! ======================================================")
-		count = -1
 		for line in file:
 			print (line)
-			count += 1
 			if 'prefix' in line:
 				True
 			elif 'abstract' in line: 
@@ -157,60 +156,50 @@ class MusicMashupArtist:
 				self.currentMembers.append("http://dbpedia.org/ressource/"+temp)
 			elif 'dbtune' in line:
 				self.dbtuneURL = line.split(' ',2)[2][1:-4]
-				print (line.split(' ',2)[2][1:-4])
 			elif 'musicbrainz.org' in line:
 				self.musicbrainzID = line.split(' ',2)[2][31:-4]
-				print (line.split(' ',2)[2][31:-4])	
 			elif 'commons.dbpedia' in line and "owl:sameAs" in line:
 				self.dbpediaCommonsURL = line.split(' ',2)[2][1:-4]
-				print (line.split(' ',2)[2][1:-4])
 			elif 'myspace' in line:
 				self.myspace = line.split(' ',2)[2][1:-4]
-				print (line.split(' ',2)[2][1:-4])	
 			elif 'twitter' in line:
 				self.twitter = line.split(' ',2)[2][1:-4]
-				print (line.split(' ',2)[2][1:-4])
 			elif 'musixmatch' in line:
 				self.musixmatch_url = line.split(' ',2)[2][1:-4]
-				print (line.split(' ',2)[2][1:-4])
 			elif 'wikipedia' in line:
 				self.wikipedia = line.split(' ',2)[2][1:-4]
-				print (line.split(' ',2)[2][1:-4])
 			elif 'mm:official' in line:
 				self.official = line.split(' ',2)[2][1:-4]
-				print (line.split(' ',2)[2][1:-4])	
 			elif 'last.fm' in line:
 				self.lastfm = line.split(' ',2)[2][1:-4]
-				print (line.split(' ',2)[2][1:-4])
 			elif 'discogs' in line:
 				self.discogs_url = line.split(' ',2)[2][1:-4]
-				print (line.split(' ',2)[2][1:-4])
 			elif 'dbpedia-owl:thumbnail' in line:
 				self.thumbnail = line.split(' ',2)[2][1:-4]
-				print (line.split(' ',2)[2][1:-4])
 			elif 'foaf:image' in line:
 				self.images.append(line.split(' ',2)[2][1:-4])
-				print (line.split(' ',2)[2][1:-4])
 			elif 'mm:musicbrainzID' in line:
 				self.musicbrainzID = line.split(' ',2)[2][1:-4]
-				print (line.split(' ',2)[2][1:-4])
 			elif 'mm:spotifyID' in line:
 				self.spotifyID = line.split(' ',2)[2][1:-4]
-				print (line.split(' ',2)[2][1:-4])
 			elif 'mm:echonestArtist' in line:
 				self.echoNestArtist = line.split(' ',2)[2][1:-4]
-				print (line.split(' ',2)[2][1:-4])
 			elif 'mm:recommendedArtist' in line:
 				artist = "http://dbpedia.org/resource/"+line.split(' ', 2)[2][1:-3]
-				voteValue = float(file.next().split(' ', 2)[2][:-3])
-				familiarity = float(file.next().split(' ', 2)[2][:-3])
+				line = file.next()
+				seek = file.tell()
+				voteValue = float(line.split(' ', 2)[2][:-3])
+				line = file.next()
+				familiarity = float(line.split(' ', 2)[2][:-3])
 				artistObject = MusicMashupArtist(artist, voteValue)
-				artistObject.familiarity = familiarity
-				tempLine = file.next()
-				# count += 3
-				while 'mm:recommendedArtist' not in tempLine:
+				artistObject.familiarity = familiarity	
+				tempLine = line
+				# LOGIK IST FALSCH			
+				while 'mm:recommendedArtist' not in tempLine and 'mm:songkickEvent' not in tempLine:
+					tempLine = file.next()
 					if 'currentMember' in tempLine:
 						reason = "Because " + tempLine.split(' ', 2)[0][1:].replace('_', ' ') + " is also a member of this band."
+						print (reason)
 						artistObject.reason.append(reason)
 					elif 'formerMember' in tempLine:
 						reason = "Because " + tempLine.split(' ', 2)[0][1:].replace('_', ' ') + " was als a member of this band."
@@ -221,14 +210,14 @@ class MusicMashupArtist:
 					elif 'writer' in tempLine:
 						reason = "Because " + tempLine.split(' ', 2)[0][1:].replace('_', ' ') + " was active as writer."
 						artistObject.reason.append(reason)
-					tempLine = file.next()
-					count += 1
+					# count += 1
 				self.recommendation.append(artistObject)
-				# file.seek(count-1)
+				file.seek(seek, 0)
 		file.close()
 
 	def start_parser(self):
 		self.parser.start(self)
+		# pass
 
 	def _find_resources(self):
 		self._pull_dbtune()
@@ -568,7 +557,7 @@ class MusicMashupArtist:
 				print("[+] Found dbpedia URL")
 				return 0
 			else:
-				#TODO wird nicht geprinted wenn keine dbpedia url
+				# TODO wird nicht geprinted wenn keine dbpedia url
 				print ("[-] Could not find dbpedia URL")
 				return -1
 
@@ -599,7 +588,7 @@ class MusicMashupArtist:
 						print("[+] Found dbpedia URL")
 						return 0
 					else:
-						#TODO wird nicht geprinted wenn keine dbpedia url
+						# TODO wird nicht geprinted wenn keine dbpedia url
 						print ("[-] Could not find dbpedia URL")
 						return -1
 		except:
@@ -610,21 +599,18 @@ class MusicMashupArtist:
 	# ========================================================================================
 	def get_related(self):
 		# if not self.related:
-		print("[~] get_related")
-		self.related = []
-		self.currentMembers = []
-		self.formerMembers = []
-		self.relatedSources = []
-		self._pull_related()
-		# self.recommendation = sorted(self.recommendation, key=lambda reco: len(reco))
-		# self.recommendation = sorted(self.recommendation, key=lambda reco: len(reco))
+		if self.dumpExists == True:
+			True
+		else:
+			print("[~] get_related")
+			self.related = []
+			self.currentMembers = []
+			self.formerMembers = []
+			self.relatedSources = []
+			self._pull_related()
 
 		# Voting starts here
 		self._vote()
-
-		# Parsing starts here
-
-		# self.parser.start(self)
 
 		return self.recommendation
 
@@ -1485,5 +1471,5 @@ if __name__ == '__main__':
 	#blubb = test.get_related()
 	# print(blubb)
 	#for r in blubb:
-#		print(" + "+r.get_name() + " - " + r.get_abstract_excerpt(50) + " - " + r.get_spotify_id())
+		# print(" + "+r.get_name() + " - " + r.get_abstract_excerpt(50) + " - " + r.get_spotify_id())
 	print(test.has_images())
