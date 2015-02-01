@@ -3,14 +3,17 @@ import rdfextras
 rdfextras.registerplugins() 
 
 mygraph= rdflib.Graph()
-mygraph.parse('data/pagerank_scores_en_2014.ttl', format='n3')
+print ("[*] Starting to parse")
+mygraph.parse('data/pagerank.ttl', format='n3')
+print ("[*] Finished parsing")
 
 results = mygraph.query("""
-					PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
-					SELECT DISTINCT ?rank WHERE {
-					<http://dbpedia.org/resource/Kyuss> dbpedia-owl:wikiPageRank ?rank
+	PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+	SELECT DISTINCT ?rank WHERE {
+	<http://dbpedia.org/resource/DJ_Sun> dbpedia-owl:wikiPageRank ?rank
 
-					}
-					""")
-for row in resluts:
-    print row
+	}
+""")
+
+for row in results:
+    print ("Rank is: %s" % row)
