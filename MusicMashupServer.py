@@ -19,10 +19,10 @@ class MusicMashupServer(object):
 
 
 	@cherrypy.expose # wird von cherrypy auf eine URL gemappt
-	def index(self, query="Queens of the Stone Age"):
+	def index(self, query="Queens of the Stone Age", soloartist=0):
 
 		# create musicmashup object based on query:
-		self.artist = MusicMashupArtist(query)
+		self.artist = MusicMashupArtist(query, isSoloArtist = soloartist)
 
 		# add new query to breadcrumbs list. create as list if not present
 		if not "history" in cherrypy.session:
