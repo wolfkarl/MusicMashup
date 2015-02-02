@@ -3,14 +3,20 @@ import rdfextras
 rdfextras.registerplugins() 
 
 mygraph= rdflib.Graph()
-mygraph.parse('data/pagerank_scores_en_2014.ttl', format='n3')
+print ("[*] Starting to parse pagerank-turtle-file")
+mygraph.parse('data/pagerank.ttl', format='n3')
+print ("[*] Finished parsing")
 
 results = mygraph.query("""
-					PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
-					SELECT DISTINCT ?rank WHERE {
-					<http://dbpedia.org/resource/Kyuss> dbpedia-owl:wikiPageRank ?rank
+	PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+	SELECT DISTINCT ?rank WHERE {
+	<http://dbpedia.org/resource/DJ_Sun> dbpedia-owl:wikiPageRank ?rank
 
-					}
-					""")
-for row in resluts:
-    print row
+	}
+""")
+
+floddy_the_float = 0
+for row in results:
+	print (type(row))
+	print row[0]
+    # print ("Rank is: %s" % row)
