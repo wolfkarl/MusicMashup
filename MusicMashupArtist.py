@@ -1449,6 +1449,9 @@ class MusicMashupArtist:
 	def quote_anything(self, anything):
 		return urllib.quote_plus(anything)
 
+	def unquote_anything(self, anything):
+		return urllib.unquote_plus(anything)
+
 	def addReason(self, reason):
 		self.reason.append(reason)
 
