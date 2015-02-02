@@ -73,7 +73,7 @@
               % for r in artist.get_related():
               <div class="reco row">
                 <div class="col-sm-2"><div class="img" style="overflow: hidden">
-                  <img src="${r.getThumbnail()}" style="max-height:100%">
+                  <a href="/?query=${r.get_dbpediaURL_link()}"><img src="${r.getThumbnail()}" style="max-height:100%"></a>
                 </div>
               </div>
               <div class="col-sm-10">
@@ -121,7 +121,7 @@
         <h4>Current Members</h4>
         <ul>
         % for member in artist.get_current_members():
-          <li><a href="/?query=${artist.get_dbpediaURL_link(member)}">${artist._uri_to_name(member)}</a></li>
+          <li><a href="/?query=${artist.get_dbpediaURL_link(member)}&soloartist=1">${artist._uri_to_name(member)}</a></li>
         % endfor
         % for member in artist.get_current_membersNR():
           <li>${member}</li>
@@ -133,7 +133,7 @@
         <h4>Former Members</h4>
         <ul>
         % for member in artist.get_former_members():
-          <li><a href="/?query=${artist.get_dbpediaURL_link(member)}">${artist._uri_to_name(member)}</a></li>
+          <li><a href="/?query=${artist.get_dbpediaURL_link(member)}&soloartist=1">${artist._uri_to_name(member)}</a></li>
         % endfor 
         % for member in artist.get_former_membersNR():
           <li>${member}</li>
@@ -194,6 +194,8 @@
 </div>
 </footer>
 </div>
+<% artist.start_parser()%>
+<% artist.get_pagerank()%>
 
 
 <link href='http://fonts.googleapis.com/css?family=Roboto+Slab:400,700,100,300' rel='stylesheet' type='text/css'>

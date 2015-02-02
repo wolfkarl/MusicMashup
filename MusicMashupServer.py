@@ -19,7 +19,7 @@ class MusicMashupServer(object):
 
 
 	@cherrypy.expose # wird von cherrypy auf eine URL gemappt
-	def index(self, query=""):
+	def index(self, query="", soloartist=0):
 		# initialize mako (template engine)
 		lookup = TemplateLookup(directories=['html'])
 		
@@ -31,7 +31,6 @@ class MusicMashupServer(object):
 
 		# query is present
 		else: 
-
 			# create musicmashup object based on query:
 			self.artist = MusicMashupArtist(query)
 
