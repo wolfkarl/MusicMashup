@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import codecs
+import os
+import time
+import datetime
 
 class MusicMashupParser:
 
@@ -11,11 +14,25 @@ class MusicMashupParser:
 	def start(self, artistObject):
 		self.artist = artistObject
 		self.baseArtist = ":" + str(self.artist.get_name().replace(' ', '_'))
-		self.parse_to_rdf()
-
-	def parse_to_rdf(self):
 		filename = self.artist.get_name().lower().replace(' ', '_') + ".ttl"
 		filepath = "dumps/"+filename
+		if os.path.exists(filepath):
+			creationTime = os.path.getctime(filepath)
+			nowTime = time.time()
+			oneWeek = 60*60*24*7 # number of seconds in a week
+			print ("CREATED AT: "+str(creationTime))
+			print ("NOW IT'S: "+str(time.time()))
+			print (nowTime - oneWeek)
+			if nowTime > creationTime + oneWeek:
+				self.parse_to_rdf(filepath)
+			else:
+				print ("[-] The dump is younger than one week. No new dump will be created.")
+		else:
+			self.parse_to_rdf(filepath)
+
+	def parse_to_rdf(self, filepath):
+		# filename = self.artist.get_name().lower().replace(' ', '_') + ".ttl"
+		# filepath = "dumps/"+filename
 		# fileExists = os.path.exists(filepath)
 		
 		file = codecs.open(filepath, 'w+', 'utf-8')
@@ -69,7 +86,7 @@ class MusicMashupParser:
 
 	def parse_same_as(self, file):
 		if self.artist.dbtuneURL:
-			file.write(self.baseArtist+" owl:sameAs <"+self.artist.get_dbtuneURL()+"> .\n")
+			file.write(self.baseArtist+" owl:sameAs <"+str(self.artist.get_dbtuneURL())+"> .\n")
 		if self.artist.musicbrainzID:
 			file.write(self.baseArtist+" owl:sameAs <http://musicbrainz.org/artist/"+str(self.artist.musicbrainzID)+"> .\n")
 		if self.artist.dbpediaCommonsURL:

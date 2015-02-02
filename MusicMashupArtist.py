@@ -41,7 +41,7 @@ class MusicMashupArtist:
 	songkickApiKey = "BxSDhcU0tXLU4yHQ"
 
 	def __init__(self, query, voteValue = 0, reco = ""):
-		self.starttime = time.clock()
+		self.starttime = time.time()
 
 		self.dbpediaURL = None
 		self.dbtuneURL = None
@@ -97,6 +97,7 @@ class MusicMashupArtist:
 			self.vote = 0
 		self.familiarity = 0.1
 		self.dumpExists = False
+		self.filepath = ""
 
 		print "[+] Vote increased in constructor by: ",voteValue
 
@@ -120,14 +121,14 @@ class MusicMashupArtist:
 			self.reason.append(reco)
 			
 		fileExists = False
-		filepath = "dumps/"+self.name.lower().replace(' ', '_')+".ttl"
-		fileExists = os.path.exists(filepath)
-		print ("FILEPATH = "+filepath +" :: "+ str(fileExists))
+		self.filepath = "dumps/"+self.name.lower().replace(' ', '_')+".ttl"
+		fileExists = os.path.exists(self.filepath)
+		print ("FILEPATH = "+self.filepath +" :: "+ str(fileExists))
 
 		if fileExists == True:
-			print ("DUMP GEFUNDEN! für "+str(filepath))
+			print ("DUMP GEFUNDEN! für "+str(self.filepath))
 			self.dumpExists = fileExists
-			self._load_data_from_dump(filepath)
+			self._load_data_from_dump(self.filepath)
 		else:
 			# locate artist on musicbrainz (via dbtune) and dbpedia
 			print("[~][~] Fetching data sources for " + self.get_name())
@@ -184,7 +185,12 @@ class MusicMashupArtist:
 				self.spotifyID = line.split(' ',2)[2][1:-4]
 			elif 'mm:echonestArtist' in line:
 				self.echoNestArtist = line.split(' ',2)[2][1:-4]
-			elif 'mm:recommendedArtist' in line:
+		file.close()
+
+	def _load_related_from_dump(self, filepath):
+		file = codecs.open(filepath, 'r', 'utf-8')
+		for line in file:	
+			if 'mm:recommendedArtist' in line:
 				artist = "http://dbpedia.org/resource/"+line.split(' ', 2)[2][1:-3]
 				line = file.next()
 				seek = file.tell()
@@ -193,9 +199,8 @@ class MusicMashupArtist:
 				familiarity = float(line.split(' ', 2)[2][:-3])
 				artistObject = MusicMashupArtist(artist, voteValue)
 				artistObject.familiarity = familiarity	
-				tempLine = line
-				# LOGIK IST FALSCH			
-				while 'mm:recommendedArtist' not in tempLine and 'mm:songkickEvent' not in tempLine:
+				tempLine = line			
+				while 'mm:rec' not in tempLine and 'mm:song' not in tempLine:
 					tempLine = file.next()
 					if 'currentMember' in tempLine:
 						reason = "Because " + tempLine.split(' ', 2)[0][1:].replace('_', ' ') + " is also a member of this band."
@@ -600,7 +605,7 @@ class MusicMashupArtist:
 	def get_related(self):
 		# if not self.related:
 		if self.dumpExists == True:
-			True
+			self._load_related_from_dump(self.filepath)
 		else:
 			print("[~] get_related")
 			self.related = []
@@ -1455,7 +1460,7 @@ class MusicMashupArtist:
 
 
 	def current_load_time(self):
-		return time.clock()-self.starttime
+		return time.time()-self.starttime
 
 # run from console for test setup
 if __name__ == '__main__':
