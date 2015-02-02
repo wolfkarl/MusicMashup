@@ -159,10 +159,10 @@ class MusicMashupArtist:
 				self.abstract = line.split(' ', 2)[2][1:-4]
 			elif 'currentMember' in line and line.split(' ', 2)[0] == ":"+self.name.replace(' ', '_'):
 				temp = line.split(' ', 2)[2][1:-3]
-				self.currentMembers.append("http://dbpedia.org/ressource/"+temp)
+				self.currentMembers.append("http://dbpedia.org/resource/"+temp)
 			elif 'formerMember' in line and line.split(' ', 2)[0] == ":"+self.name.replace(' ', '_'):
 				temp = line.split(' ', 2)[2][1:-3]
-				self.currentMembers.append("http://dbpedia.org/ressource/"+temp)
+				self.currentMembers.append("http://dbpedia.org/resource/"+temp)
 			elif 'dbtune' in line:
 				self.dbtuneURL = line.split(' ',2)[2][1:-4]
 			elif 'musicbrainz.org' in line:
