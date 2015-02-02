@@ -628,8 +628,9 @@ class MusicMashupArtist:
 	def _pull_related(self):
 		# get Methoden sollten noch geschrieben werden
 		try:
-			self._pull_current_members()
-			self._pull_former_members()
+			if not self.soloArtist:
+				self._pull_current_members()
+				self._pull_former_members()
 			if not self.currentMembers and not self.formerMembers:
 				print("[~] No members => Trying Resource as Solo-Artist")
 				self.soloArtist = True
@@ -781,7 +782,8 @@ class MusicMashupArtist:
 		return self.pagerank
 
 	def _pull_pagerank(self):
-		print ("[~] Pulling Pagerank for: "+self.get_dbpediaURL())
+		# if self.get_dbpediaURL()
+		# print ("[~] Pulling Pagerank for: "+self.get_dbpediaURL())
 		self.pagerank = MusicMashupArtist.pagerankParser.get_pagerank(self.get_dbpediaURL())
 
 	# ========================================================================================
