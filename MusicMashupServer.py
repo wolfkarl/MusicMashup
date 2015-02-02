@@ -19,35 +19,45 @@ class MusicMashupServer(object):
 
 
 	@cherrypy.expose # wird von cherrypy auf eine URL gemappt
-	def index(self, query="Queens of the Stone Age"):
-
-		# create musicmashup object based on query:
-		self.artist = MusicMashupArtist(query)
-
-		# add new query to breadcrumbs list. create as list if not present
-		if not "history" in cherrypy.session:
-			cherrypy.session['history'] = []
-
-		# new search -> new breadcrumbs
-		if not query[:4] == "http":
-			cherrypy.session['history'] = []
-
-		# append newest query to list, template will determine if it's a URI or name
-		if not (len(cherrypy.session['history']) > 0 and cherrypy.session['history'][-1] == query):
-			cherrypy.session['history'].append(query)
-
-		# make sure the list has no more than 5 entries
-		maxentries = 10
-		if len(cherrypy.session['history']) > maxentries:
-			cherrypy.session['history'].pop
-
-
-		# load mako templates
+	def index(self, query=""):
+		# initialize mako (template engine)
 		lookup = TemplateLookup(directories=['html'])
-		tmpl = lookup.get_template("main.htm")
+		
+		# show search page if no query has been made
+		if query == "":
+			print "[~] No query given, serving search page"
+			tmpl = lookup.get_template("search.htm")
+			return tmpl.render()
 
-		# add whole Artist object and history array from sessions
-		return tmpl.render(artist=self.artist, history=cherrypy.session['history'])		
+		# query is present
+		else: 
+
+			# create musicmashup object based on query:
+			self.artist = MusicMashupArtist(query)
+
+			# add new query to breadcrumbs list. create as list if not present
+			if not "history" in cherrypy.session:
+				cherrypy.session['history'] = []
+
+			# new search -> new breadcrumbs
+			if not query[:4] == "http":
+				cherrypy.session['history'] = []
+
+			# append newest query to list, template will determine if it's a URI or name
+			if not (len(cherrypy.session['history']) > 0 and cherrypy.session['history'][-1] == query):
+				cherrypy.session['history'].append(query)
+
+			# make sure the list has no more than 5 entries
+			maxentries = 10
+			if len(cherrypy.session['history']) > maxentries:
+				cherrypy.session['history'].pop
+
+
+			# load mako templates
+			tmpl = lookup.get_template("main.htm")
+
+			# add whole Artist object and history array from sessions
+			return tmpl.render(artist=self.artist, history=cherrypy.session['history'])		
 
  
 
