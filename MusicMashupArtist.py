@@ -45,7 +45,8 @@ class MusicMashupArtist:
 	pagerankParser = MusicMashupPagerank()
 	songkickApiKey = "BxSDhcU0tXLU4yHQ"
 
-	def __init__(self, query, voteValue = 0, reco = ""):
+	def __init__(self, query, voteValue = 0, reco = "", isSoloArtist = False):
+
 		self.starttime = time.time()
 
 		self.dbpediaURL = None
@@ -88,7 +89,11 @@ class MusicMashupArtist:
 		self.currentMembersNR = []
 		self.relatedSources = []
 
-		self.soloArtist = False
+		if isSoloArtist:
+			print ("[+] By Get-Param this Resource is a solo Artist")
+			self.soloArtist = True
+		else:
+			self.soloArtist = False
 
 		self.dbpediaCommonsURL = None
 		self.thumbnail = None
