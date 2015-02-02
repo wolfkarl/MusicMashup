@@ -8,7 +8,8 @@ import re
 import string
 import json
 import discogs_client
-
+import os
+import codecs
 import urllib
 from urllib import urlopen
 
@@ -100,6 +101,8 @@ class MusicMashupArtist:
 		else:
 			self.vote = 0
 		self.familiarity = 0.1
+		self.dumpExists = False
+		self.filepath = ""
 
 		self.pagerank = None
 		self.pagerankParser = None
@@ -125,13 +128,19 @@ class MusicMashupArtist:
 		if reco != "":
 			self.reason.append(reco)
 			
+		fileExists = False
+		self.filepath = "dumps/"+self.name.lower().replace(' ', '_')+".ttl"
+		fileExists = os.path.exists(self.filepath)
+		print ("FILEPATH = "+self.filepath +" :: "+ str(fileExists))
 
-
-
-
-		# locate artist on musicbrainz (via dbtune) and dbpedia
-		print("[~][~] Fetching data sources for " + self.get_name())
-		self._find_resources()
+		if fileExists == True:
+			print ("DUMP GEFUNDEN! für "+str(self.filepath))
+			self.dumpExists = fileExists
+			self._load_data_from_dump(self.filepath)
+		else:
+			# locate artist on musicbrainz (via dbtune) and dbpedia
+			print("[~][~] Fetching data sources for " + self.get_name())
+			self._find_resources()
 
 
 	# ========================================================================================
@@ -139,8 +148,95 @@ class MusicMashupArtist:
 	# (rufen puller auf falls noch nicht geschehen; spart Resourcen wenn nicht alles gebraucht wird)
 	# ========================================================================================
 
+	def _load_data_from_dump(self, filepath):
+		file = codecs.open(filepath, 'r', 'utf-8')
+		print ("LADE DATEN! ======================================================")
+		for line in file:
+			print (line)
+			if 'prefix' in line:
+				True
+			elif 'abstract' in line: 
+				self.abstract = line.split(' ', 2)[2][1:-4]
+			elif 'currentMember' in line and line.split(' ', 2)[0] == ":"+self.name.replace(' ', '_'):
+				temp = line.split(' ', 2)[2][1:-3]
+				self.currentMembers.append("http://dbpedia.org/ressource/"+temp)
+			elif 'formerMember' in line and line.split(' ', 2)[0] == ":"+self.name.replace(' ', '_'):
+				temp = line.split(' ', 2)[2][1:-3]
+				self.currentMembers.append("http://dbpedia.org/ressource/"+temp)
+			elif 'dbtune' in line:
+				self.dbtuneURL = line.split(' ',2)[2][1:-4]
+			elif 'musicbrainz.org' in line:
+				self.musicbrainzID = line.split(' ',2)[2][31:-4]
+			elif 'commons.dbpedia' in line and "owl:sameAs" in line:
+				self.dbpediaCommonsURL = line.split(' ',2)[2][1:-4]
+			elif 'myspace' in line:
+				self.myspace = line.split(' ',2)[2][1:-4]
+			elif 'twitter' in line:
+				self.twitter = line.split(' ',2)[2][1:-4]
+			elif 'musixmatch' in line:
+				self.musixmatch_url = line.split(' ',2)[2][1:-4]
+			elif 'wikipedia' in line:
+				self.wikipedia = line.split(' ',2)[2][1:-4]
+			elif 'mm:official' in line:
+				self.official = line.split(' ',2)[2][1:-4]
+			elif 'last.fm' in line:
+				self.lastfm = line.split(' ',2)[2][1:-4]
+			elif 'discogs' in line:
+				self.discogs_url = line.split(' ',2)[2][1:-4]
+			elif ':thumbnail' in line:
+				self.thumbnail = line.split(' ',2)[2][1:-4]
+			elif 'foaf:image' in line:
+				self.images.append(line.split(' ',2)[2][1:-4])
+			elif 'mm:musicbrainzID' in line:
+				self.musicbrainzID = line.split(' ',2)[2][1:-4]
+			elif 'mm:spotifyID' in line:
+				self.spotifyID = line.split(' ',2)[2][1:-4]
+			elif 'mm:echonestArtist' in line:
+				self.echoNestArtist = line.split(' ',2)[2][1:-4]
+		file.close()
+
+	def _load_related_from_dump(self, filepath):
+		file = codecs.open(filepath, 'r', 'utf-8')
+		for line in file:	
+			if 'mm:recommendedArtist' in line:
+				artist = "http://dbpedia.org/resource/"+line.split(' ', 2)[2][1:-3]
+				line = file.next()
+				seek = file.tell()
+				voteValue = float(line.split(' ', 2)[2][:-3])
+				line = file.next()
+				familiarity = float(line.split(' ', 2)[2][:-3])
+				line = file.next()
+				pagerank = float(line.split(' ', 2)[2][:-3])
+				artistObject = MusicMashupArtist(artist, voteValue)
+				artistObject.familiarity = familiarity	
+				artistObject.pagerank = pagerank
+				tempLine = line			
+				while 'mm:rec' not in tempLine and 'mm:song' not in tempLine:
+					tempLine = file.next()
+					if 'currentMember' in tempLine:
+						reason = "Because " + tempLine.split(' ', 2)[0][1:].replace('_', ' ') + " is also a member of this band."
+						print (reason)
+						artistObject.reason.append(reason)
+					elif 'formerMember' in tempLine:
+						reason = "Because " + tempLine.split(' ', 2)[0][1:].replace('_', ' ') + " was als a member of this band."
+						artistObject.reason.append(reason)
+					elif 'producer' in tempLine:
+						reason = "Because " + tempLine.split(' ', 2)[0][1:].replace('_', ' ') + " was active as producer."
+						artistObject.reason.append(reason)
+					elif 'writer' in tempLine:
+						reason = "Because " + tempLine.split(' ', 2)[0][1:].replace('_', ' ') + " was active as writer."
+						artistObject.reason.append(reason)
+					elif 'composer' in tempLine:
+						reason = "Because " + tempLine.split(' ', 2)[0][1:].replace('_', ' ') + " was active as composer."
+						artistObject.reason.append(reason)
+					# count += 1
+				self.recommendation.append(artistObject)
+				file.seek(seek, 0)
+		file.close()
+
 	def start_parser(self):
 		self.parser.start(self)
+		# pass
 
 	def _find_resources(self):
 		self._pull_dbtune()
@@ -453,7 +549,8 @@ class MusicMashupArtist:
 
 	def get_dbpediaURL(self):
 		if not self.dbpediaURL:
-			self.dbpediaURL = self._pull_dbpedia_url()
+			self._pull_dbpedia_url()
+			return self.dbpediaURL
 		return self.dbpediaURL
 
 	def _pull_dbpedia_url(self):
@@ -475,19 +572,9 @@ class MusicMashupArtist:
 			for result in results["results"]["bindings"]:
 				if "dbpedia.org/resource" in result["o"]["value"]:
 					self.dbpediaURL = result["o"]["value"]
-
-			if self.dbpediaURL:
-				print("[+] Found dbpedia URL")
-				return 0
-			else:
-				#TODO wird nicht geprinted wenn keine dbpedia url
-				print ("[-] Could not find dbpedia URL")
-				return -1
-
 		except:
 			self.problem = "dbtune problem while fetching dbpedia url"
 			print("[-] dbtune problem while fetching dbpedia url")
-			return -1
 
 	def _pull_dbpedia_url_from_dbpedia(self):
 		try:
@@ -507,13 +594,6 @@ class MusicMashupArtist:
 				if "dbpedia.org/resource" in result["s"]["value"]:
 					self.dbpediaURL = result["s"]["value"]
 
-					if self.dbpediaURL:
-						print("[+] Found dbpedia URL")
-						return 0
-					else:
-						#TODO wird nicht geprinted wenn keine dbpedia url
-						print ("[-] Could not find dbpedia URL")
-						return -1
 		except:
 			print ("[-] error while pulling dbpediaURL from dbpedia")
 
@@ -522,21 +602,18 @@ class MusicMashupArtist:
 	# ========================================================================================
 	def get_related(self):
 		# if not self.related:
-		print("[~] get_related")
-		self.related = []
-		self.currentMembers = []
-		self.formerMembers = []
-		self.relatedSources = []
-		self._pull_related()
-		# self.recommendation = sorted(self.recommendation, key=lambda reco: len(reco))
-		# self.recommendation = sorted(self.recommendation, key=lambda reco: len(reco))
+		if self.dumpExists == True:
+			self._load_related_from_dump(self.filepath)
+		else:
+			print("[~] get_related")
+			self.related = []
+			self.currentMembers = []
+			self.formerMembers = []
+			self.relatedSources = []
+			self._pull_related()
 
 		# Voting starts here
 		self._vote()
-
-		# Parsing starts here
-
-		# self.parser.start(self)
 
 		return self.recommendation
 
@@ -1403,7 +1480,7 @@ class MusicMashupArtist:
 
 
 	def current_load_time(self):
-		return time.clock()-self.starttime
+		return time.time()-self.starttime
 
 # run from console for test setup
 if __name__ == '__main__':
@@ -1419,5 +1496,5 @@ if __name__ == '__main__':
 	#blubb = test.get_related()
 	# print(blubb)
 	#for r in blubb:
-#		print(" + "+r.get_name() + " - " + r.get_abstract_excerpt(50) + " - " + r.get_spotify_id())
+		# print(" + "+r.get_name() + " - " + r.get_abstract_excerpt(50) + " - " + r.get_spotify_id())
 	print(test.has_images())
