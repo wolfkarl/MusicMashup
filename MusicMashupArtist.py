@@ -21,8 +21,10 @@ from pyechonest import config
 config.ECHO_NEST_API_KEY="GZVL1ZHR0GIYXJZXG"
 from pyechonest import artist
 from MusicMashupParser import MusicMashupParser
+from MusicMashupPagerank import MusicMashupPagerank
 
-
+#
+# Global Values
 cMcurrentBandVote = 3
 fMcurrentBandVote = 1.5
 cMformerBandVote  = 2
@@ -36,11 +38,14 @@ fMcomposer = 0.4
 
 class MusicMashupArtist:
 	# d = discogs_client.Client('ExampleApplication/0.1')
+
+	# staic Instances that are needed by every MusicMashupArtist object
 	parser = MusicMashupParser()
+	pagerankParser = MusicMashupPagerank()
 	songkickApiKey = "BxSDhcU0tXLU4yHQ"
 
 	def __init__(self, query, voteValue = 0, reco = ""):
-		self.starttime = time.clock()
+		self.starttime = time.time()
 
 		self.dbpediaURL = None
 		self.dbtuneURL = None
@@ -95,6 +100,9 @@ class MusicMashupArtist:
 		else:
 			self.vote = 0
 		self.familiarity = 0.1
+
+		self.pagerank = None
+		self.pagerankParser = None
 
 		print "[+] Vote increased in constructor by: ",voteValue
 
@@ -683,6 +691,17 @@ class MusicMashupArtist:
 				print("[-] Could not find familiarity")
 		except:
 			pass
+
+	def get_pagerank(self):
+		if not self.pagerank:
+			self._pull_pagerank()
+			print "[+] Pagerank is: ", self.pagerank
+		return self.pagerank
+
+	def _pull_pagerank(self):
+		print ("[~] Pulling Pagerank for: "+self.get_dbpediaURL())
+		self.pagerank = MusicMashupArtist.pagerankParser.get_pagerank(self.get_dbpediaURL())
+
 	# ========================================================================================
 	# MUSIXMATCH get and _pull
 	# ========================================================================================
@@ -858,10 +877,13 @@ class MusicMashupArtist:
 				sparql.setQuery("""
 					PREFIX dbprop: <http://dbpedia.org/property/>
 					PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
-					SELECT DISTINCT ?band WHERE {
+					SELECT DISTINCT ?band WHERE {{
 		    			?production dbprop:producer <"""+member+""">.
+		    			?production dbpedia-owl:artist ?band.}
+						UNION {
+						?production dbpedia-owl:producer <"""+member+""">.
 		    			?production dbpedia-owl:artist ?band.
-						}
+						}}
 					""")
 				sparql.setReturnFormat(JSON)
 				results = sparql.query().convert()	
@@ -885,10 +907,13 @@ class MusicMashupArtist:
 				sparql.setQuery("""
 					PREFIX dbprop: <http://dbpedia.org/property/>
 					PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
-					SELECT DISTINCT ?band WHERE {
+					SELECT DISTINCT ?band WHERE {{
 		    			?production dbprop:producer <"""+self.get_dbpediaURL()+""">.
-		    			?production dbpedia-owl:artist ?band.
-						}
+		    			?production dbpedia-owl:artist ?band. }
+						UNION {
+						?production dbpedia-owl:producer <"""+self.get_dbpediaURL()+""">.
+		    			?production dbpedia-owl:artist ?band. 
+						}}
 					""")
 				sparql.setReturnFormat(JSON)
 				results = sparql.query().convert()	
@@ -916,10 +941,13 @@ class MusicMashupArtist:
 				sparql.setQuery("""
 					PREFIX dbprop: <http://dbpedia.org/property/>
 					PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
-					SELECT DISTINCT ?band WHERE {
+					SELECT DISTINCT ?band WHERE {{
 		    			?production dbprop:producer <"""+member+""">.
+		    			?production dbpedia-owl:artist ?band.}
+						UNION {
+						?production dbpedia-owl:producer <"""+member+""">.
 		    			?production dbpedia-owl:artist ?band.
-						}
+						}}
 					""")
 				sparql.setReturnFormat(JSON)
 				results = sparql.query().convert()	
@@ -1353,10 +1381,12 @@ class MusicMashupArtist:
 	# ========================================================================================
 
 	def _vote(self):
-		print("[~] Now Voting")
+		print("[~][~][~] Now Voting")
 		voteValue = []
 		for r in self.recommendation:
-			voteValue.append(r.get_vote() * r.get_familiarity())
+			print r.get_familiarity()
+			print r.get_pagerank()
+			voteValue.append(r.get_vote() * r.get_familiarity() * r.get_pagerank())
 		length = len(self.recommendation)
 		for i in range(0, length):
 			for j in range(0, length-1):
