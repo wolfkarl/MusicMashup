@@ -30,7 +30,7 @@ class MusicMashupArtist:
 
 	def __init__(self, query, reco = ""):
 
-		self.starttime = time.clock()
+		self.starttime = time.time()
 
 		self.dbpediaURL = None
 		self.dbtuneURL = None
@@ -1113,6 +1113,9 @@ class MusicMashupArtist:
 	def quote_anything(self, anything):
 		return urllib.quote_plus(anything)
 
+	def unquote_anything(self, anything):
+		return urllib.unquote_plus(anything)
+
 	def addReason(self, reason):
 		self.reason.append(reason)
 
@@ -1138,7 +1141,7 @@ class MusicMashupArtist:
 
 
 	def current_load_time(self):
-		return time.clock()-self.starttime
+		return time.time()-self.starttime
 
 # run from console for test setup
 if __name__ == '__main__':
