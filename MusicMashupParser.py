@@ -52,7 +52,7 @@ class MusicMashupParser:
 		file.close()
 		
 	def parse_prefixes(self, file):
-		file.write("@base dbpedia-owl: <http://dbpedia.org/ontology/> .\n")
+		file.write("@base dbpedia-owl: <http://dbpedia.org/resource/> .\n")
 		file.write("@prefix mm: <localhost/ontology/musicmashup>")
 		file.write("@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n")
 		file.write("@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n")
@@ -68,12 +68,12 @@ class MusicMashupParser:
 	def parse_current_members(self, file):
 		if self.artist.currentMembers:
 			for member in self.artist.currentMembers:
-				file.write(self.baseArtist+" :currentMember :"+member[28:]+" .\n")
+				file.write(self.baseArtist+" dbpedia-owl:currentMember :"+member[28:]+" .\n")
 
 	def parse_former_members(self, file):
 		if self.artist.formerMembers:
 			for member in self.artist.formerMembers:
-				file.write(self.baseArtist+" :formerMember :"+member[28:]+" .\n")
+				file.write(self.baseArtist+" dbpedia-owl:formerMember :"+member[28:]+" .\n")
 
 	def parse_thumbnail(self, file):
 		if self.artist.thumbnail:
@@ -114,10 +114,11 @@ class MusicMashupParser:
 				file.write(self.baseArtist+" mm:recommendedArtist :"+artist.get_name().replace(' ', '_')+" .\n")
 				file.write(":"+artist.get_name().replace(' ', '_')+" mm:voteValue "+str(artist.vote)+" .\n")
 				file.write(":"+artist.get_name().replace(' ', '_')+" mm:echonestFamiliarity "+str(artist.get_familiarity(justGet=True))+" .\n")
+				file.write(":"+artist.get_name().replace(' ', '_')+" dbpedia-owl:wikiPageRank "+str(artist.get_pagerank())+" .\n")
 				for reason in artist.reason:
 					prop = self._decode_reason(reason)
 					member = self._get_name_from_reason(reason)
-					file.write(":"+member.replace(' ', '_') + " " + prop + " " + artist.get_name().replace(' ', '_') + " .\n")
+					file.write(":"+member.replace(' ', '_') + " " + prop + " :" + artist.get_name().replace(' ', '_') + " .\n")
 
 	def parse_api_keys(self, file):
 		if self.artist.musicbrainzID:
@@ -134,14 +135,16 @@ class MusicMashupParser:
 
 	def _decode_reason(self, reason):
 		if "writer" in reason:
-			return ":writer"
+			return "dbpedia-owl:writer"
 		elif "producer" in reason:
-			return ":producer"
+			return "dbpedia-owl:producer"
+		elif "composer" in reason:
+			return "dbpedia-owl:composer"
 		elif "member" in reason:
 			if "is" in reason:
-				return ":currentMember"
+				return "dbpedia-owl:currentMember"
 			else:
-				return ":formerMember"
+				return "dbpedia-owl:formerMember"
 		else:
 			return ":WRONG"
 
@@ -152,6 +155,7 @@ class MusicMashupParser:
 		reason = reason.replace(' as ', '')
 		reason = reason.replace('writer.', '')
 		reason = reason.replace('producer', '')
+		reason = reason.replace('composer.', '')
 		reason = reason.replace(' is ', '')
 		reason = reason.replace('also', '')
 		reason = reason.replace(' a ', '')
@@ -159,6 +163,5 @@ class MusicMashupParser:
 		reason = reason.replace(' of', '')
 		reason = reason.replace(' this', '')
 		reason = reason.replace(' band.', '')
-		# print ("HIER SOLLTE NUR EIN NAME STEHEN::"+reason)
 		return reason
 

@@ -183,7 +183,7 @@ class MusicMashupArtist:
 				self.lastfm = line.split(' ',2)[2][1:-4]
 			elif 'discogs' in line:
 				self.discogs_url = line.split(' ',2)[2][1:-4]
-			elif 'dbpedia-owl:thumbnail' in line:
+			elif ':thumbnail' in line:
 				self.thumbnail = line.split(' ',2)[2][1:-4]
 			elif 'foaf:image' in line:
 				self.images.append(line.split(' ',2)[2][1:-4])
@@ -205,8 +205,11 @@ class MusicMashupArtist:
 				voteValue = float(line.split(' ', 2)[2][:-3])
 				line = file.next()
 				familiarity = float(line.split(' ', 2)[2][:-3])
+				line = file.next()
+				pagerank = float(line.split(' ', 2)[2][:-3])
 				artistObject = MusicMashupArtist(artist, voteValue)
 				artistObject.familiarity = familiarity	
+				artistObject.pagerank = pagerank
 				tempLine = line			
 				while 'mm:rec' not in tempLine and 'mm:song' not in tempLine:
 					tempLine = file.next()
@@ -222,6 +225,9 @@ class MusicMashupArtist:
 						artistObject.reason.append(reason)
 					elif 'writer' in tempLine:
 						reason = "Because " + tempLine.split(' ', 2)[0][1:].replace('_', ' ') + " was active as writer."
+						artistObject.reason.append(reason)
+					elif 'composer' in tempLine:
+						reason = "Because " + tempLine.split(' ', 2)[0][1:].replace('_', ' ') + " was active as composer."
 						artistObject.reason.append(reason)
 					# count += 1
 				self.recommendation.append(artistObject)
@@ -543,7 +549,8 @@ class MusicMashupArtist:
 
 	def get_dbpediaURL(self):
 		if not self.dbpediaURL:
-			self.dbpediaURL = self._pull_dbpedia_url()
+			self._pull_dbpedia_url()
+			return self.dbpediaURL
 		return self.dbpediaURL
 
 	def _pull_dbpedia_url(self):
@@ -565,19 +572,9 @@ class MusicMashupArtist:
 			for result in results["results"]["bindings"]:
 				if "dbpedia.org/resource" in result["o"]["value"]:
 					self.dbpediaURL = result["o"]["value"]
-
-			if self.dbpediaURL:
-				print("[+] Found dbpedia URL")
-				return 0
-			else:
-				# TODO wird nicht geprinted wenn keine dbpedia url
-				print ("[-] Could not find dbpedia URL")
-				return -1
-
 		except:
 			self.problem = "dbtune problem while fetching dbpedia url"
 			print("[-] dbtune problem while fetching dbpedia url")
-			return -1
 
 	def _pull_dbpedia_url_from_dbpedia(self):
 		try:
@@ -597,13 +594,6 @@ class MusicMashupArtist:
 				if "dbpedia.org/resource" in result["s"]["value"]:
 					self.dbpediaURL = result["s"]["value"]
 
-					if self.dbpediaURL:
-						print("[+] Found dbpedia URL")
-						return 0
-					else:
-						# TODO wird nicht geprinted wenn keine dbpedia url
-						print ("[-] Could not find dbpedia URL")
-						return -1
 		except:
 			print ("[-] error while pulling dbpediaURL from dbpedia")
 
