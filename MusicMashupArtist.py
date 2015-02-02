@@ -40,7 +40,7 @@ class MusicMashupArtist:
 	songkickApiKey = "BxSDhcU0tXLU4yHQ"
 
 	def __init__(self, query, voteValue = 0, reco = "", isSoloArtist = False):
-		self.starttime = time.clock()
+		self.starttime = time.time()
 
 		self.dbpediaURL = None
 		self.dbtuneURL = None
@@ -83,6 +83,7 @@ class MusicMashupArtist:
 		self.relatedSources = []
 
 		if isSoloArtist:
+			print ("[+] By Get-Param this Resource is a solo Artist")
 			self.soloArtist = True
 		else:
 			self.soloArtist = False
@@ -1385,7 +1386,7 @@ class MusicMashupArtist:
 
 
 	def current_load_time(self):
-		return time.clock()-self.starttime
+		return time.time()-self.starttime
 
 # run from console for test setup
 if __name__ == '__main__':

@@ -121,7 +121,7 @@
         <h4>Current Members</h4>
         <ul>
         % for member in artist.get_current_members():
-          <li><a href="/?query=${artist.get_dbpediaURL_link(member)}">${artist._uri_to_name(member)}</a></li>
+          <li><a href="/?query=${artist.get_dbpediaURL_link(member)}&soloartist=1">${artist._uri_to_name(member)}</a></li>
         % endfor
         % for member in artist.get_current_membersNR():
           <li>${member}</li>
@@ -133,7 +133,7 @@
         <h4>Former Members</h4>
         <ul>
         % for member in artist.get_former_members():
-          <li><a href="/?query=${artist.get_dbpediaURL_link(member)}">${artist._uri_to_name(member)}</a></li>
+          <li><a href="/?query=${artist.get_dbpediaURL_link(member)}&soloartist=1">${artist._uri_to_name(member)}</a></li>
         % endfor 
         % for member in artist.get_former_membersNR():
           <li>${member}</li>
