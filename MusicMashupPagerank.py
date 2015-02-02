@@ -16,7 +16,7 @@ class MusicMashupPagerank(object):
 
 	def get_pagerank(self, resource):
 		pagerank = None
-		if resource != -1:
+		if resource != -1 and resource != None:
 			print ("[~] Querying Pagerank for: "+resource)
 			try:
 				results = self.mygraph.query("""
