@@ -585,10 +585,12 @@ class MusicMashupArtist:
 		try:
 			sparql = SPARQLWrapper("http://dbpedia.org/sparql")
 			sparql.setQuery("""
+				PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+				PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 				SELECT ?s
 				WHERE {
 				?s rdfs:label \""""+self.get_name()+"""\"@en.
-				?s dbpedia-owl:background "group_or_band".
+				?s rdf:type dbpedia-owl:Band.
 				}
 				""")
 
@@ -599,8 +601,49 @@ class MusicMashupArtist:
 				if "dbpedia.org/resource" in result["s"]["value"]:
 					self.dbpediaURL = result["s"]["value"]
 
-		except:
+			if not self.dbpediaURL: 
+				sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+				sparql.setQuery("""
+					PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+					PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+					SELECT ?s
+					WHERE {
+					?s rdfs:label \""""+self.get_name()+"""\"@en.
+					?s rdf:type dbpedia-owl:MusicalArtist.
+					}
+					""")
+
+				sparql.setReturnFormat(JSON)
+				results = sparql.query().convert()
+
+				for result in results["results"]["bindings"]:
+					if "dbpedia.org/resource" in result["s"]["value"]:
+						self.dbpediaURL = result["s"]["value"]
+
+			if not self.dbpediaURL: 
+				sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+				sparql.setQuery("""
+					PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+					PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+					SELECT ?s
+					WHERE {
+					?s rdfs:label \""""+self.get_name()+"""\"@en.
+					?s rdf:type dbpedia-owl:Artist.
+					}
+					""")
+
+				sparql.setReturnFormat(JSON)
+				results = sparql.query().convert()
+
+				for result in results["results"]["bindings"]:
+					if "dbpedia.org/resource" in result["s"]["value"]:
+						self.dbpediaURL = result["s"]["value"]
+
+			if not self.dbpediaURL: 
+				print ("[-] Could not find dbpediaURL from dbpedia")
+		except Exception as e:
 			print ("[-] error while pulling dbpediaURL from dbpedia")
+			print type(e)
 
 	# ========================================================================================
 	# RELATED get and _pull
