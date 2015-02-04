@@ -8,6 +8,7 @@ from MusicMashupArtist import MusicMashupArtist
 # template gedoens
 from mako.template import Template
 from mako.lookup import TemplateLookup
+from titlecase import titlecase
 
 # fuer history generation
 from urllib import quote_plus
@@ -41,6 +42,9 @@ class MusicMashupServer(object):
 			# new search -> new breadcrumbs
 			if not query[:4] == "http":
 				cherrypy.session['history'] = []
+
+				# also, if name rather than query, convert to titlecase
+				query = titlecase(query)
 
 			# append newest query to list, template will determine if it's a URI or name
 			if not (len(cherrypy.session['history']) > 0 and cherrypy.session['history'][-1] == query):

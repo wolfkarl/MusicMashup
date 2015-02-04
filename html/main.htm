@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="">
   <meta name="author" content="">
-  <link rel="icon" href="../../favicon.ico">
+  <link rel="icon" type="image/png" href="static/favicon.png">
 
   <title>Music Mashup: ${artist.get_name()}</title>
 
@@ -219,7 +219,11 @@
         })
 
       $(window).load(function() {
-        $('#slider').nivoSlider();});
+        $('#slider').nivoSlider({
+          effect: 'fade',
+          controlNav: false
+        });
+      });
     </script>
 
   </body>
