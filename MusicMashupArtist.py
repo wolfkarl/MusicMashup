@@ -134,7 +134,7 @@ class MusicMashupArtist:
 			self.reason.append(reco)
 			
 		fileExists = False
-		self.filepath = "dumps/"+self.name.lower().replace(' ', '_')+".ttl"
+		self.filepath = "dumps/"+self.name.lower().replace(' ', '_').replace('/', '')+".ttl"
 		fileExists = os.path.exists(self.filepath)
 		print ("FILEPATH = "+self.filepath +" :: "+ str(fileExists))
 
@@ -241,7 +241,6 @@ class MusicMashupArtist:
 
 	def start_parser(self):
 		self.parser.start(self)
-		# pass
 
 	def _find_resources(self):
 		self._pull_dbtune()

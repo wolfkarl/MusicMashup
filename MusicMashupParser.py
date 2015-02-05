@@ -14,7 +14,7 @@ class MusicMashupParser:
 	def start(self, artistObject):
 		self.artist = artistObject
 		self.baseArtist = ":" + str(self.artist.get_name().replace(' ', '_'))
-		filename = self.artist.get_name().lower().replace(' ', '_') + ".ttl"
+		filename = self.artist.get_name().lower().replace(' ', '_').replace('/', '') + ".ttl"
 		filepath = "dumps/"+filename
 		if os.path.exists(filepath):
 			creationTime = os.path.getctime(filepath)
