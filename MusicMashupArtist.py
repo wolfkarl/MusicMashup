@@ -47,23 +47,28 @@ class MusicMashupArtist:
 
 	def __init__(self, query, voteValue = 0, reco = "", isSoloArtist = False):
 
+		# In order to get a loading time for the artist
 		self.starttime = time.time()
 
 		self.dbpediaURL = None
 		self.dbtuneURL = None
 		self.musicbrainzID = 0
+
 		self.echoNestArtist = None
 		self.spotifyID = 0
 		self.songkickID = 0
+
 		self.state = 0
 		self.problem = ""
+
 		self.eventsJSON = None
 		self.events = []
 		self.eventLinks = []
+		
 		self.recommendation = []
 		self.reason = []
-
 		self.related = []
+
 		self.abstract = ""
 
 		self.dbpedia_set = 0
@@ -83,12 +88,18 @@ class MusicMashupArtist:
 		self.twitter = ""
 		self.twitterUsername = ""
 
+		# Array with current/former Members of the artist
 		self.currentMembers = []
 		self.formerMembers = []
+
+		# NR stands for 'No Resource'
+		# In case, that a the endpoints returns members that are just strings and do not have a dbpedia-resource
+		# They are also saved, in order to still show them under 'Members', but without link
 		self.formerMembersNR = []
 		self.currentMembersNR = []
-		self.relatedSources = []
 
+
+		# when a members is clicked, this is TRUE. than we can be sure, that the artist is a solo artist
 		if isSoloArtist:
 			print ("[+] By Get-Param this Resource is a solo Artist")
 			self.soloArtist = True
@@ -99,7 +110,8 @@ class MusicMashupArtist:
 		self.thumbnail = None
 		self.images = []
 
-		self.input = ""
+
+		
 		self.manualQuery = False
 		if voteValue != 0:
 			self.vote = voteValue
@@ -110,12 +122,15 @@ class MusicMashupArtist:
 		self.filepath = ""
 
 		self.pagerank = None
-		self.pagerankParser = None
 
 		print "[+] Vote increased in constructor by: ",voteValue
 
 		query = urllib.unquote(query)
 
+		# if a titlecased input does not get us a resource, we try again with original cased query
+		# therefore we save the original input 
+		# eg.: 'MGMT'
+		self.input = ""
 
 		if query[:4] == "http":
 			self.name = self._uri_to_name(query)
@@ -244,10 +259,6 @@ class MusicMashupArtist:
 
 	def _find_resources(self):
 		self._pull_dbtune()
-		
-		# hier mit Fallback anfangen
-
-		# print (not self.dbtuneURL)
 
 		if not self.dbtuneURL:
 			print ("[-] Could not find Resource on DBTune => Trying with musicbrainz dump now")
@@ -266,6 +277,9 @@ class MusicMashupArtist:
 		else:
 			if self.dbtuneURL and not self.dbpediaURL:
 				self._pull_dbpedia_url()
+			if not self.dbpediaURL:
+				print ("[~] Found DBTune but not dbpedia --> Trying again for DBPedia")
+				self._pull_dbpedia_url_from_dbpedia()
 
 		if self.dbpediaURL:
 			self._pullThumbnail()
@@ -656,7 +670,6 @@ class MusicMashupArtist:
 			self.related = []
 			self.currentMembers = []
 			self.formerMembers = []
-			self.relatedSources = []
 			self._pull_related()
 
 		# Voting starts here
