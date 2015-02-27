@@ -1,17 +1,24 @@
-Diskussion der erzielten Ergebnisse
+\section{Diskussion der erzielten Ergebnisse}
+
+%todo: aufsplitten
 
 Durch den im vorherigen Absatz beschriebenen Ansatz ist es gelungen, mit dem MusicMashup-Recommender einen vollwertigen Recommender-Dienst vorweisen zu können. Da es im Internet einige Music-Recommender-Dienste gibt (vgl. das Kapitel Related Work), stellt sich die Frage, inwiefern sich dieses Produkt von anderen abhebt. Zumal neben dedizierten Empfehlungsdiensten auch viele andere Dienste (Spotify, Grooveshark, Youtube, Amazon u.v.m.)  eine Empfehlungslogik eingebaut haben.
+
 Ein wichtiges, wenn nicht das wichtigste Alleinstellungsmerkmal, ist der Ansatz, eine Nachvollziehbarkeit für den Nutzer, aus welchen Gründen Empfehlungen zu einem Interpret gefunden wurden, bereitzustellen. Dies kann außer durch manuelle Suche in großen Musikdatenbanken wie beispielsweise discogs so nicht mit anderen Recommendation-Diensten erreicht werden.
+
 Im Falle von Musik zielen Recommendation-Dienste meistens darauf ab, dem Nutzer “ähnliche” Musik vorzuschlagen und ihm dadurch zu zeigen, welche Interpreten zu dem gesuchten Interpret oft in Verbindung gebracht werden, beziehungsweise bei welchen Interpreten sich die Geschmäcker einer Vielzahl von Hörern überschneiden.
 Der Ansatz des MusicMashup-Recommenders ist da deutlich pragmatischer, da direkte Verknüpfungen der Mitglieder einer Band oder eines Solo-Artisten als Grund dienen, einen Interpreten vorzuschlagen.
 Das Ziel ist es aber auch, mit dem MusicMashup-Recommender eine Zielgruppe zu erreichen, die eher als musikaffin zu bezeichnen ist und sich für die Hintergründe interessiert und nicht einfach nur neue ähnliche Musik entdecken will. Deshalb wurde bei der Entwicklung darauf Wert gelegt, dem Nutzer die Gründe für einen Vorschlag gut sichtbar und verständlich anzuzeigen.
 
+\subsection{Bedienung}
+
 Neben der Art der Vorschläge ist ein weiterer Ansatz [g]des MusicMashup-Recommenders, die Bedienung so dynamisch[h][i] wie möglich zu gestalten. So ist es möglich, auf alle vorgeschlagenen Interpreten aber auch Bandmitglieder zu klicken, um wiederum Vorschläge für diesen Interpreten zu erhalten. Es werden also nicht nur für eine getätigte Eingabe Empfehlungen ausgegeben, sondern man erlangt durch Anklicken eben dieser Empfehlungen erneut Informationen zu diesen. Dies soll den Nutzer dazu einladen, unbekannte Zusammenhänge zu entdecken und das Wirken von Bands oder Solokünstlern, die ihn interessieren anhand von Gründen nachzuvollziehen. Durch die prominent platzierte Anzeige eines Pfades, der Breadcrumb-ähnlich dargestellt wird, soll ermöglicht werden, dass der Nutzer auch nach längerem Entdecken noch die Möglichkeit hat, nachzuvollziehen, wie er zu dem aktuellen Interpreten gelangt ist und gegebenenfalls zu einem Artist des Pfades zurückspringen kann, sollte er sich nicht weiter in die eingeschlagene Richtung vertiefen wollen.
- breadcrumbs.png 
+% breadcrumbs.png 
 
 Da dieses Produkt sich mit Musik beschäftigt, stand der Anspruch immer im Vordergrund, dem Nutzer direkt das Hören der Musik eines Interpreten zu ermöglichen. Nach längerer Evaluation viel die Wahl auf Spotify als Anbieter. Dies schränkt zwar die Zielgruppe ein, da ein Account erforderlich ist, allerdings ist Spotify einer, wenn nicht der etablierte Musikdienst zum kostenlosen Musikhören. Außerdem bietet Spotify zu fast jedem Künstler eine große Auswahl an Musik. Entscheidend für die Wahl von Spotify war vor allen Dingen auch, dass es trotz einfacher Einbindung in die UI einen vom Browser entkoppelten Weg ermöglicht, Musik abzuspielen. Dies bietet den entscheidenden Vorteil, dass Musik im Hintegrund weiterläuft, auch wenn im Browser neue Künstler angeklickt werden. Eine solche Verknüpfung des tatsächliche Hörens von vorgeschlagenen Künstlerns im Zusammenspiel mit der ständigen Möglichkeit parallel dazu weitere Relationen zu entdecken, ist in einer solchen Form schwer zu finden.
 
 
+\subsection{Zusätzliche Informationen}
 Zusätzlich zu den Vorschlägen, der Bedienung und der ständigen Möglichkeit, die Künstler auch anzuhören, zeichnet sich der MusicMashup-Recommender dadurch aus, dass er dem Nutzer Zusätzliche Informationen übermittelt, die interessant sind, sobald er sich zu einem Artisten genauer informieren will. Eine Liste der aktuellen und ehemaligen Bandmitglieder, welche auch einzeln anklickbar sind, sodass das System gleichermaßen für Bands, wie auch für Bandmitglieder und Solokünstler funktioniert, findet man bei anderen Music-Recommendern selten in dieser Art, was MusicMashup durchaus von anderen Empfehlungsdiensten abhebt. 
 Neben dem in fast allen Diensten angezeigten Abstract hat der Nutzer mit dem MusicMashup-Recommender die Möglichkeit bei Bedarf durch Links zu anderen Musikrelatierten Diensten weitere Informationen über den Interpret zu erlangen. Dabei werden (jeweils wenn vorhanden) neben der Wikipedia, der offiziellen Website eines Künstlers und dem www.myspace.com-Profil sowohl www.discogs.com (sehr genau gepflegte Datenbank über Diskographien von Musikern), als auch www.last.fm als weiterer Recommender verlinkt. Für Songtexte steht ein Link zu www.musixmatch.com bereit. Außerdem wird das www.twitter.com Profil verlinkt. Um einen Überblick über aktuelle Live-Events zu gewähren, werden außerdem noch anstehende Konzerte direkt in der UI angezeigt, die jeweils einen Link auf www.songkick.com enthalten.
 
@@ -19,29 +26,27 @@ Neben dem in fast allen Diensten angezeigten Abstract hat der Nutzer mit dem Mus
 Insgesamt stehen dem Nutzer so viele Möglichkeiten und weitere Schritte zur Verfügung, einen Künstler zu ergründen. Im Gegensatz zu dem eher statischen Ausliefern an Vorschlägen und der Möglichkeit einzelne Lieder anzuhören, bietet MusicMashup-Recommender eher den Reiz, weiter auf dieser Plattform Musik zu erkunden, anstatt nach einmaliger Info zu einem Künstler zufrieden zu sein. Durch die Entkopplung von Musik und Browser ist auch ein Weitererkunden möglich, während die Musik weiterläuft.
 
 
+\subsection{Voting}
 Einer der Aspekte, die sicherlich noch großes Verbesserungspotential bergen, ist der Voting-Algorithmus und die teilweise fehlende Aussagekraft einer vorgeschlagenen Relation. Auf Grund der großen Variationen an Vorschlägen (wenige bzw. gar keine bis hin zu über 100 (z.B. Bob Dylan)) und einer tewilweise zufälllig wirkenden Anordnung bedarf der Voting-Algorithmus einer Überarbeitung beziehungsweise Ergänzung. Die Pageranks aus der dbpedia und der familiarity-Wert der Echonest-API dienen zwar in der Theorie als guter Indikator für die Bekanntheit eines Interpreten, allerdings kann dies auch eine verwirrende Wirkung haben, wenn ein Interpret mit einer eigentlich unwichtigen Begründung[j][k] durch seine Bekanntheit nahezu immer oben gelistet wird. Eine erneute Evaluation der Werte, die für einen gefundenen Grund berechnet werden, wird hier von Nöten sein. Es ist schwierig, einen ausgewogenen, generischen Voting-Algorithmus von Beginn an vorweisen zu können, da dieser viel getestet und angepasst werden muss und einige edge-cases erst nach einiger Zeit auffallen.
 
 
 Neben der teilweise ungenauen Bewertung der Gründe gibt es auch noch semantisches Ergänzungspotential, welches in Zukunft noch implementiert werden wird. So sollten zum Beispiel Artisten, die zwar mehrere Begründungen enthalten, die aber alle von der gleichen Person stammen, weniger zählen, als Bands, bei denen diese alle von unterschiedlichen Personen stammen. Dies erfordert allerdings eine Neuimplementierung der Datenstruktur der  Begründungen (diese werden derzeit nur als Strings in Textform abgespeichert), um dies generisch zu ermöglichen und war bis zum jetzigen Zeitpunkt noch nicht möglich.
 
-
+\subsection{Fallback für unbekannte Interpreten}
 Ein Nachteil gegenüber anderen Music-Recommender-Diensten ist außerdem, dass bei Interpreten, deren Mitglieder oder welche selbst nicht noch anderweitig tätig waren, gar keine Vorschläge gefunden werden können. Hier wäre es denkbar, stattdessen Related-Artists anzuzeigen, die zum Beispiel Spotify oder Echonest über ihre API liefern, oder die dbpedia selbst als associatedMusicalArtist listet. Allerdings würde dies dem eigentlichen Ansatz widersprechen, nur aus klar erkennbaren Gründen Bands vorzuschlagen. Sollte diese Lösung trotzdem Anwendung finden, um zu verhindern, dass man an einem toten Ende des Recommenders anlangen kann, so müsste dies allerdings erkenntlich gemacht werden.
 
-
 Ein weiterer Punkt, welcher den MusicMashup-Recommender zusätzlich mit am meisten einschränkt, ist die Unvollständigkeit gerade bei unbekannteren oder neueren Musikern. Da als Musikdatenquelle ein nur eingeschränkt vollständiges Mapping der an sich umfangreichen Musikatenbank musicbrainz dient, welches durch ein Fallback mit einem weiteren Dump ergänzt wird, welches Wiederum eine Verlinkung zur dbpedia vermissen lässt, kommt es oft zu leeren Seiten. Für einige Fälle konnte hier eine Lösung gefunden werden, trotzdem Ergebnisse zu liefern, allerdings gab es leider keine generische.
-Das ist eine sehr große Einschränkung der Nutzbarkeit. Die Abhängigkeit von der Vollständigkeit und Genauigkeit der benutzten Datensätze wird hier sehr gut deutlich. Neben vielen Vorteilen, die das Benutzen von Linked Open Data mit sich bringt, zeigt sich hier, dass es sehr wünschenswert wäre, wenn weitere Datenbanken zu kompletten Themengebieten - wie zum Beispiel Musik - in Linked Data vorliegen würden.
 
+
+\subsection{Linked Data}
+Das ist eine sehr große Einschränkung der Nutzbarkeit. Die Abhängigkeit von der Vollständigkeit und Genauigkeit der benutzten Datensätze wird hier sehr gut deutlich. Neben vielen Vorteilen, die das Benutzen von Linked Open Data mit sich bringt, zeigt sich hier, dass es sehr wünschenswert wäre, wenn weitere Datenbanken zu kompletten Themengebieten - wie zum Beispiel Musik - in Linked Data vorliegen würden.
 
 Generell allerdings hat das Benutzen von Linked-Data-Quellen und dem Folgen des Linked Data Ansatzes den großen Vorteil, dass die Daten bereits von Anfang an standardisiert, maschinenlesbar kodiert und verlinkt sind.
 
-
 So ist das Zusammenführen der Arten simpel und die Programmierung nicht davon abhängig, für jede verwendete API die Daten selbst in das gewünschte Format zu überführen. Auch der Kontext muss nicht manuell und fehleranfällig selbst hergestellt werden, etwa durch Suchen, sondern war von vornherein bekannt. Hierdurch konnte der Fokus bei der Programmierung von Anfang an auf die Arbeit mit den Daten gelegt werden. Bei der Verwendung anderer Quellen hätte man diese zunächst noch verarbeiten und selbst standardisieren müssen, um überhaupt mit ihnen umgehen zu können.
-
 
 Auch der Fakt, dass es sich bei Linked-Data-Datenquellen um  offene Datenquellen handelt, hat die Arbeit wesentlich erleichtert und beschleunigt, da keine Schlüssel oder ähnliches für die Verwendung proprietärer APIs beschafft und implementiert werden mussten. 
 
-
 Als hilfreich stellte sich auch heraus, dass für RDF und SPARQL bereits Bibliotheken existierten, auf die bei der Programmierung zurückgegriffen werden konnte.
-
 
 Besonders hilfreich war, dass die Verlinkung zwischen einzelnen Ressourcen jeweils in einem Kontext standen. Dies machte es einfach, für die ausgegebenen Empfehlungen einen Kontext zu liefern, was ein Kernkonzept von MusicMashup ist.[l][m][n]

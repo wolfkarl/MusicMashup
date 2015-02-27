@@ -4,12 +4,13 @@
 \subsection{Linked Data}
 
 Der Begriff “Linked Data” beschreibt eine Menge an Prinzipien, wie Daten im Internet strukturiert, publiziert und verlinkt werden sollten. Entwickelt worden sind diese von Tim Berners-Lee, der sie 2006 in seinem Bericht “Linked Data” (Q1) veröffentlichte. Die Grundidee dabei ist, sich dafür die Architektur des Internets zunutze zu machen. Im Wesentlichen handelt es sich dabei um vier Punkte:
-1. Verwende zur Bezeichnung von Objekten URIs.
-2. Verwende HTTP-URIs, so dass sich die Bezeichnungen nachschlagen lassen.
-3. Stelle zweckdienliche Informationen bereit, wenn jemand eine URI nachschlägt (mittels der Standards RDF und SPARQL).
-4. Zu diesen Informationen gehören insbesondere Links auf andere URIs, über die weitere Objekte entdeckt werden können.
-(Zitiert nach Q2)
-
+\begin{enumerate}
+\item Verwende zur Bezeichnung von Objekten URIs.
+\item Verwende HTTP-URIs, so dass sich die Bezeichnungen nachschlagen lassen.
+\item Stelle zweckdienliche Informationen bereit, wenn jemand eine URI nachschlägt (mittels der Standards RDF und SPARQL).
+\item Zu diesen Informationen gehören insbesondere Links auf andere URIs, über die weitere Objekte entdeckt werden können.
+\end{enumerate}
+% (Zitiert nach Q2)
 
 Das erste Prinzip besagt, dass URIs nicht nur benutzt werden sollen, um Dokumente im Internet verfügbar zu machen. Jede Form von Objekten oder Entitäten soll eindeutig über eine URI identifizierbar sein, handele es sich um eine Person, einen spezifischen Gegenstand oder allgemein “Dinge”.
 
@@ -25,43 +26,45 @@ Das vierte Prinzip plädiert für die Benutzung von Hyperlinks zur Verlinkung ei
 
 \subsection{RDF}
 
-
 Wie bereits beschrieben, handelt es sich bei dem “Resource Description Framework” um ein Graph-basiertes Datenmodell zur Strukturierung von Daten. Die Daten werden dabei in Tripeln organisiert und bilden einen gerichteten Graphen. Ein Tripel besteht aus Subjekt, Prädikat und Objekt und bildet die Struktur eines simplen Satzes ab. Solch ein simpler Satz könnte wie folgt aussehen:
 
-
-{\tt Led Zeppelin (S) ist (P) eine Band (O).}
+\begin{lstlisting}
+ Led Zeppelin (S) ist (P) eine Band (O).
+\end{lstlisting}
 
 
 Das Subjekt eines Tripels ist eine URI, die die Ressource eindeutig identifiziert. Beim Objekt kann es sich um ein Literal, zum Beispiel eine Nummer oder einen String, oder um eine URI handeln, die mit dem Subjekt in Verbindung steht. Das Prädikat spezifiziert in welcher Form Subjekt und Objekt miteinander in Verbindung stehen. Thematisch zusammenhängende Prädikate werden in so genannten Ontologien spezifiziert, wobei auch jedes Prädikat über eine URI dereferenzierbar ist.
 
-
 Der Satz aus dem obigen Beispiel (“Led Zeppelin” ist vom “Typ” “Band”) wird in der DBPedia folgendermaßen dargestellt:
 
-
-\verb http://dbpedia.org/resource/Led_Zeppelin (S) http://www.w3.org/1999/02/22-rdf-syntax-ns\#type (P) http://dbpedia.org/ontology/Band (O)
-(Q3)
+\begin{lstlisting}
+http://dbpedia.org/resource/Led_Zeppelin (S) 
+  http://www.w3.org/1999/02/22-rdf-syntax-ns#type (P)
+  http://dbpedia.org/ontology/Band (O)
+\end{lstlisting}
+% (Q3)
 Hierbei ist noch zu erwähnen, dass URLs, vor allem solche, die öfter vorkommen, im rdf-Format durch präfixe ersetzt werden können. http://www.w3.org/1999/02/22-rdf-syntax-ns\# wird dann zum Beispiel zum Präfix “rdf:”; Ressourcen aus der DbPedia können durch “dbpedia:” dargestellt werden.
 Das genannte Beispiel sieht dann derart aus:
 
-\verb dbpedia:Led_Zeppelin (S) rdf:type (P) dbpedia-owl:Band (O)
+\begin{lstlisting}
+dbpedia:Led_Zeppelin (S) rdf:type (P) dbpedia-owl:Band (O)
+\end{lstlisting}
 
 In dieser Ausarbeitung werden wir der Lesbarkeit halber ebenfalls gängige Präfixe für Ontologien benutzen. Diese sind:
-[Latex-Liste]
-* dbpprop: <http://dbpedia.org/property/>
-* dbpedia-owl: <http://dbpedia.org/ontology/>
-* rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns\#>
-* rdfs: <http://www.w3.org/2000/01/rdf-schema\#>
-* mo: <http://purl.org/ontology/mo/>
-* foaf: <http://xmlns.com/foaf/0.1/>
-* owl: <http://www.w3.org/2002/07/owl\#>
- 
+\begin{itemize}
+\item dbpprop: \tt <http://dbpedia.org/property/>
+\item dbpedia-owl: \tt <http://dbpedia.org/ontology/>
+\item rdf: \tt <http://www.w3.org/1999/02/22-rdf-syntax-ns\#>
+\item rdfs:\tt <http://www.w3.org/2000/01/rdf-schema\#>
+\item mo: \tt <http://purl.org/ontology/mo/>
+\item foaf: \tt <http://xmlns.com/foaf/0.1/>
+\item owl: \tt <http://www.w3.org/2002/07/owl\#>
+\end{itemize}
+
 \subsection{DBpedia}
 
-
 Bei der DBpedia handelt es sich um ein offenes Projekt, dessen Ziel es ist, die in der Wikipedia zusammengetragenen Daten nach der RDF Spezifikation zu strukturieren und unter offener Lizenz zu veröffentlichen (Q4). Sie besteht seit 2007 und ist eines der größten Projekte, das sich mit Linked Data befasst. Aufgrund ihrer Größe, des breiten Spektrums an Informationen, welche abgedeckt werden, und der Anzahl der Verlinkungen zu anderen Datensätzen, bildet die DBpedia einen großen Knotenpunkt im Web of Data und ist demzufolge eine gute Grundlage für die Erstellung eines Linked Data Mashups.
-(Q14 Linked Data schaubild als quelle)
-
-
+% (Q14 Linked Data schaubild als quelle)
 
 
 \subsection{Existierende Empfehlungsdienste}
