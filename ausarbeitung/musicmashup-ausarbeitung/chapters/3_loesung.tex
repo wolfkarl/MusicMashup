@@ -38,24 +38,11 @@ Die Klasse $MusicMashupPagerank$ wird einmalig beim Aufruf der Anwendung instanz
 
 \subsection{Datensätze}
 
-Musicbrainz verwendet IDs, um Artists eindeutig zu identifizieren. Diese IDs wurden von vielen anderen Musikdiensten zur Identifikation von Artists übernommen. Um diese zu erhalten wird eine Anfrage auf DBTune (siehe Q12 Alle anderen Datenquellen brauchen auch noch n Link/Quelle)[d] gestellt. Dabei handelt es sich um ein Linked Data Mapping der Musicbrainz Datenbank. Bei einer erfolgreichen Abfrage erhält das System die MusicbrainzID und über owl:sameAs den Link zur entsprechenden DBPedia Ressource. Da DBTune jedoch nicht vollständig ist (zum Beispiel enthält DBTune keinen Eintrag für die Band "Them Crooked Vultures"), wird als Fallback ein Linked Data Dump der Musicbrainz Datenbank benutzt. Zwar gibt es in vielen Fällen, in denen es keinen Eintrag auf DBTune gibt, einen Eintrag im Musicbrainz Dump, jedoch hält der Dump keinen Verweis auf DBPedia, weswegen er schlussendlich nur als Fallback zum Einsatz kommt.
+Musicbrainz verwendet IDs, um Artists eindeutig zu identifizieren. Diese IDs wurden von vielen anderen Musikdiensten zur Identifikation von Artists übernommen. Um diese zu erhalten wird eine Anfrage auf DBTune (siehe Q12 Alle anderen Datenquellen brauchen auch noch n Link/Quelle)[d] gestellt. Dabei handelt es sich um ein Linked Data Mapping der Musicbrainz Datenbank. Bei einer erfolgreichen Abfrage erhält das System die MusicbrainzID und über owl:sameAs den Link zur entsprechenden DBPedia Ressource. Da DBTune jedoch nicht vollständig ist (zum Beispiel enthält DBTune keinen Eintrag für die Band ,,Them Crooked Vultures''), wird als Fallback ein Linked Data Dump der Musicbrainz Datenbank benutzt. Zwar gibt es in vielen Fällen, in denen es keinen Eintrag auf DBTune gibt, einen Eintrag im Musicbrainz Dump, jedoch hält der Dump keinen Verweis auf DBPedia, weswegen er schlussendlich nur als Fallback zum Einsatz kommt.
 Als Hauptdatenquelle kommt DBPedia zum Einsatz. Von der DBPedia erhält unser System zu einem Interpreten den Abstract, eine Liste der aktuellen und ehemaligen Bandmitglieder sowie ein Thumbnail.[e][f]
 Um die bereits vorher genannten zusätzlichen Informationen und Funktionen bereitzustellen, musste auf Datenquellen zurückgegriffen werden, die nicht im Linked Data Format vorliegen. Dazu gehören Spotify (Q8) für den Musikplayer, Songkick (Q9) für zukünftige Konzerte und Echonest (Q10). Echonest dient einerseits als Schnittstelle zu den anderen APIs, andererseits liefert es auch einen sogenannten “Familiarity”-Wert, welcher benutzt wird, um die Relevanz der gefunden Empfehlungen zu bewerten (dazu später mehr).
 Weiterhin kommen die DBPedia-Commons (siehe http://commons.dbpedia.org/) sowie ein Dump der DBPedia-Pageranks zum Einsatz. DBPedia-Commons stellt die Wikimedia-Commons als Linked Data bereit. Diese werden benutzt, um zu einer Band Bilder in einer Bildergallerie bereit zu stellen, sollten welche vorliegen. 
 Der Dump der DBPedia-Pageranks, welcher von der Semantic-Technologies-Forschungsgruppe des Hasso-Plattner-Instituts bereitgestellt wurde, hält für jede DBPedia-Ressource einen Eintrag über ihren Pagerank. MusicMashup verwendet diesen Dump, reduziert auf Ressourcen mit dem rdf:type Band, MusicalArtist bzw. Artist.
-(Q16: Citation
-If you are using any of these datasets please cite as:
-
-
-{dbpedia-graphmeasures,
-Author = {Dinesh Reddy, Magnus Knuth, Harald Sack},
-Title = {DBpedia GraphMeasures},
-Location = {http://semanticmultimedia.org/node/6},
-Resource type = {dataset},
-Publisher = {Hasso Plattner Institute},
-Publication date = {July 2014},
-})
-
 
 \subsection{Funktionsweise}
 

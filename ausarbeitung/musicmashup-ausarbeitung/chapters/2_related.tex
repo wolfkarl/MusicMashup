@@ -38,20 +38,22 @@ Das Subjekt eines Tripels ist eine URI, die die Ressource eindeutig identifizier
 Der Satz aus dem obigen Beispiel (“Led Zeppelin” ist vom “Typ” “Band”) wird in der DBPedia folgendermaßen dargestellt:
 
 
-{\tt http://dbpedia.org/resource/Led_Zeppelin (S) http://www.w3.org/1999/02/22-rdf-syntax-ns#type (P) http://dbpedia.org/ontology/Band (O)}
+\verb http://dbpedia.org/resource/Led_Zeppelin (S) http://www.w3.org/1999/02/22-rdf-syntax-ns\#type (P) http://dbpedia.org/ontology/Band (O)
 (Q3)
-Hierbei ist noch zu erwähnen, dass URLs, vor allem solche, die öfter vorkommen, im rdf-Format durch präfixe ersetzt werden können. http://www.w3.org/1999/02/22-rdf-syntax-ns# wird dann zum Beispiel zum Präfix “rdf:”; Ressourcen aus der DbPedia können durch “dbpedia:” dargestellt werden.
+Hierbei ist noch zu erwähnen, dass URLs, vor allem solche, die öfter vorkommen, im rdf-Format durch präfixe ersetzt werden können. http://www.w3.org/1999/02/22-rdf-syntax-ns\# wird dann zum Beispiel zum Präfix “rdf:”; Ressourcen aus der DbPedia können durch “dbpedia:” dargestellt werden.
 Das genannte Beispiel sieht dann derart aus:
-dbpedia:Led_Zeppelin (S) rdf:type (P) dbpedia-owl:Band (O)
+
+\verb dbpedia:Led_Zeppelin (S) rdf:type (P) dbpedia-owl:Band (O)
+
 In dieser Ausarbeitung werden wir der Lesbarkeit halber ebenfalls gängige Präfixe für Ontologien benutzen. Diese sind:
 [Latex-Liste]
 * dbpprop: <http://dbpedia.org/property/>
 * dbpedia-owl: <http://dbpedia.org/ontology/>
-* rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-* rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+* rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns\#>
+* rdfs: <http://www.w3.org/2000/01/rdf-schema\#>
 * mo: <http://purl.org/ontology/mo/>
 * foaf: <http://xmlns.com/foaf/0.1/>
-* owl: <http://www.w3.org/2002/07/owl#>
+* owl: <http://www.w3.org/2002/07/owl\#>
  
 \subsection{DBpedia}
 
