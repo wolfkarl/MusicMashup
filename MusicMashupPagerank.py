@@ -9,9 +9,9 @@ class MusicMashupPagerank(object):
 
 
 	def __init__(self):
-		self.mygraph = rdflib.Graph()
+		self.pagerankGraph = rdflib.Graph()
 		print ("[*] Starting to parse pagerank-turtle-file")
-		self.mygraph.parse('data/pagerank.ttl', format='n3')
+		self.pagerankGraph.parse('data/pagerank.ttl', format='n3')
 		print ("[*] Finished parsing")
 
 	def get_pagerank(self, resource):
@@ -19,7 +19,7 @@ class MusicMashupPagerank(object):
 		if resource != -1 and resource != None:
 			print ("[~] Querying Pagerank for: "+resource)
 			try:
-				results = self.mygraph.query("""
+				results = self.pagerankGraph.query("""
 					PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
 					SELECT DISTINCT ?rank WHERE {
 					<"""+resource+"""> dbpedia-owl:wikiPageRank ?rank
