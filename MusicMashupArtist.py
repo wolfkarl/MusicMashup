@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-""" Repraesentiert einen Artist und alle dazugehoerigen Informationen. 
-
-	Attribute werden immer ueber einen Getter angesprochen, beim ersten Aufruf wird ueber RDF gefetched. """
+# Repraesentiert einen Artist und alle dazugehoerigen Informationen. 
+#
+# Written By: Dennis Hempfing, Paul WilleKarl Wolf
+# Hasso-Plattner-Institut
+# During to Seminar: "Linked Data Mashup Applications" WS 2014/15
 from SPARQLWrapper import SPARQLWrapper, JSON
 
 import re
@@ -24,8 +26,9 @@ from pyechonest import artist
 from MusicMashupParser import MusicMashupParser
 from MusicMashupPagerank import MusicMashupPagerank
 
-#
+
 # Global Values
+# These are the values of each relation
 cMcurrentBandVote = 3
 fMcurrentBandVote = 1.5
 cMformerBandVote  = 2
@@ -38,13 +41,15 @@ cMcomposer = 0.8
 fMcomposer = 0.4
 
 class MusicMashupArtist:
-	# d = discogs_client.Client('ExampleApplication/0.1')
-
 	# staic Instances that are needed by every MusicMashupArtist object
 	parser = MusicMashupParser()
 	pagerankParser = MusicMashupPagerank()
 	songkickApiKey = "BxSDhcU0tXLU4yHQ"
 
+	# query can be a user-input, or a dbpedia-resource
+	# votevalue, see global values
+	# reco is a string that describes the reason, why an artist was found
+	# isSoloArtist is set true in constructor , if a bandmember is clicked
 	def __init__(self, query, voteValue = 0, reco = "", isSoloArtist = False):
 
 		# In order to get a loading time for the artist
@@ -53,21 +58,21 @@ class MusicMashupArtist:
 		self.dbpediaURL = None
 		self.dbtuneURL = None
 		self.musicbrainzID = 0
+		self.dbpediaCommonsURL = None
 
 		self.echoNestArtist = None
 		self.spotifyID = 0
 		self.songkickID = 0
 
-		self.state = 0
-		self.problem = ""
 
 		self.eventsJSON = None
 		self.events = []
 		self.eventLinks = []
 		
+		# Every related artist, that is found, is saved in this list
 		self.recommendation = []
+		# a list of strings that describes the reason, why this artist was found (by another artist)
 		self.reason = []
-		self.related = []
 
 		self.abstract = ""
 
@@ -94,41 +99,44 @@ class MusicMashupArtist:
 
 		# NR stands for 'No Resource'
 		# In case, that a the endpoints returns members that are just strings and do not have a dbpedia-resource
-		# They are also saved, in order to still show them under 'Members', but without link
+		# They are also saved, in order to still show them under 'Members', but without a link
 		self.formerMembersNR = []
 		self.currentMembersNR = []
 
-
-		# when a members is clicked, this is TRUE. than we can be sure, that the artist is a solo artist
-		if isSoloArtist:
-			print ("[+] By Get-Param this Resource is a solo Artist")
-			self.soloArtist = True
-		else:
-			self.soloArtist = False
-
-		self.dbpediaCommonsURL = None
 		self.thumbnail = None
 		self.images = []
 
+		self.state = 0
+		self.problem = ""
 
+		# when a members is clicked, this is TRUE. than we can be sure, that the artist is a solo artist
+		if isSoloArtist:
+			print ("[+] By GET-Param this Resource is a solo Artist")
+			self.soloArtist = True
+		else:
+			self.soloArtist = False
 		
+		#Bool to check whether or not this artist was queried manually by user input
 		self.manualQuery = False
+
 		if voteValue != 0:
 			self.vote = voteValue
+			print "[+] Vote increased in constructor by: ",voteValue
 		else:
 			self.vote = 0
+
+		# default-value set, in case there is none found
 		self.familiarity = 0.1
+		
 		self.dumpExists = False
 		self.filepath = ""
 
 		self.pagerank = None
 
-		print "[+] Vote increased in constructor by: ",voteValue
-
 		query = urllib.unquote(query)
 
 		# if a titlecased input does not get us a resource, we try again with original cased query
-		# therefore we save the original input 
+		# therefore we save the original input in the next else-statement
 		# eg.: 'MGMT'
 		self.input = ""
 
@@ -159,13 +167,49 @@ class MusicMashupArtist:
 			self._load_data_from_dump(self.filepath)
 		else:
 			# locate artist on musicbrainz (via dbtune) and dbpedia
+			#
+			# Actual query-process of each starts here
+			# Related artists etc are triggered in get_related()
+			#
 			print("[~][~] Fetching data sources for " + self.get_name())
 			self._find_resources()
 
 
+	def _find_resources(self):
+		self._pull_dbtune()
+
+		# log-output describes perfectly in which order what is done here
+		if not self.dbtuneURL:
+			print ("[-] Could not find Resource on DBTune => Trying with musicbrainz dump now")
+			self._pull_mbdump()
+			if not self.musicbrainzID and self.manualQuery:
+				print ("[-] Could not find Resource on musicbrainz-dump => Trying with original Input now")
+				self.name = self.input
+				self._pull_dbtune()
+				if not self.dbtuneURL:
+					print ("[-] Could not find Resource on DBTune with original input => Trying with musicbrainz dump now")
+					self._pull_mbdump()
+
+
+			print ("[~] Trying again for DBPedia")
+			self._pull_dbpedia_url_from_dbpedia()
+		else:
+			if self.dbtuneURL and not self.dbpediaURL:
+				self._pull_dbpedia_url()
+			if not self.dbpediaURL:
+				print ("[~] Found DBTune but not dbpedia --> Trying again for DBPedia")
+				self._pull_dbpedia_url_from_dbpedia()
+
+		if self.dbpediaURL:
+			self._pullThumbnail()
+			self._decodeURL()
+
+		if not self.dbpediaURL and not self.dbtuneURL:
+			self.set_error_state()
+
+
 	# ========================================================================================
-	# 	GETTER 
-	# (rufen puller auf falls noch nicht geschehen; spart Resourcen wenn nicht alles gebraucht wird)
+	# 	Musicbrainz Dump
 	# ========================================================================================
 
 	def _load_data_from_dump(self, filepath):
@@ -254,81 +298,31 @@ class MusicMashupArtist:
 				file.seek(seek, 0)
 		file.close()
 
-	def start_parser(self):
-		self.parser.start(self)
-
-	def _find_resources(self):
-		self._pull_dbtune()
-
-		if not self.dbtuneURL:
-			print ("[-] Could not find Resource on DBTune => Trying with musicbrainz dump now")
-			self._pull_mbdump()
-			if not self.musicbrainzID and self.manualQuery:
-				print ("[-] Could not find Resource on musicbrainz-dump => Trying with original Input now")
-				self.name = self.input
-				self._pull_dbtune()
-				if not self.dbtuneURL:
-					print ("[-] Could not find Resource on DBTune with original input => Trying with musicbrainz dump now")
-					self._pull_mbdump()
-
-
-			print ("[~] Trying again for DBPedia")
-			self._pull_dbpedia_url_from_dbpedia()
-		else:
-			if self.dbtuneURL and not self.dbpediaURL:
-				self._pull_dbpedia_url()
-			if not self.dbpediaURL:
-				print ("[~] Found DBTune but not dbpedia --> Trying again for DBPedia")
-				self._pull_dbpedia_url_from_dbpedia()
-
-		if self.dbpediaURL:
-			self._pullThumbnail()
-			self._decodeURL()
-
-		if not self.dbpediaURL and not self.dbtuneURL:
-			self.set_error_state()
-
-	def get_dbpediaURL_link(self, url=""):
-		if url:
-			return urllib.quote_plus(url.encode('utf8'))
-		else:
-			return urllib.quote_plus(self.get_dbpediaURL().encode('utf8'))
-
-	def	_decodeURL(self):
-		self.dbpediaURL = string.replace(self.dbpediaURL, '%28', '(')
-		self.dbpediaURL = string.replace(self.dbpediaURL, '%29', ')')
-
-	def getThumbnail(self):
-		return self.thumbnail
-
-	def _pullThumbnail(self):
+	def _pull_mbdump(self):
 		try:
-			sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+			sparql = SPARQLWrapper("http://141.89.225.50:8896/sparql")
 			sparql.setQuery("""
-				PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+				PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 
-				SELECT ?o
-				WHERE {
-				<"""+self.get_dbpediaURL()+"""> dbpedia-owl:thumbnail ?o
-				}""")
-
+	    		SELECT ?artist
+	    		WHERE { 
+	    		?artist foaf:name \""""+self.get_name()+"""\".
+	    		}
+				""")
 			sparql.setReturnFormat(JSON)
 			results = sparql.query().convert()
 
 			for result in results["results"]["bindings"]:
-				self.thumbnail = result["o"]["value"]
-				print ("[+] Found Thumbnail: "+ self.thumbnail)
-		except:
-			print ("[-] error while pulling thumbnail")
+	   			self.musicbrainzID = result["artist"]["value"][30:-2]
 
-	def get_images(self):
-		if not self.images:
-			self._pull_commons()
-		return self.images
+	   		print (self.musicbrainzID)
+	   	except:
+			print ("[-] error while pulling")
+	
 
-	def has_images(self):
-		self.get_images()
-		return len(self.images) > 0 and self.images[0] != "None"
+	# ========================================================================================
+	# 	GETTER 
+	# ========================================================================================
 
 	def get_current_members(self):
 		return self.currentMembers
@@ -341,6 +335,18 @@ class MusicMashupArtist:
 
 	def get_former_membersNR(self):
 		return self.formerMembersNR
+
+	def get_name(self):
+		return self.name
+
+	# ========================================================================================
+	# Commons-Images 
+	# ========================================================================================
+
+	def get_images(self):
+		if not self.images:
+			self._pull_commons()
+		return self.images
 
 	def _pull_commons(self):
 		try:
@@ -361,9 +367,7 @@ class MusicMashupArtist:
 
 			if self.dbpediaCommonsURL:
 				self.dbpediaCommonsURL = self.dbpediaCommonsURL.replace('Category:', '')
-				print "==================="
 				print ("[+] Found Commons "+self.dbpediaCommonsURL)
-				print "==================="
 
 				sparql.setQuery("""
 				    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -387,122 +391,39 @@ class MusicMashupArtist:
 		except:
 			print ("[-] error while pulling commons")
 
-	def _pull_dbtune(self):
+	def has_images(self):
+		self.get_images()
+		# in case there are no images, but the images[0] exists but is 'None'
+		return len(self.images) > 0 and self.images[0] != "None"
+	
+	# ========================================================================================
+	# Thumbnail get and _pull
+	# ========================================================================================
+	def getThumbnail(self):
+		return self.thumbnail
+
+	def _pullThumbnail(self):
 		try:
-			sparql = SPARQLWrapper("http://dbtune.org/musicbrainz/sparql")
+			sparql = SPARQLWrapper("http://dbpedia.org/sparql")
 			sparql.setQuery("""
-				PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-				PREFIX mo: <http://purl.org/ontology/mo/>
-				SELECT ?s
-				WHERE { 
-				?s rdfs:label \""""+self.get_name()+"""\" .
-				?s rdf:type mo:MusicArtist .
-				}
-			""")
+				PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+
+				SELECT ?o
+				WHERE {
+				<"""+self.get_dbpediaURL()+"""> dbpedia-owl:thumbnail ?o
+				}""")
+
 			sparql.setReturnFormat(JSON)
 			results = sparql.query().convert()
+
 			for result in results["results"]["bindings"]:
-				self.dbtuneURL = result["s"]["value"]
-
-			lastSix = self.name[len(self.get_name())-6:]
-			# print lastSix
-			if not self.dbtuneURL and (lastSix == "(Band)" or lastSix == "(band)"):
-				withoutBand = self.get_name()[:-6]
-				if withoutBand[len(withoutBand)-1:] == " ":
-					withoutBand = withoutBand[:-1]
-					print("SOGAR EIN LEERZEICHEN WAR DA")
-
-
-				print ("Trying with: "+self.get_name()[:-6])
-				sparql = SPARQLWrapper("http://dbtune.org/musicbrainz/sparql")
-				sparql.setQuery("""
-					PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-					PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-					PREFIX mo: <http://purl.org/ontology/mo/>
-					SELECT ?s
-					WHERE { 
-					?s rdfs:label \""""+withoutBand+"""\" .
-					?s rdf:type mo:MusicArtist .
-					}
-				""")
-			sparql.setReturnFormat(JSON)
-			results = sparql.query().convert()
-			for result in results["results"]["bindings"]:
-				self.dbtuneURL = result["s"]["value"]
-
-			#Oft hat musicbrainz ein The XY und dbtune kein The bzw vice versa, daher:
-			nameshort = self.name[:3]
-			if not self.dbtuneURL and (nameshort != "The"):
-				print ("[~] Trying with 'The' XY")
-				sparql = SPARQLWrapper("http://dbtune.org/musicbrainz/sparql")
-				sparql.setQuery("""
-					PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-					PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-					PREFIX mo: <http://purl.org/ontology/mo/>
-					SELECT ?s
-					WHERE { 
-					?s rdfs:label \"The """+self.get_name()+"""\" .
-					?s rdf:type mo:MusicArtist .
-					}
-				""")
-				sparql.setReturnFormat(JSON)
-				results = sparql.query().convert()
-				for result in results["results"]["bindings"]:
-					self.dbtuneURL = result["s"]["value"]
-				if self.dbtuneURL:
-					self.name = "The "+self.name
-
-			if self.dbtuneURL:
-				self.musicbrainzID = self.dbtuneURL[-36:]
-				print("[+] Found dbtune URL")
-				print("[+] musicbrainzID: "+self.musicbrainzID)
-				self.dbtune_set = 1
-				return 0
-			else:
-				self.dbtune_set = -1
-				return -1
+				self.thumbnail = result["o"]["value"]
+				print ("[+] Found Thumbnail: "+ self.thumbnail)
 		except:
-			self.problem = "dbtune problem while fetching dbtune url"
-			print("[-] dbtune problem while fetching dbtune url")
-			# self.dbtune_set = -1
-			return -1
-
-	def _pull_mbdump(self):
-		try:
-			sparql = SPARQLWrapper("http://141.89.225.50:8896/sparql")
-			sparql.setQuery("""
-				PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-
-	    		SELECT ?artist
-	    		WHERE { 
-	    		?artist foaf:name \""""+self.get_name()+"""\".
-	    		}
-				""")
-			sparql.setReturnFormat(JSON)
-			results = sparql.query().convert()
-
-			for result in results["results"]["bindings"]:
-	   			self.musicbrainzID = result["artist"]["value"][30:-2]
-
-	   		print (self.musicbrainzID)
-	   	except:
-			print ("[-] error while pulling")
-
-	def get_name(self):
-		return self.name
-
-	def get_reco(self):
-		return self.reco
-
-	def set_error_state(self):
-		print("[-] Could not locate Open Data source. Switching to error state!")
-		self.abstract = "Abstract not available. (" + self.problem + ")"
-		self.state = -1
-
+			print ("[-] error while pulling thumbnail")
 
 	# ========================================================================================
-	# ABSTRACT get and _pull
+	# ABSTRACT 
 	# ========================================================================================
 	def get_abstract(self):
 		try:
@@ -538,6 +459,7 @@ class MusicMashupArtist:
 			return self.abstract
 		except:
 			print ("[-] error while pulling abstract")
+	
 	# ========================================================================================
 	# SPOTIFY get and _pull
 	# ========================================================================================
@@ -556,9 +478,8 @@ class MusicMashupArtist:
 		except:
 			print "[!] Error fetching spotifyID"
 
-
 	# ========================================================================================
-	# DBTUNE-URL get and _pull
+	# DBtune and dbpedia get and _pull
 	# ========================================================================================
 	def get_dbtuneURL(self):
 		if not self.dbtuneURL:
@@ -571,6 +492,13 @@ class MusicMashupArtist:
 			return self.dbpediaURL
 		return self.dbpediaURL
 
+	def get_dbpediaURL_link(self, url=""):
+		if url:
+			return urllib.quote_plus(url.encode('utf8'))
+		else:
+			return urllib.quote_plus(self.get_dbpediaURL().encode('utf8'))
+
+	# In case that a dbtune resource exists, dbpedia is pulled here
 	def _pull_dbpedia_url(self):
 		try:
 			print("[~] Trying to pull dbpedia url")
@@ -594,6 +522,7 @@ class MusicMashupArtist:
 			self.problem = "dbtune problem while fetching dbpedia url"
 			print("[-] dbtune problem while fetching dbpedia url")
 
+	# in case that no db-tune resource is found, the artist is searched on dbpedia itself
 	def _pull_dbpedia_url_from_dbpedia(self):
 		try:
 			sparql = SPARQLWrapper("http://dbpedia.org/sparql")
@@ -658,16 +587,137 @@ class MusicMashupArtist:
 			print ("[-] error while pulling dbpediaURL from dbpedia")
 			print type(e)
 
+	def _pull_dbtune(self):
+		try:
+			sparql = SPARQLWrapper("http://dbtune.org/musicbrainz/sparql")
+			sparql.setQuery("""
+				PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX mo: <http://purl.org/ontology/mo/>
+				SELECT ?s
+				WHERE { 
+				?s rdfs:label \""""+self.get_name()+"""\" .
+				?s rdf:type mo:MusicArtist .
+				}
+			""")
+			sparql.setReturnFormat(JSON)
+			results = sparql.query().convert()
+			for result in results["results"]["bindings"]:
+				self.dbtuneURL = result["s"]["value"]
+
+			# Often a hame contains a (band) from dbpedia, this needs to be fixed, because you will not find it that way on dbtune
+			lastSix = self.name[len(self.get_name())-6:]
+			if not self.dbtuneURL and (lastSix == "(Band)" or lastSix == "(band)"):
+				withoutBand = self.get_name()[:-6]
+				if withoutBand[len(withoutBand)-1:] == " ":
+					withoutBand = withoutBand[:-1]
+					print("Found a space")
+
+
+				print ("Trying with: "+self.get_name()[:-6])
+				sparql = SPARQLWrapper("http://dbtune.org/musicbrainz/sparql")
+				sparql.setQuery("""
+					PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+					PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+					PREFIX mo: <http://purl.org/ontology/mo/>
+					SELECT ?s
+					WHERE { 
+					?s rdfs:label \""""+withoutBand+"""\" .
+					?s rdf:type mo:MusicArtist .
+					}
+				""")
+			sparql.setReturnFormat(JSON)
+			results = sparql.query().convert()
+			for result in results["results"]["bindings"]:
+				self.dbtuneURL = result["s"]["value"]
+
+			# Often there are missmatched between cbpedia and dbtune whether there is a 'The' at the beginning of the band name
+			nameshort = self.name[:3]
+			if not self.dbtuneURL and (nameshort != "The"):
+				print ("[~] Trying with 'The' XY")
+				sparql = SPARQLWrapper("http://dbtune.org/musicbrainz/sparql")
+				sparql.setQuery("""
+					PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+					PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+					PREFIX mo: <http://purl.org/ontology/mo/>
+					SELECT ?s
+					WHERE { 
+					?s rdfs:label \"The """+self.get_name()+"""\" .
+					?s rdf:type mo:MusicArtist .
+					}
+				""")
+				sparql.setReturnFormat(JSON)
+				results = sparql.query().convert()
+				for result in results["results"]["bindings"]:
+					self.dbtuneURL = result["s"]["value"]
+				if self.dbtuneURL:
+					self.name = "The "+self.name
+
+			if self.dbtuneURL:
+				self.musicbrainzID = self.dbtuneURL[-36:]
+				print("[+] Found dbtune URL")
+				print("[+] musicbrainzID: "+self.musicbrainzID)
+				self.dbtune_set = 1
+				return 0
+			else:
+				self.dbtune_set = -1
+				return -1
+		except:
+			self.problem = "dbtune problem while fetching dbtune url"
+			print("[-] dbtune problem while fetching dbtune url")
+			# self.dbtune_set = -1
+			return -1
+
+
 	# ========================================================================================
-	# RELATED get and _pull
+	# Parsing
 	# ========================================================================================
+	def start_parser(self):
+		self.parser.start(self)
+
+	# ========================================================================================
+	# VOTING
+	# ========================================================================================
+
+	def _vote(self):
+		print("[~][~][~] Now Voting")
+		voteValue = []
+		# bubble-sort of the recommendet artists
+		# the vote-value is multiplied with familiarity and pagerank
+		for r in self.recommendation:
+			print r.get_familiarity()
+			print r.get_pagerank()
+			voteValue.append(r.get_vote() * r.get_familiarity() * r.get_pagerank())
+		length = len(self.recommendation)
+		for i in range(0, length):
+			for j in range(0, length-1):
+				if voteValue[j] < voteValue[j+1]:
+					temp = self.recommendation[j]
+					self.recommendation[j] = self.recommendation[j+1]
+					self.recommendation[j+1] = temp
+					temp = voteValue[j]
+					voteValue[j] = voteValue[j+1]
+					voteValue[j+1] = temp
+		print ("After Sorting: ")
+		for artist in self.recommendation:
+			print "Artist: "+artist.get_name()+" has Vote: ",(artist.get_vote()*artist.get_familiarity(justGet=True))
+
+	def addVote(self, voteValue):
+		self.vote += voteValue
+
+	def get_vote(self):
+		return self.vote
+
+	# ========================================================================================
+	# RELATED and Reasons
+	# ========================================================================================
+	
+	# This is called by the html-template and triggers the actual logic
 	def get_related(self):
-		# if not self.related:
 		if self.dumpExists == True:
 			self._load_related_from_dump(self.filepath)
 		else:
 			print("[~] get_related")
-			self.related = []
 			self.currentMembers = []
 			self.formerMembers = []
 			self._pull_related()
@@ -676,9 +726,6 @@ class MusicMashupArtist:
 		self._vote()
 
 		return self.recommendation
-
-	def get_reason(self):
-		return self.reason
 
 	def _pull_related(self):
 		# get Methoden sollten noch geschrieben werden
@@ -718,10 +765,15 @@ class MusicMashupArtist:
 				print "Artist: "+artist.get_name()+" has Vote: ",artist.get_vote()
 		# self.parse_to_rdf()
 		# self._pull_events()
-		# return self.related
+
+	def get_reason(self):
+		return self.reason
+
+	def addReason(self, reason):
+		self.reason.append(reason)
 
 	# ========================================================================================
-	# ECHONEST-ARTIST get and _pull
+	# ECHONEST
 	# ========================================================================================
 	def get_echoNestArtist(self):
 		if not self.echoNestArtist and self.state == 0:
@@ -830,6 +882,10 @@ class MusicMashupArtist:
 		except:
 			pass
 
+	# ========================================================================================
+	# PAGERANK get and _pull
+	# ========================================================================================
+
 	def get_pagerank(self):
 		if not self.pagerank:
 			self._pull_pagerank()
@@ -837,12 +893,10 @@ class MusicMashupArtist:
 		return self.pagerank
 
 	def _pull_pagerank(self):
-		# if self.get_dbpediaURL()
-		# print ("[~] Pulling Pagerank for: "+self.get_dbpediaURL())
 		self.pagerank = MusicMashupArtist.pagerankParser.get_pagerank(self.get_dbpediaURL())
 
 	# ========================================================================================
-	# MUSIXMATCH get and _pull
+	# MUSIXMATCH 
 	# ========================================================================================
 
 	def get_musixmatch(self):
@@ -869,7 +923,7 @@ class MusicMashupArtist:
 		print("[+] musixmatch-url: "+self.musixmatch_url)
 
 	# ========================================================================================
-	# SONGKICK-EVENTS get and _pull
+	# SONGKICK-EVENTS
 	# ========================================================================================
 
 	def get_events(self):
@@ -902,6 +956,35 @@ class MusicMashupArtist:
 			self.events.append(temp)
 
 	# ========================================================================================
+	# HELPERS
+	# ========================================================================================
+	def uri_to_name_if_necessary(self, uri):
+		if uri[:4] == "http":
+			return self._uri_to_name(uri)
+		else:
+			return uri
+
+	def quote_anything(self, anything):
+		return urllib.quote_plus(anything)
+
+	def unquote_anything(self, anything):
+		return urllib.unquote_plus(anything)
+
+	def _uri_to_name(self, uri):
+		# cutoff db-pedia url und replace underscores
+		uri = uri[28:]
+		uri = uri.replace('_', ' ')
+		return uri
+
+	def	_decodeURL(self):
+		self.dbpediaURL = string.replace(self.dbpediaURL, '%28', '(')
+		self.dbpediaURL = string.replace(self.dbpediaURL, '%29', ')')
+
+	def set_error_state(self):
+		print("[-] Could not locate Open Data source. Switching to error state!")
+		self.abstract = "Abstract not available. (" + self.problem + ")"
+		self.state = -1
+	# ========================================================================================
 	# MEMBER _pull
 	# ========================================================================================
 
@@ -930,6 +1013,7 @@ class MusicMashupArtist:
 				else:
 					print("[-] Found 'List of Members'-Resource, did not add it to members")
 
+			#sometimes other ontology is used: dbpedia-owl:bandMembers
 			if not self.currentMembers:
 				print("[~] Pulling current Members of: "+self.get_dbpediaURL()+" with dbpedia-owl:bandMembers")
 				sparql = SPARQLWrapper("http://dbpedia.org/sparql")
@@ -977,6 +1061,8 @@ class MusicMashupArtist:
 					print("[-] No Resource on dbpedia for: "+result["member"]["value"])
 				else:
 					print("[-] Found 'List of Members'-Resource, did not add it to members")
+
+			#sometimes other ontology is useed: dbpprop:pastMembers
 			if not self.formerMembers:
 				print("[~] Pulling former Members of: "+self.get_dbpediaURL()+" with dbpprop:pastMembers")
 				sparql = SPARQLWrapper("http://dbpedia.org/sparql")
@@ -1003,13 +1089,15 @@ class MusicMashupArtist:
 		except:
 			print ("[-] error while pulling former members")
 
-	# ===============================================================
-	# TODO ERROR-HANDLING
-	# 			ab hier untegesteter code ohne error handling
-	# ===============================================================
-
+	# ========================================================================================
+	# ========================================================================================
+	# PULLING RELATIONS
+	# ========================================================================================
+	# ========================================================================================
+	# all of these relation-methods work the same, for comments and explanation see this method
 	def _pull_producer_relation_of_current_members(self):
 		try:
+			# empty if solo-artist
 			for member in self.currentMembers:
 				print ("[~] searching producer relations for: "+ member)
 				sparql = SPARQLWrapper("http://dbpedia.org/sparql")
@@ -1027,19 +1115,24 @@ class MusicMashupArtist:
 				sparql.setReturnFormat(JSON)
 				results = sparql.query().convert()	
 				for result in results["results"]["bindings"]:
+					# check if it is not the same resource and not a list-resource
 					if result["band"]["value"] != self.get_dbpediaURL() and 'List_of' not in result["band"]["value"]:
 						new = True
 						knownArtist = None
+						# check if the found resource is already in self.recommendation
 						for r in self.recommendation:
 							if result["band"]["value"] == r.get_dbpediaURL():
 								knownArtist = r
 								new = False
+						# if not, add it to it
 						if new:
 							self.recommendation.append(MusicMashupArtist(result["band"]["value"], cMproducer, "Because "+self._uri_to_name(member)+" was active as producer"))
+						# if so, just add a reason and increase the vote
 						else:
 							knownArtist.addReason("Because "+self._uri_to_name(member)+" was active as producer")
 							knownArtist.addVote(cMproducer)
 
+			# if solo artist, do same query but with self.dbpediaURL and not with members
 			if self.soloArtist:
 				print ("[~] searching producer relations for maybe solo-Artist: "+ self.get_dbpediaURL())
 				sparql = SPARQLWrapper("http://dbpedia.org/sparql")
@@ -1489,59 +1582,6 @@ class MusicMashupArtist:
 							knownArtist.addVote(fMformertBandVote)
 		except:
 			print ("[-] error while pulling former bands of former members")	
-
-	def _uri_to_name(self, uri):
-		# print("[~] Converting URI to name")
-		uri = uri[28:]
-		uri = uri.replace('_', ' ')
-		# uri = urllib.unquote_plus(uri)
-		return uri
-
-	def uri_to_name_if_necessary(self, uri):
-		if uri[:4] == "http":
-			return self._uri_to_name(uri)
-		else:
-			return uri
-
-	def quote_anything(self, anything):
-		return urllib.quote_plus(anything)
-
-	def unquote_anything(self, anything):
-		return urllib.unquote_plus(anything)
-
-	def addReason(self, reason):
-		self.reason.append(reason)
-
-	def addVote(self, voteValue):
-		self.vote += voteValue
-
-	def get_vote(self):
-		return self.vote
-
-	# ========================================================================================
-	# VOTING
-	# ========================================================================================
-
-	def _vote(self):
-		print("[~][~][~] Now Voting")
-		voteValue = []
-		for r in self.recommendation:
-			print r.get_familiarity()
-			print r.get_pagerank()
-			voteValue.append(r.get_vote() * r.get_familiarity() * r.get_pagerank())
-		length = len(self.recommendation)
-		for i in range(0, length):
-			for j in range(0, length-1):
-				if voteValue[j] < voteValue[j+1]:
-					temp = self.recommendation[j]
-					self.recommendation[j] = self.recommendation[j+1]
-					self.recommendation[j+1] = temp
-					temp = voteValue[j]
-					voteValue[j] = voteValue[j+1]
-					voteValue[j+1] = temp
-		print ("After Sorting: ")
-		for artist in self.recommendation:
-			print "Artist: "+artist.get_name()+" has Vote: ",(artist.get_vote()*artist.get_familiarity(justGet=True))
 
 
 	def current_load_time(self):

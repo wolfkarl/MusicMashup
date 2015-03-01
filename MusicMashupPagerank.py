@@ -7,7 +7,6 @@ defaultValue = 0.5
 
 class MusicMashupPagerank(object):
 
-
 	def __init__(self):
 		self.pagerankGraph = rdflib.Graph()
 		print ("[*] Starting to parse pagerank-turtle-file")
@@ -38,6 +37,3 @@ class MusicMashupPagerank(object):
 		else:
 			print ("[-] Did not find Pagerank, returning default Value")
 			return defaultValue
-
-# paggy = MusicMashupPagerank()
-# paggy.get_pagerank("http://dbpedia.org/resource/The_Bakerton_Group")
