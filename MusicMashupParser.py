@@ -5,17 +5,25 @@ import os
 import time
 import datetime
 
+# This is the implementation of a parser.
+# We tried using rdflib to parse the information but it somehow didn't work.
+# So we decided to write our own parser.
+
 class MusicMashupParser:
 
 	def __init__(self):
 		self.artist = None
 		self.baseArtist = ""		
 
+# start get's called by the MusicMashupArtist in order to commence parsing
+# in order to let the parser access the information, an artist object passes itself		
+
 	def start(self, artistObject):
 		self.artist = artistObject
 		self.baseArtist = ":" + str(self.artist.get_name().replace(' ', '_'))
 		filename = self.artist.get_name().lower().replace(' ', '_').replace('/', '') + ".ttl"
 		filepath = "dumps/"+filename
+		# checking whether the last dump is older than a week
 		if os.path.exists(filepath):
 			creationTime = os.path.getctime(filepath)
 			nowTime = time.time()
@@ -24,34 +32,31 @@ class MusicMashupParser:
 			print ("NOW IT'S: "+str(time.time()))
 			print (nowTime - oneWeek)
 			if nowTime > creationTime + oneWeek:
-				self.parse_to_rdf(filepath)
+				self._parse_to_rdf(filepath)
 			else:
 				print ("[-] The dump is younger than one week. No new dump will be created.")
 		else:
-			self.parse_to_rdf(filepath)
+			self._parse_to_rdf(filepath)
 
-	def parse_to_rdf(self, filepath):
-		# filename = self.artist.get_name().lower().replace(' ', '_') + ".ttl"
-		# filepath = "dumps/"+filename
-		# fileExists = os.path.exists(filepath)
+	def _parse_to_rdf(self, filepath):
 		
 		file = codecs.open(filepath, 'w+', 'utf-8')
 		
-		self.parse_prefixes(file)
-		self.parse_abstract(file)
-		self.parse_current_members(file)
-		self.parse_former_members(file)
-		self.parse_thumbnail(file)
-		self.parse_images(file)
-		self.parse_same_as(file)
-		self.parse_see_also(file)
-		self.parse_related_artists(file)
-		self.parse_events(file)
-		self.parse_api_keys(file)
+		self._parse_prefixes(file)
+		self._parse_abstract(file)
+		self._parse_current_members(file)
+		self._parse_former_members(file)
+		self._parse_thumbnail(file)
+		self._parse_images(file)
+		self._parse_same_as(file)
+		self._parse_see_also(file)
+		self._parse_related_artists(file)
+		self._parse_events(file)
+		self._parse_api_keys(file)
 
 		file.close()
 		
-	def parse_prefixes(self, file):
+	def _parse_prefixes(self, file):
 		file.write("@base dbpedia-owl: <http://dbpedia.org/resource/> .\n")
 		file.write("@prefix mm: <localhost/ontology/musicmashup>")
 		file.write("@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n")
@@ -61,30 +66,30 @@ class MusicMashupParser:
 		file.write("@prefix foaf: <http://xmlns.com/foaf/0.1/Image> .\n")
 		file.write("@prefix owl: <http://www.w3.org/2002/07/owl#> .\n\n")
 	
-	def parse_abstract(self, file):
+	def _parse_abstract(self, file):
 		if self.artist.abstract:	
 			file.write(self.baseArtist+" dbpedia-owl:abstract \""+self.artist.get_abstract().encode('ascii', 'replace')+"\" .\n")
 	
-	def parse_current_members(self, file):
+	def _parse_current_members(self, file):
 		if self.artist.currentMembers:
 			for member in self.artist.currentMembers:
 				file.write(self.baseArtist+" dbpedia-owl:currentMember :"+member[28:]+" .\n")
 
-	def parse_former_members(self, file):
+	def _parse_former_members(self, file):
 		if self.artist.formerMembers:
 			for member in self.artist.formerMembers:
 				file.write(self.baseArtist+" dbpedia-owl:formerMember :"+member[28:]+" .\n")
 
-	def parse_thumbnail(self, file):
+	def _parse_thumbnail(self, file):
 		if self.artist.thumbnail:
 			file.write(self.baseArtist+" dbpedia-owl:thumbnail <"+self.artist.thumbnail+"> .\n")
 
-	def parse_images(self, file):
+	def _parse_images(self, file):
 		if self.artist.images:
 			for image in self.artist.images:
 				file.write(self.baseArtist+" foaf:Image <"+image+"> .\n")
 
-	def parse_same_as(self, file):
+	def _parse_same_as(self, file):
 		if self.artist.dbtuneURL:
 			file.write(self.baseArtist+" owl:sameAs <"+str(self.artist.get_dbtuneURL())+"> .\n")
 		if self.artist.musicbrainzID:
@@ -92,7 +97,7 @@ class MusicMashupParser:
 		if self.artist.dbpediaCommonsURL:
 			file.write(self.baseArtist+" owl:sameAs <"+str(self.artist.dbpediaCommonsURL)+"> .\n")
 
-	def parse_see_also(self, file):
+	def _parse_see_also(self, file):
 		if self.artist.discogs_url:
 			file.write(self.baseArtist+" rdfs:seeAlso <"+self.artist.discogs_url+"> .\n")
 		if self.artist.musixmatch_url:
@@ -108,7 +113,7 @@ class MusicMashupParser:
 		if self.artist.twitter:
 			file.write(self.baseArtist+" rdfs:seeAlso <"+self.artist.twitter+"> .\n")
 
-	def parse_related_artists(self, file):
+	def _parse_related_artists(self, file):
 		if self.artist.recommendation:
 			for artist in self.artist.recommendation:
 				file.write(self.baseArtist+" mm:recommendedArtist :"+artist.get_name().replace(' ', '_')+" .\n")
@@ -120,7 +125,7 @@ class MusicMashupParser:
 					member = self._get_name_from_reason(reason)
 					file.write(":"+member.replace(' ', '_') + " " + prop + " :" + artist.get_name().replace(' ', '_') + " .\n")
 
-	def parse_api_keys(self, file):
+	def _parse_api_keys(self, file):
 		if self.artist.musicbrainzID:
 			file.write(self.baseArtist+" mm:musicbrainzID \""+self.artist.musicbrainzID+"\" .\n")
 		if self.artist.spotifyID:
@@ -128,7 +133,7 @@ class MusicMashupParser:
 		if self.artist.echoNestArtist:
 			file.write(self.baseArtist+" mm:echonestArtist \""+str(self.artist.echoNestArtist)+"\" .\n")
 
-	def parse_events(self, file):
+	def _parse_events(self, file):
 		if self.artist.events:
 			for event in self.artist.events:
 				file.write(self.baseArtist+" mm:songkickEvent \""+event[1]+"\" .\n")

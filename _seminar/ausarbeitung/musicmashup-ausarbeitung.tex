@@ -1,0 +1,106 @@
+% Muster für die Seminarausarbeitung
+% HPI Potsdam
+
+\documentclass[11pt, a4paper]{article}
+
+\usepackage{ngerman}
+\usepackage[utf8]{inputenc} %Korrekte Kodierung der Umlaute nach UTF-8
+\usepackage[T1]{fontenc} %Korrekte Kodierung der Umlaute nach UTF-8
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{epsfig}   % Zum Einbinden von Bildern
+\usepackage{url}      % Korrekter Satz von URLs
+\usepackage{soulutf8}
+\usepackage{color}    % Verwendung von Farben
+\usepackage{listings} % Korrekter Satz von Listings und Quellcode
+
+
+%Hilfs-Fonts - ohne Serifen (hier für Tabellen)
+\newfont{\bib}{cmss8 scaled 1040}
+\newfont{\bibf}{cmssbx8 scaled 1040}
+
+\definecolor{lightgray}{gray}{0.85}
+
+%Seitenformat-Definitionen
+\topmargin0mm
+\textwidth147mm
+\textheight214mm
+\evensidemargin5mm
+\oddsidemargin5mm
+\footskip19mm
+\parindent=0in
+
+\begin{document}          
+
+\begin{titlepage}
+  \begin{center} 
+    \mbox{}
+    \vspace{1cm}
+    
+    {\huge MusicMashup Recommender \\[1em] {\LARGE ein Linked Open Data Musik-Empfehlungsdienst}}  
+        
+    \vspace{5cm}
+    
+    Seminararbeit im Seminar \\[1em]
+    {\large \sc Linked Data Mashup Programmierung} \\[1em]
+    Wintersemester 2014/15 \\[1em]
+    Hasso-Plattner-Institut für Softwaresystemtechnik GmbH \\[1em]
+    Universität Potsdam
+    
+    \vspace{4cm}
+    
+		vorgelegt von
+		
+    \vspace{1em}
+    
+        {\Large Dennis Hempfing} \\
+		{\Large Paul Wille} \\
+		{\Large Karl Wolf}
+		
+    \vspace{4em}
+    
+    28.~Februar 2015
+  \end{center}
+\end{titlepage}
+
+
+\setcounter{page}{1}
+
+% Zweite Seite = Kurzzusammenfassung
+\begin{center}
+{\bf Kurzzusammenfassung} 
+\end{center}
+
+\noindent
+Diese Arbeit gibt einen Einblick in die Funktionsweise des von uns entwickelten Musik-Empfehlungsdienstes MusicMashup, der auf Linked Open Data basiert, und beleuchtet weiterhin die Motivation hinter der Arbeit an diesem System. Im Rahmen des Seminars “Linked Data Mashup Programmierung” bei Dr. Harald Sack (Hasso-Plattner-Institut) haben wir es uns zur Aufgabe gemacht zu zeigen, wie sich unter Nutzung von Linked Data ein vollwertiger Musik-Recommender entwickeln lässt und welche Vor- und Nachteile dadurch entstehen.
+Dabei stand neben Linked Data die Fragestellung im Mittelpunkt, wie sich das System im Vergleich zu anderen Musik-Recommendern abhebt und welchen Mehrwert es dadurch liefert.
+
+\newpage
+
+% Dritte Seite = Inhaltsverzeichnis
+\tableofcontents 
+
+\newpage
+
+\input{chapters/1_einleitung.tex} 
+\newpage
+\input{chapters/2_related.tex}
+\newpage
+\input{chapters/3_loesung.tex}
+\newpage
+\input{chapters/4_diskussion.tex}
+\newpage
+\input{chapters/5_zusammenfassung.tex}
+\newpage
+\input{chapters/6_ausblick.tex}
+
+
+%Hier kommt das Literaturverzeichnis
+\newpage
+
+\addcontentsline{toc}{section}{Literaturverzeichnis} % Zeile für das Inhaltsverzeichnis
+
+\bibliography{bibfile}
+\bibliographystyle{alphadin}
+
+\end{document}
