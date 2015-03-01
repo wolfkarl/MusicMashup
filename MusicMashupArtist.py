@@ -209,7 +209,9 @@ class MusicMashupArtist:
 
 
 	# ========================================================================================
-	# 	Musicbrainz Dump
+	# READING FROM LOCAL .ttl FILES
+	# we wrote the parser ourselves so we decided to write the reading ourselves as well
+	# it looks bad but it gets the job done
 	# ========================================================================================
 
 	def _load_data_from_dump(self, filepath):
@@ -297,28 +299,6 @@ class MusicMashupArtist:
 				self.recommendation.append(artistObject)
 				file.seek(seek, 0)
 		file.close()
-
-	def _pull_mbdump(self):
-		try:
-			sparql = SPARQLWrapper("http://141.89.225.50:8896/sparql")
-			sparql.setQuery("""
-				PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-
-	    		SELECT ?artist
-	    		WHERE { 
-	    		?artist foaf:name \""""+self.get_name()+"""\".
-	    		}
-				""")
-			sparql.setReturnFormat(JSON)
-			results = sparql.query().convert()
-
-			for result in results["results"]["bindings"]:
-	   			self.musicbrainzID = result["artist"]["value"][30:-2]
-
-	   		print (self.musicbrainzID)
-	   	except:
-			print ("[-] error while pulling")
-	
 
 	# ========================================================================================
 	# 	GETTER 
@@ -668,6 +648,26 @@ class MusicMashupArtist:
 			# self.dbtune_set = -1
 			return -1
 
+	def _pull_mbdump(self):
+		try:
+			sparql = SPARQLWrapper("http://141.89.225.50:8896/sparql")
+			sparql.setQuery("""
+				PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+	    		SELECT ?artist
+	    		WHERE { 
+	    		?artist foaf:name \""""+self.get_name()+"""\".
+	    		}
+				""")
+			sparql.setReturnFormat(JSON)
+			results = sparql.query().convert()
+
+			for result in results["results"]["bindings"]:
+	   			self.musicbrainzID = result["artist"]["value"][30:-2]
+
+	   		print (self.musicbrainzID)
+	   	except:
+			print ("[-] error while pulling")
 
 	# ========================================================================================
 	# Parsing
@@ -924,6 +924,8 @@ class MusicMashupArtist:
 
 	# ========================================================================================
 	# SONGKICK-EVENTS
+	# _pull_events retrieves a JSON and converts it to a dictionary
+	# _convert_events reads the names and URLs of events from the dict and saves them
 	# ========================================================================================
 
 	def get_events(self):
