@@ -3,22 +3,21 @@
 
 \subsection{Linked Data}
 
-Der Begriff “Linked Data” beschreibt eine Menge an Prinzipien, wie Daten im Internet strukturiert, publiziert und verlinkt werden sollten. Entwickelt worden sind diese von Tim Berners-Lee, der sie 2006 in seinem Bericht “Linked Data” (Q1) veröffentlichte. Die Grundidee dabei ist, sich dafür die Architektur des Internets zunutze zu machen. Im Wesentlichen handelt es sich dabei um vier Punkte:
+Der Begriff \glqq Linked Data\grqq beschreibt eine Menge an Prinzipien, wie Daten im Internet strukturiert, publiziert und verlinkt werden sollten. Entwickelt worden sind diese von Tim Berners-Lee, der sie 2006 in seinem Bericht \glqq Linked Data\grqq \cite{linked_data} veröffentlichte. Die Grundidee dabei ist, sich dafür die Architektur des Internets zunutze zu machen. Im Wesentlichen handelt es sich dabei um vier Punkte (Übersetzung nach \cite{wiki_linked_data}):
 \begin{enumerate}
 \item Verwende zur Bezeichnung von Objekten URIs.
 \item Verwende HTTP-URIs, so dass sich die Bezeichnungen nachschlagen lassen.
 \item Stelle zweckdienliche Informationen bereit, wenn jemand eine URI nachschlägt (mittels der Standards RDF und SPARQL).
 \item Zu diesen Informationen gehören insbesondere Links auf andere URIs, über die weitere Objekte entdeckt werden können.
 \end{enumerate}
-% (Zitiert nach Q2)
 
-Das erste Prinzip besagt, dass URIs nicht nur benutzt werden sollen, um Dokumente im Internet verfügbar zu machen. Jede Form von Objekten oder Entitäten soll eindeutig über eine URI identifizierbar sein, handele es sich um eine Person, einen spezifischen Gegenstand oder allgemein “Dinge”.
+Das erste Prinzip besagt, dass URIs nicht nur benutzt werden sollen, um Dokumente im Internet verfügbar zu machen. Jede Form von Objekten oder Entitäten soll eindeutig über eine URI identifizierbar sein, handele es sich um eine Person, einen spezifischen Gegenstand oder allgemein \glqq Dinge\grqq.
 
 
 Das zweite Prinzip spezifiert, dass die im ersten Prinzip angesprochenen URIs HTTP-URIs sein sollen. HTTP hat sich im Internet als universales Übertragungsprotokoll etabliert. Die Verwendung von HTTP-URIs ermöglicht es demzufolge, solche URIs einfach nachschlagbar zu machen.
 
 
-Das dritte Prinzip schlägt die Benutzung eines einheitlichen Formats für die Publikation von Daten vor, in diesem Fall das “Resource Description Framework” (RDF). Dabei handelt es sich um ein simples graphen-basiertes Datenmodell. Bei SPARQL handelt es sich um eine von SQL inspirierte RDF-Anfragesprache.
+Das dritte Prinzip schlägt die Benutzung eines einheitlichen Formats für die Publikation von Daten vor, in diesem Fall das \glqq Resource Description Framework\grqq (RDF). Dabei handelt es sich um ein simples graphen-basiertes Datenmodell. Bei SPARQL handelt es sich um eine von SQL inspirierte RDF-Anfragesprache.
 
 
 Das vierte Prinzip plädiert für die Benutzung von Hyperlinks zur Verlinkung einzelner Ressourcen, um den Zugriff auf weitere thematisch relevante Datenquellen zu ermöglichen. Im Gegensatz zu normalen Hyperlinks, welche keinen Kontext beinhalten, lässt sich bei nach RDF spezifizierten Links ein Kontext angeben. So kann zum Beispiel ausgedrückt werden, dass zwei Ressourcen semantisch äquivalent sind oder dass zwei Personen, die miteinander verlinkt werden, befreundet sind.
@@ -26,7 +25,7 @@ Das vierte Prinzip plädiert für die Benutzung von Hyperlinks zur Verlinkung ei
 
 \subsection{RDF}
 
-Wie bereits beschrieben, handelt es sich bei dem “Resource Description Framework” um ein Graph-basiertes Datenmodell zur Strukturierung von Daten. Die Daten werden dabei in Tripeln organisiert und bilden einen gerichteten Graphen. Ein Tripel besteht aus Subjekt, Prädikat und Objekt und bildet die Struktur eines simplen Satzes ab. Solch ein simpler Satz könnte wie folgt aussehen:
+Wie bereits beschrieben, handelt es sich bei RDF um ein Graph-basiertes Datenmodell zur Strukturierung von Daten. Die Daten werden dabei in Tripeln organisiert und bilden einen gerichteten Graphen. Ein Tripel besteht aus Subjekt, Prädikat und Objekt und bildet die Struktur eines simplen Satzes ab. Solch ein simpler Satz könnte wie folgt aussehen:
 
 \begin{lstlisting}
  Led Zeppelin (S) ist (P) eine Band (O).
@@ -35,15 +34,15 @@ Wie bereits beschrieben, handelt es sich bei dem “Resource Description Framewo
 
 Das Subjekt eines Tripels ist eine URI, die die Ressource eindeutig identifiziert. Beim Objekt kann es sich um ein Literal, zum Beispiel eine Nummer oder einen String, oder um eine URI handeln, die mit dem Subjekt in Verbindung steht. Das Prädikat spezifiziert in welcher Form Subjekt und Objekt miteinander in Verbindung stehen. Thematisch zusammenhängende Prädikate werden in so genannten Ontologien spezifiziert, wobei auch jedes Prädikat über eine URI dereferenzierbar ist.
 
-Der Satz aus dem obigen Beispiel (“Led Zeppelin” ist vom “Typ” “Band”) wird in der DBPedia folgendermaßen dargestellt:
+Der Satz aus dem obigen Beispiel (\glqq Led Zeppelin\grqq ist vom \glqq Typ\grqq \glqq Band\grqq) wird in der DBpedia folgendermaßen dargestellt\cite{dbpedia_led_zeppelin}:
 
 \begin{lstlisting}
 http://dbpedia.org/resource/Led_Zeppelin (S) 
   http://www.w3.org/1999/02/22-rdf-syntax-ns#type (P)
   http://dbpedia.org/ontology/Band (O)
 \end{lstlisting}
-% (Q3)
-Hierbei ist noch zu erwähnen, dass URLs, vor allem solche, die öfter vorkommen, im rdf-Format durch präfixe ersetzt werden können. http://www.w3.org/1999/02/22-rdf-syntax-ns\# wird dann zum Beispiel zum Präfix “rdf:”; Ressourcen aus der DbPedia können durch “dbpedia:” dargestellt werden.
+
+Hierbei ist noch zu erwähnen, dass URLs, vor allem solche, die öfter vorkommen, im rdf-Format durch präfixe ersetzt werden können. http://www.w3.org/1999/02/22-rdf-syntax-ns\# wird dann zum Beispiel zum Präfix \glqq rdf:\grqq; Ressourcen aus der DbPedia können durch \glqq dbpedia:\grqq dargestellt werden.
 Das genannte Beispiel sieht dann derart aus:
 
 \begin{lstlisting}
@@ -63,7 +62,7 @@ In dieser Ausarbeitung werden wir der Lesbarkeit halber ebenfalls gängige Präf
 
 \subsection{DBpedia}
 
-Bei der DBpedia handelt es sich um ein offenes Projekt, dessen Ziel es ist, die in der Wikipedia zusammengetragenen Daten nach der RDF Spezifikation zu strukturieren und unter offener Lizenz zu veröffentlichen (Q4). Sie besteht seit 2007 und ist eines der größten Projekte, das sich mit Linked Data befasst. Aufgrund ihrer Größe, des breiten Spektrums an Informationen, welche abgedeckt werden, und der Anzahl der Verlinkungen zu anderen Datensätzen, bildet die DBpedia einen großen Knotenpunkt im Web of Data und ist demzufolge eine gute Grundlage für die Erstellung eines Linked Data Mashups.
+Bei der DBpedia handelt es sich um ein offenes Projekt, dessen Ziel es ist, die in der Wikipedia zusammengetragenen Daten nach der RDF Spezifikation zu strukturieren und unter offener Lizenz zu veröffentlichen \cite{dbpedia_about}. Sie besteht seit 2007 und ist eines der größten Projekte, das sich mit Linked Data befasst. Aufgrund ihrer Größe, des breiten Spektrums an Informationen, welche abgedeckt werden, und der Anzahl der Verlinkungen zu anderen Datensätzen, bildet die DBpedia einen großen Knotenpunkt im Web of Data und ist demzufolge eine gute Grundlage für die Erstellung eines Linked Data Mashups.
 % (Q14 Linked Data schaubild als quelle)
 
 
