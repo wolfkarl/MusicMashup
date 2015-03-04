@@ -21,7 +21,11 @@ HTTP-Server basierend auf dem \textit{cherrypy}-Modul \cite{cherrypy}. Dieser Se
 \paragraph{}Das System besteht aus vier Klassen: \textit{MusicMashupServer}, \textit{MusicMashupArtist}, \textit{MusicMashupParser} und \textit{MusicMashupPagerank} (siehe Abb. x).
 
 
-%Bild: Klassendiagramm
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=137mm]{bilder/klassendiagramm.png}
+\caption{Klassendiagramm der beschriebenen Klassen von MusicMashup \label{overflow}}
+\end{figure}
 
 % loest funktionen aus???
 \paragraph{Server} Die Klasse \textit{MusicMashupServer} stellt den Web-Server bereit und löst bei einem Aufruf der Anwendung weitere Funktionen aus. Wird nach einem Interpreten gesucht, wird für diesen Interpreten ein Objekt vom Typ MusicMashupArtist erstellt. Diesem wird entweder die Suchanfrage oder aber eine aus einer Empfehlung stammende DBpedia-URL übergeben, sollte eine Empfehlung angeklickt worden sein. Die eigentliche Programmlogik geschieht dann in diesem Objekt. Nachdem diese ausgeführt wurde, wird anschließend das HTML-Dokument gerendert und an den Browser ausgeliefert.
@@ -57,6 +61,12 @@ Der vom Benutzer eingegeben Input wird zunächst in Titlecase überführt. Das b
 Anschließend wird auf DBTune nach einer Ressource gesucht, deren \texttt{rdfs:label} mit der Eingabe des Nutzers übereinstimmt und die außerdem als rdf:type den Eintrag \texttt{mo:MusicArtist} hat. Wird eine Ressource gefunden, erhält das System die Musicbrainz ID des Artists sowie den Link zur DBPedia Ressource.
 
 Für den Fall, dass sich ein Artist nicht auf DBTune finden lässt, wird im Musicbrainz-Dump nach dem Artist gesucht. Statt \texttt{rdfs:label} kommt hier \texttt{foaf:name} zum Einsatz. Da im Musicbrainz-Dump kein Verweis auf den entsprechenden DBpedia-Eintrag vorhanden ist, muss auf der DBpedia selbst nach der entsprechenden Ressource gesucht werden.
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=137mm]{bilder/sequenzdiagramm.png}
+\caption{Zum gesuchten Künstler wird eine Ressource gefunden \label{overflow}}
+\end{figure}
 
 
 \subsubsection{Suche nach Recommendations}
