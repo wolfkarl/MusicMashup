@@ -6,14 +6,14 @@ Wir haben uns zum Ziel gesetzt, einen vollwertigen Musikempfehlungsdienst zu ent
 \paragraph{} Der Benutzer kann also ausgehend von einem Interpreten weitere entdecken. Genau diese Möglichkeit soll auch MusicMashup bieten. Der Benutzer gibt den Names eines Interpreten ein und bekommt passend zu diesem Empfehlungen. Klickt er eine dieser Empfehlungen an, werden ihm wiederum für diesen Interpret Empfehlungen angezeigt. 
 
 
-\paragraph{} Erweitert wird dies durch zusätzlichen Informationen und Funktionen. Die wohl wichtigste Zusatzfunktion ist ein eingebundener Spotify-Player, welcher die Möglichkeit bietet, sich direkt Musik des jeweiligen Künstlers anzuhören. Darüber hinaus wird eine Liste mit anstehenden Konzerten ausgegeben, sowie weiterführende Links, eine Bildergalerie und ein kurzer Abstract über den Artist. Damit der Benutzer nachvollziehen kann, wie er von einem Interpreten zum Nächsten gekommen ist, wird im Header der Seite eine Liste der zuvor betrachteten Interpreten angezeigt.
+\paragraph{} Erweitert wird dies durch zusätzliche Informationen und Funktionen. Die wohl wichtigste Zusatzfunktion ist ein eingebundener Spotify-Player, welcher die Möglichkeit bietet, sich direkt Musik des jeweiligen Künstlers anzuhören. Darüber hinaus wird eine Liste mit anstehenden Konzerten ausgegeben, sowie weiterführende Links, eine Bildergalerie und ein kurzer Abstract über den Artist. Damit der Benutzer nachvollziehen kann, wie er von einem Interpreten zum Nächsten gekommen ist, wird im Header der Seite eine Liste der zuvor betrachteten Interpreten angezeigt.
 
 \subsection{Technische Grundlagen des Servers}
 
 MusicMashup ist als so genannte Web-App realisiert und präsentiert sich dem Benutzer als interaktive Website, die er aus seinem Browser nutzen kann.
 
 Die programmatische Grundlage von MusicMashup bildet ein in Python geschriebener 
-HTTP-Server basierend auf dem cherrypy-Modul (Q6). Dieser Server wertet die Nutzeranfrage aus, führt die entsprechenden Abfragen durch und liefert die daraus generierten Empfehlungen mittels der Template-Engine mako (Q7) als Website aus. 
+HTTP-Server basierend auf dem \textit{cherrypy}-Modul (Q6). Dieser Server wertet die Nutzeranfrage aus, führt die entsprechenden Abfragen durch und liefert die daraus generierten Empfehlungen mittels der Template-Engine mako (Q7) als Website aus. 
 
 \subsection{Klassenstruktur}
 
@@ -23,7 +23,7 @@ HTTP-Server basierend auf dem cherrypy-Modul (Q6). Dieser Server wertet die Nutz
 
 %Bild: Klassendiagramm
 
-
+% loest funktionen aus???
 \paragraph{Server} Die Klasse \textit{MusicMashupServer} stellt den Web-Server bereit und löst bei einem Aufruf der Anwendung weitere Funktionen aus. Wird nach einem Interpreten gesucht, wird für diesen Interpreten ein Objekt vom Typ MusicMashupArtist erstellt. Diesem wird entweder die Suchanfrage oder aber eine aus einer Empfehlung stammende DBpedia-URL übergeben, sollte eine Empfehlung angeklickt worden sein. Die eigentliche Programmlogik geschieht dann in diesem Objekt. Nachdem diese ausgeführt wurde, wird anschließend das HTML-Dokument gerendert und an den Browser ausgeliefert.
 
 
