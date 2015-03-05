@@ -13,69 +13,6 @@
 \usepackage{soulutf8}
 \usepackage{color}    % Verwendung von Farben
 \usepackage{listings} % Korrekter Satz von Listings und Quellcode
-\usepackage{glossaries} % Zum Einbinden eines Glossars
-
-\newglossaryentry{UI}
-{
-	name=UI,
-	description={Abkürzung für User Interface, die grafische Oberfläche eines Systems}
-}
-
-\newglossaryentry{breadcrumbs}
-{
-	name=breadcrumbs,
-	description={Bei Breadcrumbs (“Brotkrümeln”) handelt es sich um einen (meist unter dem Header eines Systems) angezeigten Pfad, der dem Benutzer zeigt, über welche Schritte er an den aktuellen Ort gelangt ist}
-}
-
-\newglossaryentry{artist}
-{
-	name=Artist,
-	description={Ein Artist beschreibt jede Form einer in unserem System suchbaren Entität. Dabei kann es sich um Bands, Solokünstler etc. handeln}	
-}
-
-\newglossaryentry{edge-case}
-{
-	name=edge-case,
-	description={Eine Situation oder ein Problem, die/das auftritt, wenn das System mit extremen Parametern arbeitet}	
-}
-
-\newglossaryentry{uri}
-{
-	name=URI,
-	description={Uniform Resource Identifier, ein String, der eine Ressource eindeutig identifizierbar macht}	
-}
-
-\newglossaryentry{template-engine}
-{
-	name=Template-Engine,
-	description={eine Software, die Vorlagen-Dateien verarbeitet und Platzhalter durch aktuelle Inhalte ersetzt}	
-}
-
-\newglossaryentry{endpoint}
-{
-	name=Endpoint,
-	description={eine Schnittstelle, die von Systemen nach außen Angeboten wird, um bestimmte Daten nach außen Verfügbar zu machen}	
-}
-
-\newglossaryentry{dump}
-{
-	name=Dump,
-	description={ein (kompletter) Auszug aus einer Datenbank}	
-}
-
-\newglossaryentry{api}
-{
-	name=API,
-	description={Application Programming Interface, eine Menge an Funktionen, die ein System nach außen anbietet}	
-}
-
-\newglossaryentry{mashup}
-{
-	name=Mashup,
-	description={eine Anwendung, die mehrere verschiedene Datenquellen benutzt, um daraus einen Mehrwert zu schaffen}	
-}
-
-\makeglossaries
 
 %Hilfs-Fonts - ohne Serifen (hier für Tabellen)
 \newfont{\bib}{cmss8 scaled 1040}
@@ -93,7 +30,7 @@
 \parindent=0in
 
 \begin{document}          
-\glsaddall
+
 \begin{titlepage}
   \begin{center} 
     \mbox{}
@@ -165,5 +102,5 @@ Dabei stand neben Linked Data die Fragestellung im Mittelpunkt, wie sich das Sys
 \bibliography{references}
 \bibliographystyle{alphadin}
 
-\printglossaries
+
 \end{document}
