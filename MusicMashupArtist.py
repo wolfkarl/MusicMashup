@@ -297,7 +297,7 @@ class MusicMashupArtist:
 						artistObject.reason.append(reason)
 					# count += 1
 				self.recommendation.append(artistObject)
-				file.seek(seek, 0)
+				file.seek(seek, 0) #this one is kind of tricky. What we did here is jumping to a previously remembered line because otherwise we would skip every second recommendation in the ttl file.
 		file.close()
 
 	# ========================================================================================
